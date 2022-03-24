@@ -1,0 +1,27 @@
+[submodule "tvm"]
+	path = tvm
+	url = https://github.com/apache/tvm.git
+	branch = v0.8
+[submodule "3rdparty/dlpack"]
+	path = 3rdparty/dlpack
+	url = https://github.com/dmlc/dlpack.git
+[submodule "3rdparty/dmlc-core"]
+	path = 3rdparty/dmlc-core
+	url = https://github.com/dmlc/dmlc-core
+[submodule "3rdparty/rang"]
+	path = 3rdparty/rang
+	url = https://github.com/agauniyal/rang
+[submodule "3rdparty/vta-hw"]
+	path = 3rdparty/vta-hw
+	url = https://github.com/apache/incubator-tvm-vta
+[submodule "3rdparty/libbacktrace"]
+	path = 3rdparty/libbacktrace
+	url = https://github.com/tlc-pack/libbacktrace.git
+[submodule "3rdparty/protobuf"]
+	path = 3rdparty/protobuf
+	url = https://github.com/protocolbuffers/protobuf.git
+	branch = 3.16.x
+[submodule "3rdparty/onnx"]
+	path = 3rdparty/onnx
+	url = https://github.com/onnx/onnx.git
+	branch = rel-1.10.1
