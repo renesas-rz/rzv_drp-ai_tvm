@@ -1,3 +1,8 @@
+#
+#  Original code(C) Copyright EdgeCortix, Inc. 2022
+#  Modified Portion (C) Copyright Renesas Electronics Corporation 2022
+#
+
 if [[ $# -ne 6 ]]; then
   echo "${0} expected 6 parameters:"
   echo "  <drp_toolchain_dir>"
