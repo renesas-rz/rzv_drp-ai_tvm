@@ -1,7 +1,25 @@
 #
-#  Original code(C) Copyright EdgeCortix, Inc. 2022
+#  Original code (C) Copyright EdgeCortix, Inc. 2022
 #  Modified Portion (C) Copyright Renesas Electronics Corporation 2022
 #
+#   *1 DRP-AI TVM is powered by EdgeCortix MERA Compiler
+# 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
 import os
 import torch
@@ -19,7 +37,7 @@ from arg_parser import get_args
 
 if __name__ == "__main__":
     """
-    This is sample script of DRP-AI TVM compiler stack.
+    This is sample script of DRP-AI TVM[*1] compiler stack.
     Please set following argements to run.
      -o : Output directory name
      -s : Input shape of AI model
@@ -44,7 +62,7 @@ if __name__ == "__main__":
     input_name = "input0"
     shape_list = [(input_name, opts["input_shape"])]
 
-    # 3. Run DRP-AI TVM compiler 
+    # 3. Run DRP-AI TVM[*1] compiler 
     # 3.1 Run TVM Frontend
     print("-------------------------------------------------")
     print("   Run TVM frotend compiler ")

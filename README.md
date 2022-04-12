@@ -5,7 +5,7 @@
 [TVM github](https://github.com/apache/tvm) |
 
 
-DRP-AI TVM is Machine Learning Compiler plugin for [Apache TVM](https://github.com/apache/tvm/) provided by Renesas Electronics Corporation.
+DRP-AI TVM[^1] is Machine Learning Compiler plugin for [Apache TVM](https://github.com/apache/tvm/) provided by Renesas Electronics Corporation.
 
 ## License
 (C) Copyright EdgeCortix, Inc. 2022   
@@ -54,12 +54,12 @@ Download the *RZ/V2M Linux Package* and *DRP-AI Support Package* from the Softwa
 *1 OpenCV library is required to run application example provided in this repository ([Application Example](./apps)).  
 To install OpenCV, please see [How to install OpenCV](./apps#how-to-install-opencv-to-linux-package) in Application Example page.  
 
-### Installing DRP-AI TVM  
-Before installing DRP-AI TVM, please install the software listed in [Requirements](#requirements) and build image/SDK with RZ/V2M Linux Package and DRP-AI Support Package.  
+### Installing DRP-AI TVM[^1]  
+Before installing DRP-AI TVM[^1], please install the software listed in [Requirements](#requirements) and build image/SDK with RZ/V2M Linux Package and DRP-AI Support Package.  
 
 #### 1. Clone the respository.   
 ```sh
-git --recursive clone -b <git url.> drp-ai_tvm
+git clone --recursive -b v0.1 <git url.> drp-ai_tvm 
 ```
 
 #### 2. Set environment variables.  
@@ -86,7 +86,7 @@ apt-get install -y python3-pip
 pip3 install --upgrade pip
 apt-get -y install unzip vim
 pip3 install decorator attrs scipy numpy pytest onnx==1.9.0
-pip install torch==1.8.0 torchvision==0.9.0
+pip3 install torch==1.8.0 torchvision==0.9.0
 ```
 If an already recent gcc/g++ compiler is already the default one in the system then the next step is not necessary. If the system default version is **9 or higher** then we are ready. If that is not the case then we can make sure that gcc/g++-9 will be the default compiler by running:
 ```sh
@@ -109,27 +109,27 @@ wget https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxrunti
 tar -xvzf /tmp/onnxruntime.tar.gz -C /tmp/
 mv /tmp/onnxruntime-linux-x64-1.8.1/ /opt/
 ```
-Setup DRP-AI TVM environment.
+Setup DRP-AI TVM[^1] environment.
 ```sh
 cd <.../drp-ai_tvm>
 bash setup/make_drp_env.sh
 ```
 
-----   
+----
 
 ## Deploy AI models on DRP-AI
 ![drawing](./img/deploy_flow.png)  
 
-To deploy the AI model to DRP-AI on the target board, you need to compile the model with DRP-AI TVM to generate Runtime Model Data (Compile).  
+To deploy the AI model to DRP-AI on the target board, you need to compile the model with DRP-AI TVM[^1] to generate Runtime Model Data (Compile).  
 SDK generated from RZ/V Linux Package and DRP-AI Support Package is required to compile the model.  
 
 After compiled the model, you need to copy the file to the target board (Deploy).  
-You also need to copy the C++ inference application and DRP-AI TVM Runtime Library to run the AI model inference.  
-Moreover, since DRP-AI TVM does not support pre/post-processing of AI inference, OpenCV Library is essential.  
+You also need to copy the C++ inference application and DRP-AI TVM[^1] Runtime Library to run the AI model inference.  
+Moreover, since DRP-AI TVM[^1] does not support pre/post-processing of AI inference, OpenCV Library is essential.  
 
 Following pages show the example to compile the ResNet18 model and run it on the target board.  
 
-### Compile model with DRP-AI TVM
+### Compile model with DRP-AI TVM[^1]
 Please see [Tutorial](./tutorials).  
 
 ### Run inference on board
@@ -144,3 +144,6 @@ It includes the sample to solve specific problems, i.e.;
 
 ----
 For any enquiries, please contact Renesas.  
+
+[^1]: DRP-AI TVM is powered by EdgeCortix MERA Compiler
+

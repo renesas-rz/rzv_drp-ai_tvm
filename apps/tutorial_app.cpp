@@ -1,12 +1,32 @@
 /*
  * Original Code (C) Copyright Edgecortix, Inc. 2022
- * Modified Code (C) Copyright Renesas Electronics Corporation 2022　
+ * Modified Code (C) Copyright Renesas Electronics Corporation 2022
+ *　
+ *  *1 DRP-AI TVM is powered by EdgeCortix MERA Compiler
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
  */
 
 /***********************************************************************************************************************
 * File Name    : tutorial_app.cpp
 * Version      : 0.10
-* Description  : DRP-AI TVM Application Example
+* Description  : DRP-AI TVM[*1] Application Example
 ***********************************************************************************************************************/
 
 /*****************************************
@@ -185,11 +205,11 @@ int main(int argc, char** argv)
     double diff = 0;
     /* Input image file */
     std::string filename = "sample.bmp";
-    /* DRP-AI TVM Runtime object */
+    /* DRP-AI TVM[*1] Runtime object */
     MeraDrpRuntimeWrapper runtime;
 
     /* Model Binary */
-    std::string model_dir = "resnet18";
+    std::string model_dir = "resnet18_onnx";
 
     /* Load Label list */
     label_file_map = load_label_file(labels);

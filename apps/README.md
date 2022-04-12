@@ -1,10 +1,10 @@
-# DRP-AI TVM Application Example
+# DRP-AI TVM[^1] Application Example
 
 This page explains how to use the application provided in this directory, which is the example to run ResNet18 inference on the target board.
 
 ## Overview
-To run the inference with the AI model data compiled by DRP-AI TVM, inference application is necessary.  
-This application must use the DRP-AI TVM Runtime Library API and must be written in C++.  
+To run the inference with the AI model data compiled by DRP-AI TVM[^1], inference application is necessary.  
+This application must use the DRP-AI TVM[^1] Runtime Library API and must be written in C++.  
 Here, we explain how to compile and deploy the application example for ResNet 18, which is already compiled in [Compile AI models](../tutorials).
 
 ## File Configuration
@@ -20,7 +20,7 @@ Here, we explain how to compile and deploy the application example for ResNet 18
 
 ## Necessary Environment
 Please refer to [Installation](../#installation) to prepare the following environment.
-- DRP-AI TVM
+- DRP-AI TVM[^1]
 - RZ/V2M Linux Package with OpenCV (To install OpenCV, see [How to install OpenCV](#how-to-install-opencv-to-linux-package))
 - RZ/V2M DRP-AI Support Package
 
@@ -126,8 +126,8 @@ The application uses following C++ OpenCV functions as pre/post-processing.
 
 ---  
 # Appendix
-## DRP-AI TVM Runtime Library API
-Regarding the list of DRP-AI TVM Runtime API used in the application, please see [MERA Wrapper API References](../obj)
+## DRP-AI TVM[^1] Runtime Library API
+Regarding the list of DRP-AI TVM[^1] Runtime API used in the application, please see [MERA Wrapper API References](../obj)
 
 ## How to install OpenCV to Linux Package
 As a preparation, it is required to setup the Build Environment with Linux Package and DRP-AI Support Package.  
@@ -172,3 +172,5 @@ SRC_URI[sha256sum] = "b884300d26a14961a076fbebc762a39831cb75f92bed5ccf9836345b45
 ```
 ### 3. Bitbake
 Run the `bitbake` command as explained in the DRP-AI Support Package.  
+
+[^1]: DRP-AI TVM is powered by EdgeCortix MERA Compiler

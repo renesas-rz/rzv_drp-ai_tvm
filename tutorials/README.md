@@ -112,7 +112,7 @@ python3 compile_onnx_model.py \
 # At <drp-ai_tvm>/tutorials
 # Download resnet18 model from torchvision & save it as resnet18.pt
 python3 sample_save_torch_model.py
-# Run DRP-AI TVM Compiler script
+# Run DRP-AI TVM[*1] Compiler script
 python3 compile_pytorch_model.py \
     ./resnet18.pt \
     -o resnet18_torch \
@@ -206,3 +206,6 @@ Set **0xC0000000** to "addr_map_start" for Renesas RZ/V2M Evaluation Board Kit
 Using option `-c` or `--disable_concat` to disable concat, so concat operator will be moved to CPU part. Use this option when a runtime error occurs. By lowering the optimization level during compile, it reduces the risk of error occurrence in inference processing.
 Example :
 <img src=./img/concat_option.jpg width=400>  
+
+
+[*1]: DRP-AI TVM is powered by EdgeCortix MERA Compiler
