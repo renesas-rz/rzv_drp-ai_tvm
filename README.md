@@ -1,4 +1,4 @@
-# Extension package of TVM Deep Learning Complier for renesas DRP-AI accelerators powered by MERA&trade; compiler stack   
+# Extension package of TVM Deep Learning Complier for Renesas DRP-AI accelerators powered by EdgeCortix MERA&trade;
 
 [TVM Documentation](https://tvm.apache.org/docs) |
 [TVM Community](https://tvm.apache.org/community) |
@@ -145,5 +145,5 @@ It includes the sample to solve specific problems, i.e.;
 ----
 For any enquiries, please contact Renesas.  
 
-[^1]: DRP-AI TVM is powered by EdgeCortix MERA Compiler
+[^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
 

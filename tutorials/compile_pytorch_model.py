@@ -2,7 +2,7 @@
 #  Original code (C) Copyright EdgeCortix, Inc. 2022
 #  Modified Portion (C) Copyright Renesas Electronics Corporation 2022
 #
-#   *1 DRP-AI TVM is powered by EdgeCortix MERA Compiler
+#   *1 DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
 # 
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file

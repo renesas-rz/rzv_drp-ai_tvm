@@ -173,4 +173,4 @@ SRC_URI[sha256sum] = "b884300d26a14961a076fbebc762a39831cb75f92bed5ccf9836345b45
 ### 3. Bitbake
 Run the `bitbake` command as explained in the DRP-AI Support Package.  
 
-[^1]: DRP-AI TVM is powered by EdgeCortix MERA Compiler
+[^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.

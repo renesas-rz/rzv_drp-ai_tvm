@@ -208,4 +208,4 @@ Example :
 <img src=./img/concat_option.jpg width=400>  
 
 
-[*1]: DRP-AI TVM is powered by EdgeCortix MERA Compiler
+[*1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
