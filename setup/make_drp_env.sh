@@ -30,7 +30,6 @@ ln -s ./3rdparty/onnx ./tvm/3rdparty/onnx
 
 # Set DRP-plugin python code
 cp -r obj/python ./tvm/.
-cp apps/transform.h ./tvm/include/tvm/relay/.
 
 # Set libralies
 cp -r ./obj/build ./tvm/.

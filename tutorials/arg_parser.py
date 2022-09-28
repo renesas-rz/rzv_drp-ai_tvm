@@ -36,7 +36,7 @@ def get_args():
     parser.add_option("-o", "--output_dir", dest="output_dir", help="Output directory", metavar="DIR") # Pattern 2
     parser.add_option("-s", "--input_shape", dest="input_shape", help="User specified input shape")
     parser.add_option("-i", "--input_name", dest="input_name", help="Input name")
-    parser.add_option("-c", "--disable_concat", action="store_true", dest="disable_concat", default=False, help="Disable concat at DRP")
+    parser.add_option("--level",dest="level", default=1, help="Optimization level[0 or 1]")
     parser.add_option("-q", "--fp16", action="store_true", dest="fp16", help="Convert to FP16")
     (options, args) = parser.parse_args()
     opts = vars(options)
@@ -73,6 +73,12 @@ def get_args():
         input_shape = [1, 3, 224, 224]
         print("  Default input shape    : ", input_shape)
     opts["input_shape"] = input_shape
+
+    # Set optimize level
+    opts["disable_concat"] = False
+    if(opts["level"]=="0" or opts["level"]==0):
+        print("  Optimization level : LOW")
+        opts["disable_concat"] = True
     
     return opts, model_file
 

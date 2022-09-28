@@ -1,7 +1,12 @@
 # How to solve specific problems
 
-Currently under planning.  
+This directory contains the solution to specific problems related to DRP-AI TVM[^1].
+## Sample Application
+Under planning.  
 
-We are planning to list up the solution to specific problems related to DRP-AI TVM[^1].
+## Tips
+- [How to read compile log](tips/how-to-read-log.md)
+- [How to compare CPU vs DRP-AI TVM accuracy differences for ONNX model](tips/compare_difference)
+- [How to obtain profiling data](tips/profiling)
 
 [^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.

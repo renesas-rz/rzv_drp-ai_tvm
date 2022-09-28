@@ -90,7 +90,8 @@ python3 ${IDIR}/api_translator/scripts/run_translator.py \
   -f_in_onnx ${ONNX_FILE} \
   -f_out_prefix ${OUT}/${CNAME} \
   -opt_en_map_relu6_to_drp \
-  -perf
+  -perf \
+  -graph_splitter off
 
 RET_CODE=$?
 if [ ${RET_CODE} -ne 0 ]; then
