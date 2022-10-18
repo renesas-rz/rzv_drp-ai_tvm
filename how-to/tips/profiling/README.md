@@ -5,12 +5,12 @@ This page explains about profiling function of DRP-AI TVM[^1].
 
 ## Index
 - [Run Profiler](#run-profiler)  
-- [Extract Subgraph Information](#extract-relay-(subgraph)-information)  
+- [Extract Subgraph Information](#extract-subgraph-information)  
 
 ## Run Profiler
 ### Get Profiling Data
 DRP-AI TVM[^1] has profiling funcion, which shows the processing time for each subgraph assigned to CPU/DRP-AI.
-It can be run in the application that runs on the target board, i.e., [Application Example](../../apps).
+It can be run in the application that runs on the target board, i.e., [Application Example](../../../apps).
 
 To use the profiling function, call `ProfileRun()` function in the application source code instead of `Run()` function, which is normal inference function.  
 Folllowing is example code.  
@@ -74,7 +74,7 @@ root@rzv2ma:~# python3 profile_reader.py profile_table.txt
 DRP-AI TVM[^1] generates subgraph in Relay and assign them to CPU/DRP-AI to be computed.  
 This subgraph information can be obtained when compiling the AI model.
 As default, it will be printed on console.
-To save the subgraph information into a file, please modify the compiling script, i.e., [`compile_onnx_model.py`](../../tutorials) as below.  
+To save the subgraph information into a file, please modify the compiling script, i.e., [`compile_onnx_model.py`](../../../tutorials) as below.  
 
 #### Before : compile_onnx_model.py L78~L85
 ```py

@@ -17,7 +17,7 @@ To prepare this environment, following files are provided in this directory.
 
 ## 2. Compile
 ### 1. Preparation  
-1. Prepare the necessary environment as explained in [Get Started](../../../).  
+1. Prepare the necessary environment as explained in [Get Started](../../../README.md).  
 
 2. Copy the `compile_onnx_model_with_reference.py` script to `<drp-ai_tvm>/tutorials` directory.  
 ```sh
@@ -74,7 +74,7 @@ To see more details, please refer to the `compile_onnx_model_with_reference.py`.
 
 ## 3. Deploy
 ### 1. Preparation
-1. Prepare the RZ/V2x Linux and the target board as explained in [Get Started Installation](../../../#installation) and [Application Tutorial](../../../apps).  
+1. Prepare the RZ/V2x Linux and the target board as explained in [Get Started Installation](../../../README.md#installation) and [Application Tutorial](../../../apps).  
 
 2. Backup the original files in `<drp-ai_tvm>/apps` directory.  
 ```sh
@@ -97,9 +97,9 @@ Copy the following files to the rootfs of Boot Environment.
 
 | Name | Path | Details |  
 |:---|:---|:---|  
-|Runtime Library | `drp-ai_tvm/obj/build_runtime/libtvm_runtime.so`|Binary provided under [obj](../obj/build_runtime) directory.|  
+|Runtime Library | `drp-ai_tvm/obj/build_runtime/libtvm_runtime.so`|Binary provided under [obj](../../../obj/build_runtime) directory.|  
 |Model Data | `drp-ai_tvm/tutorials/resnet18_reference`|Model compiled with input and reference data.|  
-|Application |`drp-ai_tvm/apps/build/inference_comparison` | Compiled in this [page](#compile-the-application). |  
+|Application |`drp-ai_tvm/apps/build/inference_comparison` | Compiled in this [page](#2-compile-the-application). |  
 
 The rootfs should look like below.
 ```sh

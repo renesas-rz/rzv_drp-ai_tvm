@@ -47,10 +47,14 @@ Requirements are listed below.
     - [RZ/V2MA DRP-AI Support Package v7.20](#rzv-software)  
 
 ##### DRP-AI Translator
-Download the DRP-AI Translator v1.80 from the Software section in [DRP-AI](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai#software) and install it by following the *User's Manual*.   
+Download the DRP-AI Translator v1.80 from the Software section in [DRP-AI](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai#software) and install it by following the *User's Manual*.  
 
 ##### RZ/V Software
-Download the *RZ/V2MA Linux Package* and *DRP-AI Support Package* from [Renesas Web Page](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai) and **build image/SDK** according to the *DRP-AI Support Package Release Note* *1.  
+Download the *RZ/V2MA DRP-AI Support Package* from [Renesas Web Page](https://www.renesas.com/products/microcontrollers-microprocessors/rz-mpus/rzv-embedded-ai-mpus#software_amp_tools).  
+To use the *DRP-AI Support Package*, *Linux Package* is required.  
+*RZ/V2MA Linux Package* can be found in the page of *DRP-AI Support Package*.    
+
+After you donloaded the packages, **build image/SDK** according to the *DRP-AI Support Package Release Note* *1.  
 
 ### Installing DRP-AI TVM[^1]  
 Before installing DRP-AI TVM[^1], please install the software listed in [Requirements](#requirements) and build image/SDK with RZ/V2MA Linux Package and DRP-AI Support Package.  
@@ -67,7 +71,7 @@ Note that environment variables must be set every time when opening the terminal
 export TVM_HOME=<.../drp-ai_tvm>/tvm                # Your own path to the cloned repository.
 export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
 export SDK=</opt/poky/3.1.14>                       # Your own RZ/V2MA Linux SDK path.
-export TRANSLATOR=<.../drp-ai_translator/>          # Your own DRP-AI Translator path.
+export TRANSLATOR=<.../drp-ai_translator_release/>  # Your own DRP-AI Translator path.
 ```
 #### 3. Install the minimal pre-requisites.   
 ```sh

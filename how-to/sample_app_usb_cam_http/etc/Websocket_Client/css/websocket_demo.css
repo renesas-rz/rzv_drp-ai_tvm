@@ -1,0 +1,88 @@
+/*
+ * websocket_demo.css
+ *
+ * Copyright (c) 2022 Renesas Electronics Corp.
+ * This software is released under the MIT License,
+ * see https://opensource.org/licenses/MIT
+ */
+
+tr.at { background-color: #DDDDFF; border-color: #c0c0c0; }
+
+body{
+    background-color: #3d4c60;
+    color: #FDFDFD;
+    text-align: center;
+    padding: 5px;
+    margin: 0px;
+}
+p {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+textarea {
+    width: 100%;
+    height: 180px;
+    overflow: scroll;
+    resize: none;
+}
+label {
+    float: right;
+}
+
+#title{
+    font-size:50px;
+    margin:30px 0px 10px 0px;
+    }
+#pulldown {
+    margin: 0px 100% 90px 0px;
+    width: 640px;
+}
+.graph{
+    background-color: white;
+}
+.row{
+    margin-bottom: 10px;
+}
+.col-xl-12 {
+    margin: 10px;
+}
+.col-xl-6 {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.col-xl-6.text_left {
+    padding-left: 0;
+}
+.col-xl-6.text_right {
+    padding-right: 0;
+}
+
+.side_left {
+    justify-content: flex-end;
+}
+.side_right {
+    justify-content: flex-start;
+}
+.movie_info {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.text_info {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.model {
+    width: 640px;
+}
+.annotation {
+    text-align: left;
+    padding: 5px;
+    margin: 10px;
+}

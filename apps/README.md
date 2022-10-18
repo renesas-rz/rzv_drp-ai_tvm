@@ -20,7 +20,7 @@ Here, we explain how to compile and deploy the application example for ResNet 18
 |README.md |This file. Instructions to use the application.|  
 
 ## Necessary Environment
-Please refer to [Installation](../#installation) to prepare the following environment.
+Please refer to [Installation](../README.md#installation) to prepare the following environment.
 - DRP-AI TVM[^1]
 - RZ/V2MA Linux Package
 - RZ/V2MA DRP-AI Support Package
@@ -30,7 +30,7 @@ This page assumes that the above environment has already prepared and following 
 export TVM_HOME=<.../drp-ai_tvm>/tvm                # Your own path to the cloned repository.
 export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
 export SDK=</opt/poky/3.1.14>                       # Your own RZ/V2MA Linux SDK path.
-export TRANSLATOR=<.../drp-ai_translator/>          # Your own DRP-AI Translator path.
+export TRANSLATOR=<.../drp-ai_translator_release/>  # Your own DRP-AI Translator path.
 ```
 
 ## How to Compile the Application

@@ -1,8 +1,9 @@
 # How to solve specific problems
 
-This directory contains the solution to specific problems related to DRP-AI TVM[^1].
+This directory contains the solution to specific problems related to DRP-AI TVM[^1].  
+
 ## Sample Application
-Under planning.  
+- [Sample Application for USB Camera](sample_app_usb_cam_http)
 
 ## Tips
 - [How to read compile log](tips/how-to-read-log.md)
