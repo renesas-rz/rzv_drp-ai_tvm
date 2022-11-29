@@ -1,5 +1,4 @@
 # How to obtain profiling data
-*Updated on 2022/9/29.*
 
 This page explains about profiling function of DRP-AI TVM[^1].
 

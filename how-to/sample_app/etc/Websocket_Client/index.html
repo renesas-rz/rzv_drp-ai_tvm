@@ -1,0 +1,103 @@
+<!--
+ * index.html
+ *
+ * Copyright (c) 2022 Renesas Electronics Corp.
+ * This software is released under the MIT License,
+ * see https://opensource.org/licenses/MIT
+ -->
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WebSocket Demo</title>
+    <link rel="stylesheet" href="./libs/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/websocket_demo.css" />
+  </head>
+
+  <body>
+    <div>
+      <h1 id="title">DRP-AI TVM<sup>*1</sup> USB Camera Demo</h1>
+    </div>
+    <div>
+      <h2 id="ai_name">Select AI model from the dropdown list.</h2>
+      <h3 id="caution">AI description will be shown here. </h3>
+      <h5 id="ai_description"> </br> </h5>
+    </div>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xl-6 side_left">
+          <div class="movie">
+            <canvas id="default_canvas" width="640" height="480"></canvas>
+            <div class="movie_info">
+              <p class="subtitle">Capture Image</p>
+              <p class="now_time">00:00:00</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-6 side_right">
+          <div class="movie">
+            <canvas id="pred_canvas" width="640" height="480"></canvas>
+            <div class="movie_info">
+              <p class="subtitle">Inference Result</p>
+              <p class="now_time">00:00:00</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xl-6 side_left">
+          <div class="graph">
+            <canvas id="graph_canvas" width="640" height="320"></canvas>
+          </div>
+        </div>
+        <div class="col-xl-6 side_right">
+          <div class="model">
+            <div id="pulldown">
+              <label>Selected AI Model
+                <select name="change_model" id="change_model">
+                  <option value="" hidden>select model...</option>
+                  <!-- <option value="YOLOv3">YOLOv3</option>
+                  <option value="HRNet">HRNet</option>
+                  <option value="ResNet50">ResNet50</option>
+                  <option value="TinyYOLOv2">TinyYOLOv2</option> -->
+                  <option value="TVM_DRPAI_DEEPPOSE">DeepPose (DRP-AI)</option>
+                  <option value="TVM_CPU_DEEPPOSE">DeepPose (CPU)</option>
+                  <option value="TVM_DRPAI_YOLOV3">YOLOv3 (DRP-AI)</option>
+                  <option value="TVM_DRPAI_TINYYOLOV3">Tiny YOLOv3 (DRP-AI)</option>
+                  <option value="TVM_DRPAI_YOLOV2">YOLOv2 (DRP-AI)</option>
+                  <option value="TVM_DRPAI_TINYYOLOV2">Tiny YOLOv2 (DRP-AI)</option>
+                  <option value="TVM_DRPAI_ULTRAFACE">UltraFace (DRP-AI)</option>
+                  <option value="TVM_DRPAI_HRNET">HRNet (DRP-AI)</option>
+                </select>
+              </label>
+            </div>
+            <div class="text_info">
+              <div class="col-xl-6 text_left">
+                <p class="subtitle">Recognition Info</p>
+                <textarea id="pred_window"></textarea>
+              </div>
+              <div class="col-xl-6 text_right">
+                <p class="subtitle">Proc Time</p>
+                <textarea id="drp_window"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./libs/jquery-3.4.1.min.js"></script>
+    <script src="./libs/bootstrap.min.js"></script>
+    <script src="./libs/Chart.min.js"></script>
+    <script src="./libs/moment.min.js"></script>
+    <script src="./js/websocket_demo.js"></script>
+
+    <div class="annotation">
+    <h6>
+    *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
+    </h6>
+  </body>
+</html>

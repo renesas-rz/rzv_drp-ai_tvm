@@ -1,5 +1,4 @@
 # How to read the Compile log
-*Updated on 2022/9/29.*
 
 This page explains about tips to know more about the compiled AI model from the console log.
 To see how to compile the model, please refer to [Tutorial](../../tutorials).
