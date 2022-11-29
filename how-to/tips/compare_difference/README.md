@@ -1,5 +1,4 @@
 # How to compare CPU vs DRP-AI TVM[^1] accuracy differences for ONNX model
-*Updated on 2022/9/29.*
 
 This page explains how to confirm how far the DRP-AI TVM[^1] inference accuracy differs from the one on PC.  
 The target model is ONNX.   
