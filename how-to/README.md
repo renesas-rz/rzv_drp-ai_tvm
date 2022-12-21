@@ -21,21 +21,21 @@ This directory contains the solution to specific problems related to DRP-AI TVM[
 </tr>
 <tr>
     <td align="center"><a href="sample_app/docs/face_detection/ultraface"><img src="img/face_detection.png"></a></td>
-    <td align="center"><a href="sample_app/docs"><img src="img/2d_hand_estimation_dev.png"></a></td>
-    <td align="center"><a href="sample_app/docs"><img src="img/expression_dev.png"></a></td>
+    <td align="center"><a href="sample_app/docs/hand_landmark_localization/hrnetv2"><img src="img/2d_hand_estimation.png"></a></td>
+    <td align="center"><a href="sample_app/docs/emotion_recognition/emotion_ferplus"><img src="img/emotion.png"></a></td>
 </tr>
 <tr>
     <td align="center"><a href="sample_app/docs/face_detection/ultraface">Face Detection</a></td>
-    <td align="center">Hand Landmark Localization </td>
-    <td align="center">Face Expression Recognition </td>
+    <td align="center"><a href="sample_app/docs/hand_landmark_localization/hrnetv2">Hand Landmark Localization</a></td>
+    <td align="center"><a href="sample_app/docs/emotion_recognition/emotion_ferplus">Emotion Recognition</a></td>
 </tr>
 <tr>
-    <td align="center"><a href=""><img src="img/classification_dev.png"></a></td>
+    <td align="center"><a href="sample_app/docs/classification/googlenet"><img src="img/classification.png"></a></td>
     <td align="center"><a href=""><img src="img/semantic_segmentation_dev.png"></a></td>
     <td align="center"><a href=""><img src="img/age_classification_dev.png"></a></td>
 </tr>
 <tr>
-    <td align="center">Classification </td>
+    <td align="center"><a href="sample_app/docs/classification/googlenet">Classification</a></td>
     <td align="center">Semantic Segmentation </td>
     <td align="center">Age Classification </td>
 </tr>

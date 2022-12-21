@@ -40,7 +40,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_base.h
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -57,16 +57,17 @@
 #include <queue>
 
 #include "../includes.h"
-// #include "../recognize/tvm/MeraDrpRuntimeWrapper.h"
-// #include "../recognize/tvm/PreRuntime.h"
 #include "../camera/camera.h"
 #include "../util/system_analyzer.h"
 #include "../ws_server.h"
 #include "common/recognize_define.h"
 #include "common/MeraDrpRuntimeWrapper.h"
-// #include "common/PreRuntime.h"
 #include "irecognize_model.h"
 #include "recognize_data.h"
+#include "../command/app_message.h"
+/*For two models processing*/
+#include "../command/object_detection.h"
+
 
 #define WAIT_TIME               (1000) /* microseconds */
 /*Timer Related*/
@@ -81,23 +82,30 @@ public:
     ~RecognizeBase() {}
 
     int32_t initialize(IRecognizeModel* model);
+    /*For running two models in 1 loop.*/
+    int32_t initialize(IRecognizeModel* model, IRecognizeModel* model_2);
+
     virtual int32_t recognize_start();
     virtual void recognize_end();
-
 
 private:
     static void* capture_thread(void* arg);
     static void* tvm_inference_thread(void* arg);
     static void* framerate_thread(void* arg);
-    void inference_preprocess(void* arg, float** out_ptr, uint32_t* out_size);
-    void inference_postprocess(void* arg, recognizeData_t& data);
+    void inference_preprocess(void* arg, uint8_t model_id, uint32_t width, uint32_t height, float** out_ptr, uint32_t* out_size);
+    void inference_postprocess(void* arg, uint8_t model_id, recognizeData_t& data);
+    void send_result(void* arg, uint8_t model_id, recognizeData_t& data);
     int32_t end_all_threads();
     void close_camera();
     int8_t wait_join(pthread_t* p_join_thread, uint32_t join_time);
     double timedifference_msec(struct timespec t0, struct timespec t1);
-    int32_t  get_time(timespec& time_t);
+    int32_t get_time(timespec& time_t);
     string get_send_image(uint8_t* image);
 
+    void send_app_message(string message);
+
+    int8_t file_exist(std::string filename);
+    int8_t model_exist(std::string dir);
 
 private:
 
@@ -141,6 +149,31 @@ private:
     shared_ptr<WebsocketServer> _server;
 
     LinuxSystemAnalyzer _analyzer;
+
+    /*For two model application*/
+    shared_ptr<IRecognizeModel>  _model_2;
+    
+    std::string dir_2;
+    int32_t cap_w_2;
+    int32_t cap_h_2;
+    int32_t cap_c_2;
+    int32_t model_w_2;
+    int32_t model_h_2;
+    int32_t model_c_2;
+    uint8_t mode_2 = MODE_TVM_UNKNOWN;
+    int32_t _outBuffSize_2;
+
+    constexpr static int32_t YUY2_NUM_CHANNEL   = (2);
+    constexpr static int32_t YUY2_NUM_DATA      = (4);
+
+    constexpr static int8_t MODEL_OBJ_NUM       = (3);
+    std::string model_obj_names[MODEL_OBJ_NUM] = 
+    {
+        "deploy.json",
+        "deploy.params",
+        "deploy.so"
+    };
+
 
 };
 

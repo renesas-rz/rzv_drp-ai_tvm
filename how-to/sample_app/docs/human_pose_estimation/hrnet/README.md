@@ -13,9 +13,33 @@ This page explains about Human Pose Estimation in the [sample application](../..
 Dataset: [COCO](https://cocodataset.org/#home)  
 Input size: 1x3x256x192  
 Output size: 1x17x64x48  
-  
-### ONNX format model
- Here, we follow this [tutorial](https://mmpose.readthedocs.io/en/latest/tutorials/5_export_model.html#prerequisite) to convert HRNet model provided by MMPose into ONNX format. The MMpose version we checked is v0.26.0.    
+
+### How to compile the model
+To run the Human Pose Estimation, `hrnet_onnx` Model Object is required.  
+
+#### Operating Environment
+- mmcv-full v1.5.1  
+- MMPose v0.26.0  
+
+#### Compile onnx model
+Follow the instuction below to prepare the HRNet Model Object.  
+
+1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
+2. Follow the [MMPose tutorial](https://mmpose.readthedocs.io/en/latest/tutorials/5_export_model.html#prerequisite) to convert HRNet model provided by MMPose into ONNX format. 
+3. Next, run the sample script [compile_onnx_model.py](../../../../../tutorials/compile_onnx_model.py) as shown below.  
+Make sure to change the `addr_map_start` setting in `compile_onnx_model.py` to `0x438E0000`.  
+The output directory name `hrnet_onnx` is used in the sample application and should not be changed.  
+
+```sh
+# Run DRP-AI TVM[*1] Compiler script
+$ python3 compile_onnx_model.py \
+./hrnet.onnx \
+-o hrnet_onnx \
+-s 1,3,256,192 \
+-i input.1
+```
+4. Confirm that three files, deploy.so, deploy.params, and deploy.json, have been created in the `hrnet_onnx` directory.  
+5. Copy the `hrnet_onnx` directory into the execution environment directory where the compiled sample application sample_app_drpai_tvm_usbcam_http is located.  
 
 ## Processing Details
 ### DRP-AI mode
@@ -38,7 +62,6 @@ First, crop process is executed by CPU. Then pre-processing is done by DRP-AI Pr
 
 #### Inference
 The Object files `hrnet_onnx` are generated from HRNet pre-trained model provided by MMPose framework as described in [Model Information](#model-information).  
-Please refer to [Compile Tutorial](../../../../../tutorials) for more details on compiling model.
 
 #### Post-processing
 Post-processing is processed by CPU.

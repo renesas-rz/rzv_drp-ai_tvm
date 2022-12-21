@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_yolo.h
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -35,9 +35,9 @@
 #include "../../includes.h"
 #include "../common/box.h"
 #include "../common/functions.h"
-#include "../common/yolo_common.h"
-#include "../command/object_detection.h"
+#include "../common/object_detection.h"
 #include "../common/PreRuntime.h"
+#include "../command/object_detection.h"
 
 class TVM_YOLO_DRPAI : public IRecognizeModel
 {
@@ -73,8 +73,8 @@ private:
 public:
     TVM_YOLO_DRPAI();
     TVM_YOLO_DRPAI(uint8_t id);
-    virtual int32_t inf_pre_process_drpai(uint32_t addr, float** arg, uint32_t* buf_size);
-    virtual int32_t inf_pre_process_cpu(uint8_t* input_data, float** output_buf);
+    virtual int32_t inf_pre_process
+        (uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size);
     virtual int32_t inf_post_process(float* arg);
     virtual shared_ptr<PredictNotifyBase> get_command();
     virtual int32_t print_result();

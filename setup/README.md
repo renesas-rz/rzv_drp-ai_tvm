@@ -53,16 +53,13 @@ pip3 install --upgrade pip
 apt-get -y install unzip vim
 pip3 install decorator attrs scipy numpy pytest onnx==1.9.0
 pip3 install torch==1.8.0 torchvision==0.9.0
-```
 
-Installing ONNX Runtime Library from precompiled release package.
-```sh
 # Install onnx runtime
 wget https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-linux-x64-1.8.1.tgz -O /tmp/onnxruntime.tar.gz
 tar -xvzf /tmp/onnxruntime.tar.gz -C /tmp/
 mv /tmp/onnxruntime-linux-x64-1.8.1/ /opt/
 ```
-Setup DRP-AI TVM[^1] environment.
+### 4. Setup DRP-AI TVM[^1] environment.
 ```sh
 cd <.../drp-ai_tvm>
 bash setup/make_drp_env.sh

@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : functions.h
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -30,7 +30,7 @@
 * Includes
 ******************************************/
 #include "../../includes.h"
-using namespace std;
+
 class CommonFunc
 {
 public :
@@ -42,7 +42,7 @@ public :
      */
 	static double sigmoid(double x)
 	{
-		return 1.0 / (1.0 + exp(-x));
+		return 1.0 / (1.0 + std::exp(-x));
 	}
 
    /**
@@ -63,7 +63,7 @@ public :
 
         for (i = 0; i < num_class; i++)
         {
-            val[i] = (float)exp(val[i] - max_num);
+            val[i] = (float)std::exp(val[i] - max_num);
             sum += val[i];
         }
 
@@ -72,6 +72,40 @@ public :
             val[i] = val[i] / sum;
         }
         return;
+    }
+
+    
+   /**
+    * @brief load_label_file
+    * @details Load label list text file and return the label list that contains the label.
+    * @param label_file_name filename of label list. must be in txt format
+    * @return vector<string> list contains labels. empty if error occured
+    */
+    static std::vector<std::string> load_label_file(std::string label_file_name)
+    {
+        std::vector<std::string> list = {};
+        std::vector<std::string> empty = {};
+        std::ifstream infile(label_file_name);
+
+        if (!infile.is_open())
+        {
+            std::cerr << "[ERROR] Failed to open label list txt : " << label_file_name << std::endl;
+            return list;
+        }
+
+
+        std::string line = "";
+        while (getline(infile, line))
+        {
+            list.push_back(line);
+            if (infile.fail())
+            {
+                std::cerr << "[ERROR] Failed to read label list txt : " << label_file_name << std::endl;
+                return empty;
+            }
+        }
+
+        return list;
     }
 };
 

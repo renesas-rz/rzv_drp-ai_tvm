@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_cpu_deeppose.cpp
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -39,17 +39,33 @@ TVM_DeepPose_CPU::TVM_DeepPose_CPU() :
     image_resize.create(TVM_MODEL_IN_H, TVM_MODEL_IN_W, CV_8UC3);
     image_float.create(TVM_MODEL_IN_H, TVM_MODEL_IN_W,  CV_32FC3);
 }
-
 /**
- * @brief inf_pre_process_cpu
- * @details Run pre-processing using CPU
+ * @brief inf_pre_process
+ * @details Run pre-processing.
+ * @details For CPU input, use input_data for input data.
+ * @details For DRP-AI input, use addr for input data stored address
  * @param input_data Input data pointer
- * @param output_buf Output data buffer pointer holder
+ * @param width new input data width.
+ * @param height new input data width.
+ * @param addr Physical address of input data buffer
+ * @param out output_buf Output data buffer pointer holder
+ * @param out buf_size Output data buffer size holder
  * @return int32_t success:0 error: != 0
  */
-int32_t TVM_DeepPose_CPU::inf_pre_process_cpu(uint8_t* input_data, float** output_buf)
+int32_t TVM_DeepPose_CPU:: inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size)
 {
-    pre_process_cpu(input_data, output_buf);
+    /*Update width and height*/
+    if ((width != _capture_w) || (height != _capture_h)) 
+    {
+        _capture_w = width;
+        _capture_h = height;
+        image.release();
+        image.create(_capture_h, _capture_w, CV_8UC2);
+        image_rgb.release();
+        image_rgb.create(_capture_h, _capture_w, CV_8UC3);
+    }
+
+    pre_process_cpu(input_data, arg);
     return 0;
 }
 /**
@@ -83,7 +99,7 @@ int32_t TVM_DeepPose_CPU::print_result()
 /**
  * @brief get_command
  * @details Prepare the command to send via HTTP
- * @return shared_ptr<PredictNotifyBase> Pose detection print_result
+ * @return shared_ptr<PredictNotifyBase> result data
  */
 shared_ptr<PredictNotifyBase> TVM_DeepPose_CPU::get_command()
 {

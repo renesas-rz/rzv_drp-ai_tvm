@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_ultraface.cpp
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -48,30 +48,31 @@ TVM_UltraFace_DRPAI::TVM_UltraFace_DRPAI() : IRecognizeModel(TVM_MODEL_OUT_SIZE,
     model_dir = TVM_MODEL_DIR;
     std::cout << "DRP-AI TVM UltraFace model" << std::endl;
 }
-
 /**
- * @brief inf_pre_process_drpai
- * @details Run pre-processing using Pre-processing Runtime (DRP-AI)
+ * @brief inf_pre_process
+ * @details Run pre-processing.
+ * @details For CPU input, use input_data for input data.
+ * @details For DRP-AI input, use addr for input data stored address
+ * @param input_data Input data pointer
+ * @param width new input data width.
+ * @param height new input data width.
  * @param addr Physical address of input data buffer
  * @param out output_buf Output data buffer pointer holder
  * @param out buf_size Output data buffer size holder
  * @return int32_t success:0 error: != 0
  */
-int32_t TVM_UltraFace_DRPAI::inf_pre_process_drpai(uint32_t addr, float** arg, uint32_t* buf_size)
+int32_t TVM_UltraFace_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size)
 {
+    /*Update width and height*/
+    if ((width != _capture_w) || (height != _capture_h)) 
+    {
+        _capture_w = width;
+        _capture_h = height;
+        in_param.pre_in_shape_w = _capture_w;
+        in_param.pre_in_shape_h = _capture_h;
+    }
+
     pre_process_drpai(addr, arg, buf_size);
-    return 0;
-}
-/**
- * @brief inf_pre_process_cpu
- * @details Run pre-processing using CPU
- * @param input_data Input data pointer
- * @param out output_buf Output data buffer pointer holder
- * @return int32_t success:0 error: != 0
- */
-int32_t TVM_UltraFace_DRPAI:: inf_pre_process_cpu(uint8_t* input_data, float** output_buf)
-{
-    /*Do nothing*/
     return 0;
 }
 /**
@@ -94,13 +95,13 @@ int32_t TVM_UltraFace_DRPAI::inf_post_process(float* arg)
  */
 int32_t TVM_UltraFace_DRPAI::print_result()
 {
-    YoloCommon::print_boxes(postproc_data, label_file_map);
+    ObjectDetectionFunc::print_boxes(postproc_data, label_file_map);
     return 0;
 }
 /**
  * @brief get_command
  * @details Prepare the command to send via HTTP
- * @return shared_ptr<PredictNotifyBase> Pose detection result data
+ * @return shared_ptr<PredictNotifyBase> Result data
  */
 shared_ptr<PredictNotifyBase> TVM_UltraFace_DRPAI::get_command()
 {
@@ -181,5 +182,11 @@ int8_t TVM_UltraFace_DRPAI::post_process(std::vector<detection>& det, float* flo
     }
     /* Non-Maximum Supression filter */
     filter_boxes_nms(det, det.size(), ULTRAFACE_TH_NMS);
+
+    /*For pre face detection */
+    /*Note that for running single UltraFace, this process is not required. */
+    detected_data.resize(det.size());
+    std::copy(det.begin(), det.end(), detected_data.begin());
+    
     return 0;
 }
