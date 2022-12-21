@@ -71,6 +71,9 @@
                   <option value="TVM_DRPAI_TINYYOLOV2">Tiny YOLOv2 (DRP-AI)</option>
                   <option value="TVM_DRPAI_ULTRAFACE">UltraFace (DRP-AI)</option>
                   <option value="TVM_DRPAI_HRNET">HRNet (DRP-AI)</option>
+                  <option value="TVM_DRPAI_HRNETV2">HRNetv2 (DRP-AI)</option>
+                  <option value="TVM_DRPAI_GOOGLENET">GoogleNet (DRP-AI)</option>
+                  <option value="TVM_DRPAI_EMOTIONFP">Emotion FERPlus (DRP-AI)</option>
                 </select>
               </label>
             </div>
@@ -88,7 +91,17 @@
         </div>
       </div>
     </div>
-
+    <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="dialog" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">         
+          <div class="modal-body">
+            <p class="text-title" style="color:red">Error!</p>
+            <p class="text-body" id="dialog-text">-</p>
+            <p class="text-close" style="color:red">Please close the browser to terminate the application</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="./libs/jquery-3.4.1.min.js"></script>
     <script src="./libs/bootstrap.min.js"></script>
     <script src="./libs/Chart.min.js"></script>

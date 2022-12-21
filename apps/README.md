@@ -190,7 +190,7 @@ Provided fixed sequence is as follows.
 
 | No. | Function | Details |   
 |:---|:---|:---|  
-| 1 |conv_yuv2rgb |Convert YUY2 to RGB. <br>Default input size is 4196x2160.|  
+| 1 |conv_yuv2rgb |Convert YUY2 to RGB. <br>Default input size is 4096x2160.|  
 | 2 |resize |Resize to specified size. <br>Default is 640x640. |  
 | 3 |cast_to_fp16 | Cast data to FP16 for DRP-AI.|  
 | 4 |normalize | Normalize pixel values with mean and standard deviation.  <br>Default value are mean=[0, 0, 0] and std=[1/255, 1/255, 1/255].|  

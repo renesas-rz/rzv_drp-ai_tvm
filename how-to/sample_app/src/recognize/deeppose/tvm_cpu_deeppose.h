@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_cpu_deeppose.h
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -39,17 +39,9 @@
 class TVM_DeepPose_CPU : public IRecognizeModel
 {
 private:
-
-#ifdef MODEL_VGA
     constexpr static string_view TVM_MODEL_DIR = "face_deeppose_cpu";
     constexpr static  int32_t TVM_DRPAI_IN_WIDTH = (640);
     constexpr static  int32_t TVM_DRPAI_IN_HEIGHT = (480);
-#else
-    constexpr static string_view TVM_MODEL_DIR = "face_deeppose_cpu_fhd";
-    constexpr static  int32_t TVM_DRPAI_IN_WIDTH = (1920);
-    constexpr static  int32_t TVM_DRPAI_IN_HEIGHT = (1080);
-
-#endif
 
     /*DeepPose Related*/
     constexpr static string_view MODEL_NAME = "DRP-AI TVM DeepPose (CPU)";
@@ -64,7 +56,7 @@ private:
 
 public:
     TVM_DeepPose_CPU();
-    virtual int32_t inf_pre_process_cpu(uint8_t* input_data, float** output_buf);
+    virtual int32_t inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size);
     virtual int32_t inf_post_process(float* arg);
     virtual shared_ptr<PredictNotifyBase> get_command();
     virtual int32_t print_result();

@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_data.h
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -39,14 +39,19 @@ public:
      */
     shared_ptr<float> predict_result;
     /**
-     * @brief drp processig time
+     * @brief inference processig time
      *
      */
-    float drp_time_ms;
+    float inf_time_ms;
     /**
-     * @brief drp pre-processig time
+     * @brief pre-processig time
      *
      */
     float preproc_time_ms;
+    /**
+     * @brief post-processig time
+     *
+     */
+    float postproc_time_ms;
 };
 #endif //RECOGNIZE_DATA_H

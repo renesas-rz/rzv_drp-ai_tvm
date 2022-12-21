@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_yolo.cpp
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -48,7 +48,7 @@ TVM_YOLO_DRPAI::TVM_YOLO_DRPAI(uint8_t id) : IRecognizeModel(0, TVM_MODEL_DIR_YO
     /*Load label list for YOLOv3/TinyYOLOv3 */
     if (id == MODE_TVM_YOLOV3_DRPAI || id == MODE_TVM_TINYYOLOV3_DRPAI )
     {
-        label_file_map = YoloCommon::load_label_file(LABEL_LIST.data());
+        label_file_map = CommonFunc::load_label_file(LABEL_LIST.data());
     }
     num_class = label_file_map.size();
 
@@ -139,37 +139,38 @@ TVM_YOLO_DRPAI::TVM_YOLO_DRPAI(uint8_t id) : IRecognizeModel(0, TVM_MODEL_DIR_YO
 
     outBuffSize = num_inf_out;
 }
-
 /**
- * @brief inf_pre_process_drpai
- * @details Run pre-processing using Pre-processing Runtime (DRP-AI)
+ * @brief inf_pre_process
+ * @details Run pre-processing.
+ * @details For CPU input, use input_data for input data.
+ * @details For DRP-AI input, use addr for input data stored address
+ * @param input_data Input data pointer
+ * @param width new input data width.
+ * @param height new input data width.
  * @param addr Physical address of input data buffer
  * @param out output_buf Output data buffer pointer holder
  * @param out buf_size Output data buffer size holder
  * @return int32_t success:0 error: != 0
  */
-int32_t TVM_YOLO_DRPAI::inf_pre_process_drpai(uint32_t addr, float** arg, uint32_t* buf_size)
+int32_t TVM_YOLO_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size)
 {
+    /*Update width and height*/
+    if ((width != _capture_w) || (height != _capture_h)) 
+    {
+        _capture_w = width;
+        _capture_h = height;
+        in_param.pre_in_shape_w = _capture_w;
+        in_param.pre_in_shape_h = _capture_h;
+    }
+
     pre_process_drpai(addr, arg, buf_size);
     return 0;
 }
 /**
- * @brief inf_pre_process_cpu
- * @details Run pre-processing using CPU
- * @param input_data Input data pointer
- * @param out output_buf Output data buffer pointer holder
- * @return int32_t success:0 error: != 0
- */
-int32_t TVM_YOLO_DRPAI:: inf_pre_process_cpu(uint8_t* input_data, float** output_buf)
-{
-    /*Do nothing*/
-    return 0;
-}
-/**
  * @brief inf_post_process
- * @details  implementation post process
- * @param arg
- * @return int32_t
+ * @details Run post-processing
+ * @param arg Inference output data pointer
+ * @return int32_t success:0 error: != 0
  */
 int32_t TVM_YOLO_DRPAI::inf_post_process(float* arg)
 {
@@ -185,13 +186,13 @@ int32_t TVM_YOLO_DRPAI::inf_post_process(float* arg)
  */
 int32_t TVM_YOLO_DRPAI::print_result()
 {
-    YoloCommon::print_boxes(postproc_data, label_file_map);
+    ObjectDetectionFunc::print_boxes(postproc_data, label_file_map);
     return 0;
 }
 /**
  * @brief get_command
  * @details Prepare the command to send via HTTP
- * @return shared_ptr<PredictNotifyBase> Pose detection result data
+ * @return shared_ptr<PredictNotifyBase> Result data
  */
 shared_ptr<PredictNotifyBase> TVM_YOLO_DRPAI::get_command()
 {
@@ -295,12 +296,12 @@ int8_t TVM_YOLO_DRPAI::post_process(std::vector<detection>& det, float* floatarr
             {
                 for (x = 0; x < num_grid; x++)
                 {
-                    offs = YoloCommon::yolo_offset(n, b, y, x, num_grids.data(), num_bb, label_file_map.size());
+                    offs = ObjectDetectionFunc::yolo_offset(n, b, y, x, num_grids.data(), num_bb, label_file_map.size());
                     tx = floatarr[offs];
-                    ty = floatarr[YoloCommon::yolo_index(num_grid, offs, 1)];
-                    tw = floatarr[YoloCommon::yolo_index(num_grid, offs, 2)];
-                    th = floatarr[YoloCommon::yolo_index(num_grid, offs, 3)];
-                    tc = floatarr[YoloCommon::yolo_index(num_grid, offs, 4)];
+                    ty = floatarr[ObjectDetectionFunc::yolo_index(num_grid, offs, 1)];
+                    tw = floatarr[ObjectDetectionFunc::yolo_index(num_grid, offs, 2)];
+                    th = floatarr[ObjectDetectionFunc::yolo_index(num_grid, offs, 3)];
+                    tc = floatarr[ObjectDetectionFunc::yolo_index(num_grid, offs, 4)];
 
                     /* Compute the bounding box */
                     /*get_yolo_box/get_region_box in paper implementation*/
@@ -338,11 +339,11 @@ int8_t TVM_YOLO_DRPAI::post_process(std::vector<detection>& det, float* floatarr
                         {
                             if (_id == MODE_TVM_YOLOV3_DRPAI ||_id == MODE_TVM_TINYYOLOV3_DRPAI )
                             {
-                                classes[i] = CommonFunc::sigmoid(floatarr[YoloCommon::yolo_index(num_grid, offs, 5 + i)]);
+                                classes[i] = CommonFunc::sigmoid(floatarr[ObjectDetectionFunc::yolo_index(num_grid, offs, 5 + i)]);
                             }
                             else // For YOLOv2/TinyYOLOv2
                             {
-                                classes[i] = floatarr[YoloCommon::yolo_index(num_grid, offs, 5 + i)];
+                                classes[i] = floatarr[ObjectDetectionFunc::yolo_index(num_grid, offs, 5 + i)];
                             }
                         }
                     }
