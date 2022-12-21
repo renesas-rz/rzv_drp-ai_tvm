@@ -6,6 +6,18 @@
  * see https://opensource.org/licenses/MIT
  */
 
+const ID_Unknown   =  0;
+const ID_DEEPPOSE   = 1;
+const ID_YOLOV3     = 2;
+const ID_TINYYOLOV3 = 3;
+const ID_YOLOV2     = 4;
+const ID_TINYYOLOV2 = 5;
+const ID_ULTRAFACE  = 6;
+const ID_HRNET      = 7;
+const ID_HRNETV2    = 8;
+const ID_GOOGLENET  = 9;
+const ID_EMOTIONFP  = 10;
+
 // let socket = new WebSocket('ws://localhost:3000/ws/', 'graph-update');
 let socket = new WebSocket('ws://192.168.1.11:3000/ws/');
 let predCanvas = document.getElementById('pred_canvas');
@@ -27,6 +39,8 @@ defaultCtx.font = '12pt Arial';
 predCtx.fillStyle = 'darkgray';
 predCtx.fillRect(0, 0, 640, 480);
 predCtx.font = '12pt Arial';
+
+let model_id = ID_Unknown;
 
 let startTime = null;
 
@@ -100,6 +114,8 @@ function inputChange(event) {
       caution.innerHTML= "<font>Please get close to the camera at around 20cm.";
       caution.style.color="#FFD700";
       aiDescription.innerHTML = "If your face is too far from the camera, the localization may fail.";
+      aiDescription.style.color ="";
+      model_id = ID_DEEPPOSE;
   }
   else if (event.currentTarget.value == "TVM_DRPAI_YOLOV3")
   {
@@ -107,6 +123,8 @@ function inputChange(event) {
       caution.innerHTML= "Detects 80 class of objects.";
       caution.style.color="";
       aiDescription.innerHTML = "</br>";
+      aiDescription.style.color ="";
+      model_id = ID_YOLOV3;
   }
   else if (event.currentTarget.value == "TVM_DRPAI_TINYYOLOV3")
   {
@@ -114,6 +132,8 @@ function inputChange(event) {
       caution.innerHTML= "Detect 80 class of objects.";
       caution.style.color="";
       aiDescription.innerHTML = "</br>";
+      aiDescription.style.color ="";
+      model_id = ID_TINYYOLOV3;
   }
   else if (event.currentTarget.value == "TVM_DRPAI_YOLOV2")
   {
@@ -121,6 +141,8 @@ function inputChange(event) {
       caution.innerHTML= "Detect 20 class of objects.";
       caution.style.color="";
       aiDescription.innerHTML = "</br>";
+      aiDescription.style.color ="";
+      model_id = ID_YOLOV2;
   }
   else if (event.currentTarget.value == "TVM_DRPAI_TINYYOLOV2")
   {
@@ -128,6 +150,8 @@ function inputChange(event) {
       caution.innerHTML= "Detect 20 class of objects.";
       caution.style.color="";
       aiDescription.innerHTML = "</br>";
+      aiDescription.style.color ="";
+      model_id = ID_TINYYOLOV2;
   }
   else if (event.currentTarget.value == "TVM_DRPAI_ULTRAFACE")
   {
@@ -135,6 +159,8 @@ function inputChange(event) {
       caution.innerHTML= "Detect Human Faces.";
       caution.style.color="";
       aiDescription.innerHTML = "</br>";
+      aiDescription.style.color ="";
+      model_id = ID_ULTRAFACE;
   }
   else if (event.currentTarget.value == "TVM_DRPAI_HRNET")
   {
@@ -142,6 +168,35 @@ function inputChange(event) {
       caution.innerHTML= "<font>Please adjust the camera so that the whole body appears within the box.";
       caution.style.color="#FFD700";
       aiDescription.innerHTML = "Single person only. It does not support more than one person.</br>";
+      aiDescription.style.color ="";
+      model_id = ID_HRNET;
+  }
+  else if (event.currentTarget.value == "TVM_DRPAI_HRNETV2")
+  {
+      aiName.innerHTML = "HRNetV2: Hand Landmark Localization";
+      caution.innerHTML= "<font>Please adjust the camera so that the hand above the wrist is inside the box.";
+      caution.style.color="#FFD700";
+      aiDescription.innerHTML = "Single hand only. It does not support more than one hand.</br>";
+      aiDescription.style.color ="";
+      model_id = ID_HRNETV2;
+  }
+  else if (event.currentTarget.value == "TVM_DRPAI_GOOGLENET")
+  {
+      aiName.innerHTML = "GoogleNet: Classification";
+      caution.innerHTML= "Classify object in the frame.";
+      caution.style.color="";
+      aiDescription.innerHTML = "</br>";
+      aiDescription.style.color ="";
+      model_id = ID_HRNETV2;
+  }
+  else if (event.currentTarget.value == "TVM_DRPAI_EMOTIONFP")
+  {
+      aiName.innerHTML = "Emotion FERPlus: Emotion Recognition";
+      caution.innerHTML= "Classify the human face expression. For face detection, UltraFace is used.";
+      caution.style.color="";
+      aiDescription.innerHTML ="<font>Pre-processing time includes entire Face Detection and Emotion FERPlus pre-processing. All processing time is cummurative value for detected boxes.</br>";
+      aiDescription.style.color ="#FFD700";
+      model_id = ID_EMOTIONFP;
   }
 }
 
@@ -206,6 +261,26 @@ function measureProcessingTime(ctx, nowTime) {
   // console.log('----------------------------------------');
 }
 
+/* application message */
+let disp_application_message = null;
+
+let is_dialog_shown= false;
+$('#dialog').on('show.bs.modal', function (e) {
+  is_dialog_shown=true;
+  console.log('shown');
+  //document.getElementById('dialog-text').innerHTML = disp_application_message.join("<hr>");
+  if(disp_application_message!=null)
+  {
+    document.getElementById('dialog-text').innerText = disp_application_message;
+  }
+});
+$('#dialog').on('hidden.bs.modal', function (e) {
+  is_dialog_shown=false;
+  console.log('hidden');
+  //disp_application_message.splice(0);
+  disp_application_message=null;
+});
+
 $(() => {
   socket.onmessage = function (event) {
     // Calculate process time
@@ -261,7 +336,12 @@ $(() => {
       predCtx.strokeStyle = 'blue';
       predCtx.fillStyle = 'blue';
       defaultCtx.fillStyle = 'blue';
-
+      if ((model_id == ID_ULTRAFACE) || (model_id == ID_EMOTIONFP))
+      {
+        predCtx.strokeStyle = 'yellow';
+        predCtx.fillStyle = 'yellow';
+        defaultCtx.fillStyle = 'yellow';
+      }
       predData = datas.Value.predict;
       len = predData.length;
 
@@ -282,7 +362,7 @@ $(() => {
         h[i] = Number(predStr.H);
 
         if (i !== 0) {
-            if (cls[i] == "")
+            if (model_id == ID_ULTRAFACE )
             {
                 predDatas[i] = '\n' + pred[i] + ' %\t' +
                     'X: ' + (x[i] + "   ").slice(0, 4)+
@@ -296,7 +376,7 @@ $(() => {
             }
         }
         else {
-            if (cls[i] == "")
+            if (model_id == ID_ULTRAFACE )
             {
                 predDatas[i] = pred[i] + ' %\t' +
                     'X: ' + (x[i] + "   ").slice(0, 4)+
@@ -333,7 +413,7 @@ $(() => {
         measureProcessingTime(predCtx, nowTime);
       }
 
-      // Calculate & Display DRP process time
+      // Calculate & Display process time
       drpData = 'Inference time:' + '\t' + Number.parseFloat(datas.Value.drp_time).toFixed(2) + ' ms\n' +
                 'Pre-process time:' + '\t' + Number.parseFloat(datas.Value.pre_time).toFixed(2) + ' ms\n' +
                 'Post-process time:' + '\t' + Number.parseFloat(datas.Value.post_time).toFixed(2) + ' ms\n';
@@ -344,9 +424,9 @@ $(() => {
     // HRNet
     else if (datas.command_name === 'pose_detection') {
       predCtx.linewidth = 8;
-      predCtx.strokeStyle = "#FFF450";//'yellow';
+      predCtx.strokeStyle = "yellow";
       predCtx.fillStyle = 'yellow';
-      defaultCtx.fillStyle = "#FFF450";//'yellow';
+      defaultCtx.fillStyle = "yellow";
 
       predData = datas.Value.predict;
       len = predData.length;
@@ -370,7 +450,7 @@ $(() => {
         predCtx.drawImage(webcam, 0, 0, predCanvas.width, predCanvas.height);
 
 
-        if(len > 17) {
+        if (model_id == ID_DEEPPOSE) {
           // Draw Inference Crop Range (VGA: X = 185/ Y = 0/ Width = 270/ Height = 480)
           predCtx.strokeRect(80 * ratio_w, 2 * ratio_h, 480 * ratio_w, 476 * ratio_h);
           predCtx.fillText("Please fit your face into this yellow box.", (80 + 5) * ratio_w, (datas.Value.img_org_h - 5) * ratio_h);
@@ -384,7 +464,52 @@ $(() => {
             drawKeyPoint(predCtx, predData[i], ratio_w, ratio_h);
           }
         }
-        else {
+        else if (model_id == ID_HRNETV2) {
+	        // Draw Inference Crop Range (VGA: X = 80/ Y = 0/ Width = 480/ Height = 480)
+	        predCtx.strokeRect(80 * ratio_w, 0 * ratio_h, 480 * ratio_w, 480 * ratio_h);
+	        predCtx.fillText("Please align this position", (80 + 5) * ratio_w, (datas.Value.img_org_h - 5) * ratio_h);
+
+	        // Draw hand
+          predCtx.beginPath();
+          predCtx.strokeStyle = 'aqua';
+	        drawLine(predCtx, predData, 0, 1, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 1, 2, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 2, 3, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 3, 4, ratio_w, ratio_h);
+          predCtx.beginPath();
+          predCtx.strokeStyle = 'fuchsia';
+	        drawLine(predCtx, predData, 0, 5, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 5, 6, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 6, 7, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 7, 8, ratio_w, ratio_h);
+          predCtx.beginPath();
+          predCtx.strokeStyle = 'yellow';
+	        drawLine(predCtx, predData, 0, 9, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 9, 10, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 10, 11, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 11, 12, ratio_w, ratio_h);
+          predCtx.beginPath();
+          predCtx.strokeStyle = 'blue';
+	        drawLine(predCtx, predData,  0, 13, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 13, 14, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 14, 15, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 15, 16, ratio_w, ratio_h);
+          predCtx.beginPath();
+          predCtx.strokeStyle = 'lime';
+	        drawLine(predCtx, predData,  0, 17, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 17, 18, ratio_w, ratio_h);
+	        drawLine(predCtx, predData, 18, 19, ratio_w, ratio_h);
+          drawLine(predCtx, predData, 19, 20, ratio_w, ratio_h);
+
+	        console.log('ratio_w ' + ratio_w);
+	        console.log('ratio_h ' + ratio_h);
+
+	        // Draw keypoint and display inference info
+	        for (i = 0; i < len; i++) {
+	          drawKeyPoint(predCtx, predData[i], ratio_w, ratio_h);
+	        }
+        }
+        else if (model_id == ID_HRNET) {
 	        // Draw Inference Crop Range (VGA: X = 184/ Y = 0/ Width = 270/ Height = 480)
 	        predCtx.strokeRect(184 * ratio_w, 0 * ratio_h, 270 * ratio_w, 480 * ratio_h);
 	        predCtx.fillText("Please stand here", (185 + 5) * ratio_w, (datas.Value.img_org_h - 5) * ratio_h);
@@ -424,7 +549,7 @@ $(() => {
         measureProcessingTime(predCtx, nowTime);
       }
 
-      // Calculate & Display DRP process time
+      // Calculate & Display process time
       drpData = 'Inference time:' + '\t' + Number.parseFloat(datas.Value.drp_time).toFixed(2) + ' ms\n' +
                 'Pre-process time:' + '\t' + Number.parseFloat(datas.Value.pre_time).toFixed(2) + ' ms\n' +
                 'Post-process time:' + '\t' + Number.parseFloat(datas.Value.post_time).toFixed(2) + ' ms\n';
@@ -433,8 +558,8 @@ $(() => {
       predWindowData.value = predDatas;
       drpWindowData.value = drpData;
     }
-    // ResNet50
-    else if (datas.command_name === 'classfication_detection') {
+    // GoogleNet
+    else if (datas.command_name === 'classification') {
       predCtx.linewidth = 8;
       predCtx.strokeStyle = 'red';
       predCtx.fillStyle = 'red';
@@ -452,10 +577,10 @@ $(() => {
         pred[i] = Number.parseFloat(predStr.pred).toFixed(2);
 
         if (i !== 0) {
-          predDatas[i] = '\n' + cls[i] + ' :\t' + pred[i] + ' %';
+          predDatas[i] = '\n' + pred[i] + '% :\t' + cls[i] + ' ';
         }
         else {
-          predDatas[i] = cls[i] + ' :\t' + pred[i] + ' %';
+          predDatas[i] = pred[i] + '% :\t' + cls[i];
         }
       }
 
@@ -473,13 +598,27 @@ $(() => {
         measureProcessingTime(predCtx, nowTime);
       }
 
-      // Calculate & Display DRP process time
+      // Calculate & Display process time
       drpData = 'Inference time:' + '\t' + Number.parseFloat(datas.Value.drp_time).toFixed(2) + ' ms\n' +
                 'Pre-process time:' + '\t' + Number.parseFloat(datas.Value.pre_time).toFixed(2) + ' ms\n' +
                 'Post-process time:' + '\t' + Number.parseFloat(datas.Value.post_time).toFixed(2) + ' ms\n';
 
       predWindowData.value = predDatas;
       drpWindowData.value = drpData;
+    }
+    else if(datas.command_name === 'app_message')
+    {
+          console.debug(datas.Value.message);
+          if(disp_application_message ==null)
+          {
+            disp_application_message = datas.Value.message;
+          }
+          if(is_dialog_shown ==false)
+          {
+            $('#dialog').modal({
+              backdrop: 'static'
+            });
+          }
     }
   }
 })

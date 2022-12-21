@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_define.h
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -36,6 +36,7 @@
 #define TENTATIVE                   /*Will be deleted in the future */
 
 /*Define Mode*/
+#define MODE_TVM_UNKNOWN             (0b00000000)
 /*For DRP-AI TVM, value must be more than or equal to 0b10000000(128) */
 #define MODE_TVM_MIN                (0b10000000)
 /*For DRP-AI TVM DRP-AI mode, LSB must be 0. */
@@ -54,5 +55,11 @@
 #define MODE_TVM_HRNET_CPU          (0b10001011)
 #define MODE_TVM_ULTRAFACE_DRPAI    (0b10001100)
 #define MODE_TVM_ULTRAFACE_CPU      (0b10001101)
+#define MODE_TVM_HRNETV2_DRPAI      (0b10001110)
+#define MODE_TVM_HRNETV2_CPU        (0b10001111)
+#define MODE_TVM_GOOGLENET_DRPAI    (0b10010000)
+#define MODE_TVM_GOOGLENET_CPU      (0b10010001)
+#define MODE_TVM_EMOTIONFP_DRPAI    (0b10010010)
+#define MODE_TVM_EMOTIONFP_CPU      (0b10010011)
 
 #endif // !RECOGNIE_DEFINE_H

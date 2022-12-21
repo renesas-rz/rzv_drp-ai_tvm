@@ -42,7 +42,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_base.cpp
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 ***********************************************************************************************************************/
 
@@ -97,6 +97,20 @@ void print_measure_log(string item, string log)
 }
 
 /**
+ * @brief send_app_message
+ * @details send message to web client
+ * @param message to send
+ */
+void RecognizeBase::send_app_message(string message)
+{
+    AppMessage app_mes;
+    app_mes.message = message.c_str();
+    printf("Send application message to web client.[%s]\n",message.c_str());
+    _server->send_command(app_mes.CreateRequest());
+}
+
+
+/**
  * @brief float16_to_float32
  * @details Function by Edgecortex. Convert uin16_t number into float value.
  * @param a float16 number
@@ -132,10 +146,60 @@ int32_t RecognizeBase::initialize(IRecognizeModel* model)
     model_h = _model->_model_h;
     model_c = _model->_model_c;
     mode = _model->_id;
+    mode_2 = MODE_TVM_UNKNOWN;
 
     return 0;
 }
 
+/**
+ * @brief initialize
+ * @details Initialization for recognize process that uses two models.
+ * @param model Model to be run first
+ * @param model2 Model to be run second
+ * @return int32_t success:0 error: != 0
+ */
+int32_t RecognizeBase::initialize(IRecognizeModel* model, IRecognizeModel* model_2)
+{
+    std::cout << "############ INIT ############" << std::endl;
+    std::cout << "############ MODEL 1 ############" << std::endl;
+    _model = shared_ptr<IRecognizeModel>(move(model));
+
+    std::cout << "[INFO] Model     :" << _model->model_name << std::endl;
+    std::cout << "[INFO] Directory :" << _model->model_dir << std::endl;
+    std::cout << "[INFO] outbuff   :" << _model->outBuffSize << std::endl;
+
+    _outBuffSize = _model->outBuffSize;
+    dir = _model->model_dir + "/";
+
+    cap_w = _model->_capture_w;
+    cap_h = _model->_capture_h;
+    cap_c = _model->_capture_c;
+    model_w = _model->_model_w;
+    model_h = _model->_model_h;
+    model_c = _model->_model_c;
+    mode = _model->_id;
+
+    std::cout << "############ MODEL 2 ############" << std::endl;
+    _model_2 = shared_ptr<IRecognizeModel>(move(model_2));
+
+
+    std::cout << "[INFO] Second Model     :" << _model_2->model_name << std::endl;
+    std::cout << "[INFO] Second Model Directory :" << _model_2->model_dir << std::endl;
+    std::cout << "[INFO] Second Model outbuff   :" << _model_2->outBuffSize << std::endl;
+
+    _outBuffSize_2 = _model_2->outBuffSize;
+    dir_2 = _model_2->model_dir + "/";
+
+    cap_w_2 = _model_2->_capture_w;
+    cap_h_2 = _model_2->_capture_h;
+    cap_c_2 = _model_2->_capture_c;
+    model_w_2 = _model_2->_model_w;
+    model_h_2 = _model_2->_model_h;
+    model_c_2 = _model_2->_model_c;
+    mode_2 = _model_2->_id;
+
+    return 0;
+}
 /**
  * @brief recognize_start
  * @details Start recognition
@@ -157,6 +221,7 @@ int32_t RecognizeBase::recognize_start()
     if (0 != ret)
     {
         fprintf(stderr, "[ERROR] Failed to initialize USB Camera.\n");
+        send_app_message("Failed to initialize USB Camera.\nCheck the camera connection.");
         return -1;
     }
 
@@ -168,7 +233,8 @@ int32_t RecognizeBase::recognize_start()
     int32_t create_thread_cap = pthread_create(&_pthread_capture, NULL, capture_thread, this);
     if (0 != create_thread_cap)
     {
-        fprintf(stderr, "[ERROR] Failed to create AI Inference Thread.\n");
+        fprintf(stderr, "[ERROR] Failed to create Capture Thread.\n");
+        send_app_message("Failed to create Capture Thread.\nRestart the application.");
         return -1;
     }
 
@@ -184,6 +250,7 @@ int32_t RecognizeBase::recognize_start()
     if (0 != create_thread_ai)
     {
         fprintf(stderr, "[ERROR] Failed to create AI Inference Thread.\n");
+        send_app_message("Failed to create AI Inference Thread.\nRestart the application.");
         return -1;
     }
 
@@ -195,6 +262,7 @@ int32_t RecognizeBase::recognize_start()
     if (0 != framerate_thread_cap)
     {
         fprintf(stderr, "[ERROR] Failed to create Framerate Thread.\n");
+        send_app_message("Failed to create Framerate Thread.\nRestart the application.");
         return -1;
     }
 
@@ -284,10 +352,10 @@ void* RecognizeBase::capture_thread(void* arg)
 #endif
 
         me->_camera_frame_count.store(me->_camera_frame_count.load() + 1);
-
         if (0 == capture_addr)
         {
             fprintf(stderr, "[ERROR] Failed to _capture image from camera.\n");
+            me->send_app_message("Failed to _capture image from camera.\nRestart the application.");
             break;
         }
         else
@@ -334,6 +402,7 @@ void* RecognizeBase::capture_thread(void* arg)
         if (0 != ret)
         {
             fprintf(stderr, "[ERROR] Failed to enqueue _capture buffer.\n");
+            me->send_app_message("Failed to enqueue _capture buffer.\nRestart the application.");
             break;
         }
     } /*End of Loop*/
@@ -370,9 +439,12 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
     float preproc_time = 0;
     /* DRP-AI TVM[*1] Runtime object */
     MeraDrpRuntimeWrapper runtime;
+    MeraDrpRuntimeWrapper runtime_2;
     /*Pre-processing output buffer pointer (DRP-AI TVM[*1] input data)*/
     float* pre_output_ptr;
     uint32_t out_size;
+    float* pre_output_ptr_2;
+    uint32_t out_size_2;
 
     /*Inference Variables*/
     int32_t inf_cnt = -1;
@@ -381,15 +453,37 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
     /*Inference output buffer*/
     shared_ptr<float> drpai_output_buf;
     recognizeData_t data;
+    InOutDataType input_data_type;
+    InOutDataType input_data_type_2;
 
     printf("Inference Thread Starting\n");
+
+    if (!me->model_exist(me->dir))
+    { 
+        fprintf(stderr, "Please prepare the Model Object according to the GitHub (https://github.com/renesas-rz/rzv_drp-ai_tvm)\n");
+        me->send_app_message("Failed to load Model Object : "+me->dir+"\nPrepare the Model Object according to the GitHub (https://github.com/renesas-rz/rzv_drp-ai_tvm)");
+        return 0;
+    }
 
     /*DRP-AI TVM[*1]::Load model_dir structure and its weight to runtime object */
     runtime.LoadModel(me->dir);
 
     /*DRP-AI TVM[*1]::Get input data type*/
-    auto input_data_type = runtime.GetInputDataType(0);
+    input_data_type = runtime.GetInputDataType(0);
 
+    if (MODE_TVM_UNKNOWN != me->mode_2)
+    {
+        if (!me->model_exist(me->dir_2))
+        {
+            fprintf(stderr, "Please prepare the Model Object according to the GitHub (https://github.com/renesas-rz/rzv_drp-ai_tvm)\n");
+            me->send_app_message("Failed to load Model Object : "+me->dir_2+"\nPrepare the Model Object according to the GitHub (https://github.com/renesas-rz/rzv_drp-ai_tvm)");
+            return 0;
+        }
+        /*DRP-AI TVM[*1]::Load model_dir structure and its weight to runtime object */
+        runtime_2.LoadModel(me->dir_2);
+        /*DRP-AI TVM[*1]::Get input data type*/
+        input_data_type_2 = runtime_2.GetInputDataType(0);
+    }
     /*Inference Loop Start*/
     while (me->_inf_running)
     {
@@ -404,7 +498,7 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
         }
         /*Pre-process*/
         me->get_time(start_time);
-        me->inference_preprocess(arg, &pre_output_ptr, &out_size);
+        me->inference_preprocess(arg, me->mode, me->cap_w, me->cap_h, &pre_output_ptr, &out_size);
         me->get_time(end_time);
         preproc_time = (float)((me->timedifference_msec(start_time, end_time)));
         print_measure_log("AI preprocess Time", preproc_time, "ms");
@@ -419,7 +513,8 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
         else
         {
             std::cerr << "[ERROR] Input data type : not FP32." << std::endl;
-            return 0;
+            me->send_app_message("Unsupported Input data type: not FP32.");
+            break;
         }
 
         /**DRP-AI TVM[*1]::Start Inference*/
@@ -440,18 +535,19 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
         auto output_num = runtime.GetNumOutput();
         drpai_output_buf.reset(new float[me->_outBuffSize], std::default_delete<float[]>());
         size_count = 0;
+        /*GetOutput loop*/
         for (int i = 0;i<output_num;i++)
         {
             /* DRP-AI TVM[*1]::Get the output including meta-data, i.e. data-type */
             auto output_buffer = runtime.GetOutput(i);
             /*Output Data Size = std::get<2>(output_buffer). */
-            int64_t out_size = std::get<2>(output_buffer);
+            int64_t output_size = std::get<2>(output_buffer);
             /*Output Data Type = std::get<0>(output_buffer)*/
             if (InOutDataType::FLOAT16 == std::get<0>(output_buffer))
             {
                 /*Output Data = std::get<1>(output_buffer)*/
                 uint16_t* data_ptr = reinterpret_cast<uint16_t*>(std::get<1>(output_buffer));
-                for (int j = 0; j<out_size; j++)
+                for (int j = 0; j<output_size; j++)
                 {
                     /*FP16 to FP32 conversion*/
                     drpai_output_buf.get()[j + size_count]=float16_to_float32(data_ptr[j]);
@@ -461,32 +557,204 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
             {
                 /*Output Data = std::get<1>(output_buffer)*/
                 float* data_ptr = reinterpret_cast<float*>(std::get<1>(output_buffer));
-                for (int j = 0; j<out_size; j++)
+                for (int j = 0; j<output_size; j++)
                 {
                     drpai_output_buf.get()[j + size_count]=data_ptr[j];
                 }
             }
             else
             {
-                std::cerr << "[ERROR] Output data type : not floating point type." << std::endl;
+                std::cerr << "[ERROR] Output data type : not floating point." << std::endl;
+                me->send_app_message("Unsupported Output data type: not floating point.");
+                ret = -1;
                 break;
             }
-            size_count += out_size;
+            size_count += output_size;
+        }
+        /*Error check in the GetOutput loop*/
+        if (0 != ret)
+        {
+            break;
         }
 
         /*Fill AI Inference result structure*/
         data.predict_image = me->input_data;
         data.predict_result = move(drpai_output_buf);
-        data.drp_time_ms = ai_time;
+        data.inf_time_ms = ai_time;
         data.preproc_time_ms = preproc_time;
+
         /*Post-process start (AI inference result postprocess + image compress + JSON data sending)*/
-        me->inference_postprocess(arg, data);
+        me->inference_postprocess(arg, me->mode, data);
+
+        /*Second model processing starts*/
+        uint32_t second_inf_cnt = 0;
+        if (MODE_TVM_UNKNOWN != me->mode_2)
+        {
+            float ai_time_2 = 0;
+            float preproc_time_2 = preproc_time + ai_time + data.postproc_time_ms;
+            /*Delete the Model 1 postprocessing time */
+            data.postproc_time_ms = 0;
+            int32_t x = 0;
+            int32_t y = 0;
+            int32_t w = 0;
+            int32_t h = 0;
+            int32_t top = 0;
+            int32_t bottom = 0;
+            int32_t left = 0;
+            int32_t right = 0;
+            int32_t index = 0;
+            uint8_t first_input_data[me->cap_w*me->cap_h*me->cap_c];
+            /*Copy the capture data to temporary buffer*/
+            std::memcpy(first_input_data, me->input_data, me->cap_w*me->cap_h*me->cap_c*sizeof(uint8_t));
+            
+            /*Get face detection result*/
+            std::vector<detection> res = me->_model->detected_data;
+            me->_model_2->detected_data.clear();
+
+            /*Detection loop*/
+            for (detection detected : res)
+            {
+                if (0 == detected.prob) continue;
+                
+                me->get_time(start_time);
+
+                /*Copy the detected data to second model object*/
+                me->_model_2->detected_data.push_back(detected);
+
+                /*Crop detected area*/
+                x = (int32_t) detected.bbox.x;
+                y = (int32_t) detected.bbox.y;
+                w = (int32_t) detected.bbox.w;
+                h = (int32_t) detected.bbox.h;
+                /*CPU YUYV only supports even number width.*/
+                if (0!= (w % 2))
+                {
+                    if (0 > (w-1)) w -= 1;
+                    else w += 1;
+                }
+                if (0 > x) x = 0;
+                if (me->cap_w - w <= x) x = me->cap_w - w - 1;
+                if (0 > y) y = 0;
+                if (me->cap_h - h <= y) y = me->cap_h - h - 1;
+
+                uint8_t crop_out_ptr[w*h*me->cap_c];
+                top    = y;
+                bottom = top + h;
+                left   = x / 2;
+                right  = left + w / 2;
+                index  = 0;
+                for (int j = top; j < bottom; j++)
+                {
+                    for (int k = left; k < right; k++)
+                    {
+                        *((uint32_t *)&crop_out_ptr[index]) = *((uint32_t *)&first_input_data[j * me->cap_w * YUY2_NUM_CHANNEL + k * YUY2_NUM_DATA]);
+                        index += YUY2_NUM_DATA;
+                    }
+                }
+
+                /*Second model pre-processing*/
+                std::memcpy(me->input_data, crop_out_ptr, w*h*me->cap_c*sizeof(uint8_t));
+                me->inference_preprocess(arg, me->mode_2, w, h, &pre_output_ptr_2, &out_size_2);
+                me->get_time(end_time);
+                preproc_time_2 +=(float)((me->timedifference_msec(start_time, end_time)));
+                
+                if (InOutDataType::FLOAT32 == input_data_type_2)
+                {
+                    runtime_2.SetInput(0, pre_output_ptr_2);
+                }
+                else
+                {
+                    std::cerr << "[ERROR] Second Model Input data type : not FP32." << std::endl;
+                    me->send_app_message("For Second Model\nUnsupported Input data type: not FP32.");
+                    ret = -1;
+                    break;
+                }
+                errno = 0;
+                printf("For each detection ----------- No. %d\n", (second_inf_cnt++ + 1));
+                /*Gets inference starting time*/
+                me->get_time(start_time);
+                /*DRP-AI TVM[*1]::Second model Run inference*/
+                runtime_2.Run();
+                /*Gets AI Inference End Time*/
+                me->get_time(end_time);
+                /*Inference End Time */
+                ai_time_2 += (float)((me->timedifference_msec(start_time, end_time)));
+                print_measure_log("Cummurative Second AI Inference Time", ai_time_2, "ms");
+
+                /*Process to read the DRP-AI output data.*/
+                /* DRP-AI TVM[*1]::Get the number of output of the target model. */
+                auto output_num = runtime_2.GetNumOutput();
+                drpai_output_buf.reset(new float[me->_outBuffSize_2], std::default_delete<float[]>());
+                size_count = 0;
+                /*GetOutput loop*/
+                for (int i = 0;i<output_num;i++)
+                {
+                    /* DRP-AI TVM[*1]::Get the output including meta-data, i.e. data-type */
+                    auto output_buffer = runtime_2.GetOutput(i);
+                    /*Output Data Size = std::get<2>(output_buffer). */
+                    int64_t output_size = std::get<2>(output_buffer);
+                    /*Output Data Type = std::get<0>(output_buffer)*/
+                    if (InOutDataType::FLOAT16 == std::get<0>(output_buffer))
+                    {
+                        /*Output Data = std::get<1>(output_buffer)*/
+                        uint16_t* data_ptr = reinterpret_cast<uint16_t*>(std::get<1>(output_buffer));
+                        for (int j = 0; j<output_size; j++)
+                        {
+                            /*FP16 to FP32 conversion*/
+                            drpai_output_buf.get()[j + size_count]=float16_to_float32(data_ptr[j]);
+                        }
+                    }
+                    else if (InOutDataType::FLOAT32 == std::get<0>(output_buffer))
+                    {
+                        /*Output Data = std::get<1>(output_buffer)*/
+                        float* data_ptr = reinterpret_cast<float*>(std::get<1>(output_buffer));
+                        for (int j = 0; j<output_size; j++)
+                        {
+                            drpai_output_buf.get()[j + size_count]=data_ptr[j];
+                        }
+                    }
+                    else
+                    {
+                        std::cerr << "[ERROR] Second Output data type : not floating point." << std::endl;
+                        me->send_app_message("For Second Model\nUnsupported Output data type: not floating point.");
+                        ret = -1;
+                        break;
+                    }
+                    size_count += output_size;
+                }
+                /*Error check in the GetOutput loop*/
+                if (0 != ret)
+                {
+                    break;
+                }
+                /*Fill AI Inference result structure*/
+                data.predict_image = first_input_data;
+                data.predict_result = move(drpai_output_buf);
+                data.inf_time_ms = ai_time_2;
+                data.preproc_time_ms = preproc_time_2;
+                /*Post-process start (AI inference result postprocess + image compress + JSON data sending)*/
+                me->inference_postprocess(arg, me->mode_2, data);
+            }
+            /*Error check in the Detection loop*/
+            if (0 != ret)
+            {
+                break;
+            }
+            /*Image compress + JSON data sending*/
+            me->send_result(arg, me->mode_2, data);
+        }
+        else
+        {
+            /*Image compress + JSON data sending*/
+            me->send_result(arg, me->mode, data);
+        }
 
         Measuretime m("Deque inference_capture_qbuf buf time");
         ret = capture->inference_capture_qbuf();
         if (0 != ret)
         {
             fprintf(stderr, "[ERROR] Failed to enqueue _capture buffer.\n");
+            me->send_app_message("Failed to enqueue _capture buffer.\nRestart the application.");
             break;
         }
         me->_ai_frame_count.store(me->_ai_frame_count.load() + 1);
@@ -549,40 +817,37 @@ void* RecognizeBase::framerate_thread(void* arg)
  * @brief inference_preprocess
  * @details Preprocess
  * @param arg pointer to itself
- * @param data inference result data
+ * @param model_id ID for model process to be run
+ * @param width new width of input data.
+ * @param height new height of input data.
+ * @param out out_ptr pre-processing result data
+ * @param out out_size size of out_ptr
  */
-void RecognizeBase::inference_preprocess(void* arg, float** out_ptr, uint32_t* out_size)
+void RecognizeBase::inference_preprocess(void* arg,uint8_t model_id, uint32_t width, uint32_t height,  float** out_ptr, uint32_t* out_size)
 {
     timespec start_time;
     timespec end_time;
 
     RecognizeBase* me = (RecognizeBase*)arg;
     Measuretime m("Pre process time");
-    /*Select DRP-AI or CPU to run pre-processing */
-    /*If mode is even number, DRP-AI. If it is odd number, CPU is selected. */
-    if (0 == (me->mode & 1))
+    if (me->mode != model_id)
     {
-        if (me->mode == MODE_TVM_HRNET_DRPAI)
-        {
-            _model->inf_pre_process_hrnet(me->input_data, me->capture_address, out_ptr, out_size);
-        } else
-        {
-            _model->inf_pre_process_drpai(me->capture_address, out_ptr, out_size);
-        }
+        _model_2->inf_pre_process(me->input_data, width, height, me->capture_address, out_ptr, out_size);
     }
-    else /*CPU Pre-processing*/
-    {
-        _model->inf_pre_process_cpu(me->input_data, out_ptr);
+    else
+    {    
+        _model->inf_pre_process(me->input_data, width, height, me->capture_address, out_ptr, out_size);
     }
 }
 
 /**
  * @brief inference_postprocess
- * @details Postprocess and send command
+ * @details Postprocess
  * @param arg pointer to itself
+ * @param model_id ID for model process to be run
  * @param data inference result data
  */
-void RecognizeBase::inference_postprocess(void* arg, recognizeData_t& data)
+void RecognizeBase::inference_postprocess(void* arg, uint8_t model_id, recognizeData_t& data)
 {
     timespec start_time;
     timespec end_time;
@@ -592,10 +857,30 @@ void RecognizeBase::inference_postprocess(void* arg, recognizeData_t& data)
     me->get_time(start_time);
     {
         Measuretime m("Post process time");
-        _model->inf_post_process(data.predict_result.get());
+        if (me->mode != model_id)
+        {
+            _model_2->inf_post_process(data.predict_result.get());
+        }
+        else
+        {
+            _model->inf_post_process(data.predict_result.get());
+        }
     }
     me->get_time(end_time);
-    float post_time = (float)((me->timedifference_msec(start_time, end_time)));
+    data.postproc_time_ms += (float)((me->timedifference_msec(start_time, end_time)));
+    data.predict_result.reset();
+}
+
+/**
+ * @brief send_result
+ * @details Send command via http
+ * @param arg pointer to itself
+ * @param model_id ID for model processing to be run
+ * @param data inference result data
+ */
+void RecognizeBase::send_result(void* arg, uint8_t model_id, recognizeData_t& data)
+{
+    RecognizeBase* me = (RecognizeBase*)arg;
 
     string b64;
     shared_ptr<PredictNotifyBase> notify;
@@ -606,11 +891,26 @@ void RecognizeBase::inference_postprocess(void* arg, recognizeData_t& data)
 #endif
 
 #ifdef COUT_INFERENCE_RESULT_ON
-    _model->print_result();
+    if (me->mode != model_id)
+    {
+        _model_2->print_result();
+    }
+    else
+    {
+        _model->print_result();
+    }
 #endif
+
     {
         Measuretime m("Create predict result time");
-        notify = _model->get_command();
+        if (me->mode != model_id)
+        {
+            notify = _model_2->get_command();
+        }
+        else
+        {
+            notify = _model->get_command();
+        }
     }
 
     {
@@ -619,16 +919,16 @@ void RecognizeBase::inference_postprocess(void* arg, recognizeData_t& data)
         notify->img = b64;
         notify->img_org_w = _model->_capture_w;
         notify->img_org_h = _model->_capture_h;
-        notify->drp_time = data.drp_time_ms;
+        notify->drp_time = data.inf_time_ms;
         notify->pre_time = data.preproc_time_ms;
-        notify->post_time = post_time;
+        notify->post_time = data.postproc_time_ms;
 
         /*  Send websocket coomand*/
         me->_server->send_command(notify->CreateRequest());
-
+        /*Reset postproc_time_ms*/
+        data.postproc_time_ms = 0;
     }
 
-    data.predict_result.reset();
 }
 
 /**
@@ -771,4 +1071,46 @@ string RecognizeBase::get_send_image(uint8_t* image)
         b64 = lwsock::b64encode(output.data(), output.size());
     }
     return b64;
+}
+
+/**
+ * @brief model_exist
+ * @details Check whether the Model Object files exist or not.
+ * @param dir path to directory of Model Object to be checked.
+ * @return int8_t non-zero if files exist
+ */
+int8_t RecognizeBase::model_exist(std::string dir)
+{
+    if (!file_exist(dir))
+    {
+        fprintf(stderr, "[ERROR] Directory does not exist : dirname=%s\n", dir.c_str());
+        return 0;
+    }
+    for (int i = 0;i<MODEL_OBJ_NUM;i++)
+    {
+        std::string filename = dir+model_obj_names[i];
+        if (!file_exist(filename))
+        {
+            fprintf(stderr, "[ERROR] File does not exist : filename=%s\n", filename.c_str());
+            return 0;
+        }
+    }
+    return 1;
+}
+/**
+ * @brief file_exist
+ * @details Check whether the file exist or not.
+ * @param filename path to file to be checked.
+ * @return int8_t non-zero if file exists
+ */
+int8_t RecognizeBase::file_exist(std::string filename)
+{
+    struct stat st;
+
+    if (0 != stat(filename.c_str(), &st)) 
+    {
+        return 0;
+    }
+
+    return 1;
 }

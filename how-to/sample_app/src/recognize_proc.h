@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_proc.h
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -37,6 +37,8 @@
 #include "recognize/yolo/tvm_drpai_yolo.h"
 #include "recognize/ultraface/tvm_drpai_ultraface.h"
 #include "recognize/hrnet/tvm_drpai_hrnet.h"
+#include "recognize/googlenet/tvm_drpai_googlenet.h"
+#include "recognize/emotionfp/tvm_drpai_emotionfp.h"
 
 using namespace std;
 class RecognizeProc

@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : image_converter.cpp
-* Version      : 1.0.2
+* Version      : 1.0.3
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -54,7 +54,7 @@ void ImageConverter::compress_jpeg_turbo(uint8_t* input,
     uint32_t h;
     uint32_t w = width * BYTE_PER_PIX;
 
-    /* YUV(4:2:0) Buffer */
+    /* YUV(4:2:2) Buffer */
     vector<uint8_t> all_array((height * width) + ((height * width) / BYTE_PER_PIX) + ((height * width) / BYTE_PER_PIX));
     int32_t yoff = 0;
     int32_t uoff = height * width;
@@ -71,7 +71,7 @@ void ImageConverter::compress_jpeg_turbo(uint8_t* input,
         Measuretime mm("YUV extract time");
         for (h = 0; h < height; h++) {
 
-            /* align to 4:2:0
+            /* align to 4:2:2
              YYYYYYYYY
              YYYYYYYYY
              .....
