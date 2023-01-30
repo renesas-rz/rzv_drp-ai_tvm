@@ -21,23 +21,44 @@ Here, we explain how to compile and deploy the application example for ResNet 18
 
 ## Necessary Environment
 Please refer to [Installation](../README.md#installation) to prepare the following environment.
-- DRP-AI TVM[^1]
-- RZ/V2MA Linux Package
-- RZ/V2MA DRP-AI Support Package
+ - RZ/V2L
+      - DRP-AI TVM[^1]
+      - DRP-AI Translator V1.81
+      - RZ/V Verified Linux Package V3.0.2
+      - RZ/V2L DRP-AI Support Package V7.30
+  - RZ/V2M
+      - DRP-AI TVM[^1]
+      - DRP-AI Translator V1.81
+      - RZ/V2M Linux Package V1.3.0
+      - RZ/V2M DRP-AI Support Package V7.30
+ - RZ/V2MA
+      - DRP-AI TVM[^1]
+      - DRP-AI Translator V1.81
+      - RZ/V2MA Linux Package V1.1.0
+      - RZ/V2MA DRP-AI Support Package V7.30
 
 This page assumes that the above environment has already prepared and following environment variables has registered.  
 ```sh
-export TVM_HOME=<.../drp-ai_tvm>/tvm                # Your own path to the cloned repository.
+export TVM_ROOT=<.../drp-ai_tvm>                    # Your own path to the cloned repository.
+export TVM_HOME=${TVM_ROOT}/tvm
 export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
-export SDK=</opt/poky/3.1.14>                       # Your own RZ/V2MA Linux SDK path.
+export SDK=</opt/poky/3.1.14>                       # Your own Linux SDK path. Set appropriate path according to your product to use.
 export TRANSLATOR=<.../drp-ai_translator_release/>  # Your own DRP-AI Translator path.
+export PRODUCT=<V2MA>                               # Product name (V2L, V2M, or V2MA)
 ```
+Please set the values in the table below to the SDK and PRODUCT variables according to Renesas Evaluation Board Kit you use.
+
+| Renesas Evaluation Board Kit | SDK              | PRODUCT  |
+|------------------------------|:----------------:|:--------:|
+| RZ/V2L  Evaluation Board Kit | /opt/poky/3.1.17 |   V2L    |
+| RZ/V2M  Evaluation Board Kit | /opt/poky/3.1.14 |   V2M    |
+| RZ/V2MA Evaluation Board Kit | /opt/poky/3.1.14 |   V2MA   |
 
 ## How to Compile the Application
 ### 1. Prepare the environment
 Move to the application directory and create `build` directory.
 ```sh
-cd $TVM_HOME/../apps
+cd $TVM_ROOT/apps
 mkdir build
 cd build
 ```
@@ -62,14 +83,15 @@ Copy the following files to the rootfs of Boot Environment.
 
 | Name | Path | Details |  
 |:---|:---|:---|  
-|Runtime Library | `drp-ai_tvm/obj/build_runtime/libtvm_runtime.so`|Binary provided under [obj](../obj/build_runtime) directory.|  
+|Runtime Library | `drp-ai_tvm/obj/build_runtime/${PRODUCT}/libtvm_runtime.so`|Binary provided under [obj](../obj/build_runtime) directory.<br>You should use the `libtvm_runtime.so` in the directory with the corresponding product name. |  
 |Model Data | `drp-ai_tvm/tutorials/resnet18_onnx`|Model compiled in the [Compile AI models](../tutorials).|  
-|Pre-processing Runtime Object | `drp-ai_tvm/apps/exe/preprocess_tvm_v2ma`| Data required for Pre-processing Runtime. <br>For more details, see [DRP-AI Pre-processing Runtime](#drp-ai-pre-processing-runtime)|  
+|Pre-processing Runtime Object |<ul>V2L<li>`drp-ai_tvm/apps/exe/preprocess_tvm_v2l`</li>V2M<li>`drp-ai_tvm/apps/exe/preprocess_tvm_v2m`</li>V2MA<li>`drp-ai_tvm/apps/exe/preprocess_tvm_v2ma`</li></ul>| Data required for Pre-processing Runtime. <br>For more details, see [DRP-AI Pre-processing Runtime](#drp-ai-pre-processing-runtime). |  
 |Input Data |`drp-ai_tvm/apps/exe/sample.yuv`| YUY2 input data for image classification generated from `drp-ai_tvm/apps/etc/sample.bmp`. <br> See [How to prepare YUY2 image data](#how-to-prepare-yuy2-image-data) for more details. |  
 |Label List |`drp-ai_tvm/apps/exe/synset_words_imagenet.txt`| Label list for ResNet18 post-processing. |  
 |Application |`drp-ai_tvm/apps/build/tutorial_app` | Compiled in this [page](#how-to-compile-the-application). |  
 
 The rootfs should look like below.  
+This example is for V2MA.  
 **Note that `libtvm_runtime.so` must be placed under `/usr/lib64`.**  
 ```sh
 /
@@ -82,7 +104,7 @@ The rootfs should look like below.
             ├── preprocess_tvm_v2ma
             │   ├── drp_param.bin
             │   ...
-            │   └── preprocess_tvm_v2m_weight.dat
+            │   └── preprocess_tvm_v2ma_weight.dat
             ├── resnet18_onnx
             │   ├── deploy.json
             │   ├── deploy.params
@@ -96,15 +118,16 @@ The rootfs should look like below.
 ### 2. Run
 After boot-up the board, move to the directory you stored the application and run the `tutorial_app` file.  
 ```sh
+export PRODUCT=<V2MA>              # Product name (V2L, V2M, or V2MA)
 cd ~/tvm
 ./tutorial_app
 ```
-The application runs the ResNet inference on [sample.yuv](exe), which is generated from [sample.bmp](etc).  
+The application runs the ResNet inference on [sample.yuv](exe), which is generated from [sample.bmp](etc).   
 
 <!-- <img src="./exe/sample.bmp" width=350>   -->
 <!-- GitLabだとBMP画像が表示されない。GitHubならOK -->
 
-Following is the expected output for ResNet18 ONNX model compiled for DRP-AI.
+Following is the expected output for ResNet18 ONNX model compiled for DRP-AI on RZ/V2MA Evaluation Board Kit.  
 ```sh
 root@rzv2ma:~# ./tutorial_app
 [10:48:40] /mnt/nvme1n1/TVM/drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:66: Loading json data...
@@ -122,6 +145,14 @@ Result -----------------------
   Top 4 [  5.8%] : [basset, basset hound]
   Top 5 [  0.7%] : [bloodhound, sleuthhound]
 ```
+For reference, processing times are shown below.  
+  
+
+| Renesas Evaluation Board Kit | Pre Processing Time | AI Processing Time |
+|------------------------------|:-------------------:|:------------------:|
+| RZ/V2L  Evaluation Board Kit |       4.80 msec     |     27.95 msec     |
+| RZ/V2M  Evaluation Board Kit |       4.56 msec     |     17.83 msec     |
+| RZ/V2MA Evaluation Board Kit |       4.60 msec     |     17.63 msec     |
 
 ## Application Specification
 

@@ -1,6 +1,6 @@
 /*
  * Original Code (C) Copyright Edgecortix, Inc. 2022
- * Modified Code (C) Copyright Renesas Electronics Corporation 2022
+ * Modified Code (C) Copyright Renesas Electronics Corporation 2023
  *　
  *  *1 DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
  *
@@ -36,6 +36,8 @@
 #include <fstream>
 #include <sys/time.h>
 #include <climits>
+#include <cstdlib>
+#include <cstring>
 
 #include "MeraDrpRuntimeWrapper.h"
 #include "PreRuntime.h"
@@ -282,7 +284,34 @@ int main(int argc, char** argv)
     /* Model Binary */
     std::string model_dir = "resnet18_onnx";
     /* Pre-processing Runtime Object */
-    std::string pre_dir = "preprocess_tvm_v2ma";
+    const char prod_v2l[]="V2L";
+    const char prod_v2m[]="V2M";
+    const char prod_v2ma[]="V2MA";
+    const char *env_var = std::getenv("PRODUCT");
+    if (env_var == nullptr )
+    {
+        std::cerr << "[ERROR] PRODUCT variable is not set." << std::endl << "E.g., for V2MA, run \"export PRODUCT=V2MA\"." << std::endl;
+        return 0;
+    }	    
+
+    std::string pre_dir = "";
+    if ( 0 == std::strcmp(env_var, prod_v2l))
+    {
+        pre_dir += "preprocess_tvm_v2l";
+    }
+	else if ( 0 == std::strcmp(env_var, prod_v2m))
+    {
+        pre_dir += "preprocess_tvm_v2m";
+    }
+    else if ( 0 == std::strcmp(env_var, prod_v2ma))
+    {
+        pre_dir += "preprocess_tvm_v2ma";
+    }
+    else
+    {
+        std::cerr << "[ERROR] PRODUCT variable is unsupported value." << std::endl;
+        return 0;
+    }
 
     /* Input image file */
     std::string filename = "sample.yuv";

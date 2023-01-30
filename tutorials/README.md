@@ -57,7 +57,15 @@ drp_config_runtime = {
     "sdk_root": <SDK PATH>
 }
 ```
-Pleases set **0x438E0000** to "addr_map_start" for Renesas RZ/V2MA Evaluation Board Kit. "toolchain_dir" and "adk_root" is directories where DRP-AI Translator and SDK are installed, respectively.
+Please set the start address for Renesas Evaluation Board Kit to "addr_map_start". If you use Renesas Evaluation Board Kit with the default settings, please set the each address in the table below.
+
+| Renesas Evaluation Board Kit | Start Address |
+|------------------------------|:-------------:|
+| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
+| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
+| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
+
+"toolchain_dir" and "sdk_root" is directories where DRP-AI Translator and SDK are installed, respectively.
 
 To make deploy files for runtime application, run build function.
 ```py
