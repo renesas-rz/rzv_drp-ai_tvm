@@ -82,9 +82,21 @@ for file in "${expected_result_files[@]}"; do
 done
 
 # RUN TRANSLATOR
+if [ -z "${PRODUCT}" ]; then
+  echo "Error: PRODUCT variable is not set"
+  exit 1
+fi
+if [ ${PRODUCT} = "V2MA" ] || [ ${PRODUCT} = "V2M" ]; then
+  PDIR="V2M"
+elif [ ${PRODUCT} = "V2L" ]; then
+  PDIR="V2L"
+else
+  echo "Error: Unsupported value ${PRODUCT} is set in PRODUCT variable"
+  exit 1
+fi
 python3 ${IDIR}/api_translator/scripts/run_translator.py \
   -f_in_hw_setting ${IDIR}/api_translator/input/hw_in.txt \
-  -dir_in_drplib ${IDIR}/drplib/V2M \
+  -dir_in_drplib ${IDIR}/drplib/${PDIR} \
   -f_in_addrmap ${ADDR_MAP_FILE} \
   -f_in_prepost ${PREPOST_FILE} \
   -f_in_onnx ${ONNX_FILE} \

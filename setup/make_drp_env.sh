@@ -33,4 +33,13 @@ cp -r obj/python ./tvm/.
 
 # Set libralies
 cp -r ./obj/build ./tvm/.
-cp -r ./obj/build_runtime ./tvm/.
+if [ -z "${PRODUCT}" ]; then
+  echo "Error: PRODUCT variable is not set"
+  exit 1
+fi
+if [ ${PRODUCT} != "V2MA" ] && [ ${PRODUCT} != "V2M" ] && [ ${PRODUCT} != "V2L" ]; then
+  echo "Error: Unsupported value ${PRODUCT} is set in PRODUCT variable"
+  exit 1
+fi
+mkdir -p ./tvm/build_runtime
+cp ./obj/build_runtime/${PRODUCT}/libtvm_runtime.so ./tvm/build_runtime/

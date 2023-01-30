@@ -12,6 +12,8 @@
 Contributors Licensed under an Apache-2.0 license.   
 
 ## Supported Embedded Platforms
+- Renesas RZ/V2L Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2l-contents-guide))
+- Renesas RZ/V2M Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2m-contents-guide))
 - Renesas RZ/V2MA Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2ma-contents-guide))
 
 ## Introduction
@@ -36,17 +38,24 @@ This compiler stack is an extension of the DRP-AI Translator to the TVM backend.
 
 
 ## Installation
-- [Installation](./setup)
-- Installation with Docker (T.B.D.)
+- [Installing DRP-AI TVM](./setup/#installing-drp-ai-tvm1)
+- [Installing DRP-AI TVM with Docker](./setup/#installing-drp-ai-tvm1-with-docker)
 
 ## Deploy AI models on DRP-AI
-<img src=./img/deploy_flow.png width=500>   
+### Video
+Following video shows brief tutorial for how to deploy ONNX model on RZ/V series board.  
+[RZ/V DRP-AI TVM Tutorial - How to Run ONNX Model (YouTube)](https://www.youtube.com/watch?v=IqeZnVBEUxY)
 
+<a href="https://www.youtube.com/watch?v=IqeZnVBEUxY"><img src="./img/thumbnail.png" width=500 alt="Tutorial Video"></a>  
+
+### Overview
 To deploy the AI model to DRP-AI on the target board, you need to compile the model with DRP-AI TVM[^1] to generate Runtime Model Data (Compile).  
 SDK generated from RZ/V Linux Package and DRP-AI Support Package is required to compile the model.  
 
 After compiled the model, you need to copy the file to the target board (Deploy).  
 You also need to copy the C++ inference application and DRP-AI TVM[^1] Runtime Library to run the AI model inference.  
+
+<img src=./img/deploy_flow.png width=500>   
 
 Following pages show the example to compile the ResNet18 model and run it on the target board.  
 

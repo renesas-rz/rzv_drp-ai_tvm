@@ -2,7 +2,7 @@
 #  Original code (C) Copyright EdgeCortix, Inc. 2022
 #  Modified Portion (C) Copyright Renesas Electronics Corporation 2022
 #
-#   *1 DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
+#   *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 # 
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # 3.2.1 Set config for DRP-AI runtime
     drp_config_runtime = {
         "interpreter": False,
-        "addr_map_start": 0x5f800000,
+        "addr_map_start": 0x438E0000,
         "toolchain_dir": opts["drp_compiler_dir"],
         "sdk_root": opts["toolchain_dir"]
     }

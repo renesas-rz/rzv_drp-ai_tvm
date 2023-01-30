@@ -63,10 +63,8 @@ In `etc` directory, following files are provided as execution environment to be 
 |Websocket_Client/index.html | Demo page HTML file on client PC. |  
 
 ## Compile the application
-1. Prepare the SDK that includes following packages.
-    1. libwebsockets and jansson  
-    Please refer to "Compile DRP-AI Sample Application" in RZ/V2MA DRP-AI Sample Application Note provided in RZ/V2MA DRP-AI Support Package.  
-    2. opencv  
+1. Prepare the SDK that includes following package.
+    - opencv  
     Pease refer to [How to install OpenCV to Linux Package](../../apps/README.md#how-to-install-opencv-to-linux-package).  
 
 2. Use the SDK generated in 1 to compile the sample application.  

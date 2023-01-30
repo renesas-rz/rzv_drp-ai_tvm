@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(tutorial_app_cpp)
 
-set(TVM_ROOT ${CMAKE_CURRENT_BINARY_DIR}/../../tvm/)
+set(TVM_ROOT $ENV{TVM_HOME})
 include_directories(${TVM_ROOT}/include)
 include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
 include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
