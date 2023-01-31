@@ -38,8 +38,8 @@ This compiler stack is an extension of the DRP-AI Translator to the TVM backend.
 
 
 ## Installation
-- [Installing DRP-AI TVM](./setup#installing-drp-ai-tvm1)
-- [Installing DRP-AI TVM with Docker](./setup#installing-drp-ai-tvm1-with-docker)
+- [Installing DRP-AI TVM](./setup/README.md#installing-drp-ai-tvm1)
+- [Installing DRP-AI TVM with Docker](./setup/README.md#installing-drp-ai-tvm1-with-docker)
 
 ## Deploy AI models on DRP-AI
 ### Video
