@@ -15,7 +15,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip
 RUN locale-gen en_US.UTF-8
 RUN pip3 install --upgrade pip
 RUN pip3 install decorator attrs scipy numpy==1.23.5 pytest
-RUN pip3 install torch==1.8.0 torchvision==0.9.0
+RUN pip3 install torch==1.8.0 torchvision==0.9.0 tensorflow tflite
 
 # Install onnxruntime
 RUN wget https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-linux-x64-1.8.1.tgz -O /tmp/onnxruntime.tar.gz \

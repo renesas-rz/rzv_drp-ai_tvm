@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_yolo.cpp
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -29,26 +29,19 @@
 #include "tvm_drpai_yolo.h"
 TVM_YOLO_DRPAI::TVM_YOLO_DRPAI(uint8_t id) : IRecognizeModel(0, TVM_MODEL_DIR_YOLOV3.data(), MODEL_NAME.data(), TVM_DRPAI_IN_WIDTH, TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_CHANNEL, TVM_MODEL_IN_W, TVM_MODEL_IN_H, TVM_MODEL_IN_C, id)
 {
-    preruntime.Load(pre_dir);
-    /*Define pre-processing parameter*/
-    in_param.pre_in_shape_w = TVM_DRPAI_IN_WIDTH;
-    in_param.pre_in_shape_h = TVM_DRPAI_IN_HEIGHT;
-    in_param.pre_in_format = INPUT_YUYV;
-    in_param.resize_w = TVM_MODEL_IN_W;
-    in_param.resize_h = TVM_MODEL_IN_H;
-    in_param.resize_alg = ALG_BILINEAR;
-    /*Compute normalize coefficient, cof_add/cof_mul for DRP-AI from mean/std */
-    in_param.cof_add[0]= -255*mean[0];
-    in_param.cof_add[1]= -255*mean[1];
-    in_param.cof_add[2]= -255*mean[2];
-    in_param.cof_mul[0]= 1/(stdev[0]*255);
-    in_param.cof_mul[1]= 1/(stdev[1]*255);
-    in_param.cof_mul[2]= 1/(stdev[2]*255);
+    int8_t ret = 0;
+    constructor_err = 0;
 
     /*Load label list for YOLOv3/TinyYOLOv3 */
     if (id == MODE_TVM_YOLOV3_DRPAI || id == MODE_TVM_TINYYOLOV3_DRPAI )
     {
         label_file_map = CommonFunc::load_label_file(LABEL_LIST.data());
+        if (label_file_map.empty())
+        {
+            constructor_err = -1;
+            err_str = "[ERROR] Failed to load label file: "+ std::string(LABEL_LIST.data());
+            /*Error will be caught at RecognizeBase::recognize_start()*/
+        } 
     }
     num_class = label_file_map.size();
 
@@ -138,6 +131,33 @@ TVM_YOLO_DRPAI::TVM_YOLO_DRPAI(uint8_t id) : IRecognizeModel(0, TVM_MODEL_DIR_YO
     }
 
     outBuffSize = num_inf_out;
+    
+    pre_dir = model_dir + pre_dir;
+    ret = preruntime.Load(pre_dir);
+    if (0 != ret && 0 == constructor_err)
+    {
+        constructor_err = -1;
+        err_str = "[ERROR] Failed to load DRP-AI Pre-processing Runtime Object: "+ pre_dir;
+        err_str = err_str +".\nPrepare the Pre-processing Runtime Object";
+        err_str = err_str +" according to the GitHub (https://github.com/renesas-rz/rzv_drp-ai_tvm).";
+        /*Error will be caught at RecognizeBase::recognize_start()*/
+    } 
+    /*Define pre-processing parameter*/
+    in_param.pre_in_shape_w = TVM_DRPAI_IN_WIDTH;
+    in_param.pre_in_shape_h = TVM_DRPAI_IN_HEIGHT;
+    in_param.pre_in_format = FORMAT_YUYV_422;
+    in_param.pre_in_format = FORMAT_RGB;
+    in_param.resize_w = TVM_MODEL_IN_W;
+    in_param.resize_h = TVM_MODEL_IN_H;
+    in_param.resize_alg = ALG_BILINEAR;
+    /*Compute normalize coefficient, cof_add/cof_mul for DRP-AI from mean/std */
+    in_param.cof_add[0]= -255*mean[0];
+    in_param.cof_add[1]= -255*mean[1];
+    in_param.cof_add[2]= -255*mean[2];
+    in_param.cof_mul[0]= 1/(stdev[0]*255);
+    in_param.cof_mul[1]= 1/(stdev[1]*255);
+    in_param.cof_mul[2]= 1/(stdev[2]*255);
+
 }
 /**
  * @brief inf_pre_process
@@ -154,6 +174,7 @@ TVM_YOLO_DRPAI::TVM_YOLO_DRPAI(uint8_t id) : IRecognizeModel(0, TVM_MODEL_DIR_YO
  */
 int32_t TVM_YOLO_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size)
 {
+    int32_t ret = 0;
     /*Update width and height*/
     if ((width != _capture_w) || (height != _capture_h)) 
     {
@@ -163,8 +184,8 @@ int32_t TVM_YOLO_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width, ui
         in_param.pre_in_shape_h = _capture_h;
     }
 
-    pre_process_drpai(addr, arg, buf_size);
-    return 0;
+    ret = pre_process_drpai(addr, arg, buf_size);
+    return ret;
 }
 /**
  * @brief inf_post_process
@@ -174,9 +195,10 @@ int32_t TVM_YOLO_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width, ui
  */
 int32_t TVM_YOLO_DRPAI::inf_post_process(float* arg)
 {
+    int32_t ret = 0;
     postproc_data.clear();
-    post_process(postproc_data, arg);
-    return 0;
+    ret = post_process(postproc_data, arg);
+    return ret;
 
 }
 /**
@@ -227,9 +249,15 @@ shared_ptr<PredictNotifyBase> TVM_YOLO_DRPAI::get_command()
  */
 int8_t TVM_YOLO_DRPAI::pre_process_drpai(uint32_t addr, float** output_buf, uint32_t* buf_size)
 {
+    int8_t ret = 0;
     in_param.pre_in_addr = (uintptr_t) addr;
     /*Run pre-processing*/
-    preruntime.Pre(&in_param, output_buf, buf_size);
+    ret = preruntime.Pre(&in_param, (void**) output_buf, buf_size);
+    if (0 != ret)
+    {
+        std::cerr << "[ERROR] Failed to run DRP-AI Pre-processing Runtime."<<std::endl;
+        return -1;
+    } 
     return 0;
 }
 /**

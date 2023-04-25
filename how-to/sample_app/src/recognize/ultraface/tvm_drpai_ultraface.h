@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_ultraface.h
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -38,6 +38,7 @@
 #include "../common/object_detection.h"
 #include "../common/PreRuntime.h"
 #include "../command/object_detection.h"
+#include "../common/recognize_define.h"
 
 class TVM_UltraFace_DRPAI : public IRecognizeModel
 {
@@ -51,13 +52,13 @@ private:
 
     /*DRP-AI Input image information*/
     constexpr static int32_t TVM_DRPAI_IN_CHANNEL = (2);
-    constexpr static int32_t  TVM_MODEL_IN_C = (3);
-    constexpr static int32_t  TVM_MODEL_IN_W = (320);
-    constexpr static int32_t  TVM_MODEL_IN_H = (240);
-    constexpr static int32_t  TVM_MODEL_OUT_NUM = (4420);
-    constexpr static int32_t  TVM_MODEL_OUT_NUM_SCORE = (2);
-    constexpr static int32_t  TVM_MODEL_OUT_NUM_BOX = (4);
-    constexpr static int32_t  TVM_MODEL_OUT_SIZE = (TVM_MODEL_OUT_NUM * TVM_MODEL_OUT_NUM_SCORE + TVM_MODEL_OUT_NUM * TVM_MODEL_OUT_NUM_BOX)* sizeof(float);
+    constexpr static int32_t TVM_MODEL_IN_C = (3);
+    constexpr static int32_t TVM_MODEL_IN_W = (320);
+    constexpr static int32_t TVM_MODEL_IN_H = (240);
+    constexpr static int32_t TVM_MODEL_OUT_NUM = (4420);
+    constexpr static int32_t TVM_MODEL_OUT_NUM_SCORE = (2);
+    constexpr static int32_t TVM_MODEL_OUT_NUM_BOX = (4);
+    constexpr static int32_t TVM_MODEL_OUT_SIZE = (TVM_MODEL_OUT_NUM * TVM_MODEL_OUT_NUM_SCORE + TVM_MODEL_OUT_NUM * TVM_MODEL_OUT_NUM_BOX)* sizeof(float);
 
     constexpr static float ULTRAFACE_TH_SCORE   = (0.7);//from ONNX Model Zoo
     constexpr static float ULTRAFACE_TH_NMS     = (0.5);//from ONNX Model Zoo
@@ -77,7 +78,7 @@ private:
     /* Pre-processing Runtime variables for pre-processing */
     PreRuntime preruntime;
     s_preproc_param_t in_param;
-    const std::string pre_dir = "preprocess_tvm_v2ma";
+    const std::string pre_dir = std::string(TVM_MODEL_DIR.data()) + "/preprocess";
     float mean[3] = { 127.0, 127.0, 127.0 };
     float scale_factor[3] = { 1.0/128.0, 1.0/128.0, 1.0/128.0 };
 

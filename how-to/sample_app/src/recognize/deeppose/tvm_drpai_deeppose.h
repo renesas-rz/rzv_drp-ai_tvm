@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_deeppose.h
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -35,6 +35,7 @@
 #include "../../includes.h"
 #include "../command/pose_detection.h"
 #include "../common/PreRuntime.h"
+#include "../common/recognize_define.h"
 
 class TVM_DeepPose_DRPAI : public IRecognizeModel
 {
@@ -70,7 +71,7 @@ private:
     /* Pre-processing Runtime variables for pre-processing */
     PreRuntime preruntime;
     s_preproc_param_t in_param;
-    const std::string pre_dir = "preprocess_tvm_v2ma";
+    const std::string pre_dir = std::string(TVM_MODEL_DIR.data()) + "/preprocess";
     float mean[3] = { 0.485, 0.456, 0.406 };
     float stdev[3] = { 0.229, 0.224, 0.225 };
 

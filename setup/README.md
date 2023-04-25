@@ -11,17 +11,17 @@ Requirements are listed below.
 - Evaluation Board: RZ/V2L EVK, RZ/V2M EVK, RZ/V2MA EVK
 - Related Software Version:
     - RZ/V2L
-        - [DRP-AI Translator V1.81](#drp-ai-translator)
+        - [DRP-AI Translator V1.82](#drp-ai-translator)
         - [RZ/V Verified Linux Package V3.0.2](#rzv-software)
         - [RZ/V2L DRP-AI Support Package V7.30](#rzv-software)
     - RZ/V2M
-        - [DRP-AI Translator V1.81](#drp-ai-translator)
-        - [RZ/V2M Linux Package V1.3.0](#rzv-software)
+        - [DRP-AI Translator V1.82](#drp-ai-translator)
+        - [RZ/V2M Linux Package V1.3.0-update1](#rzv-software)
         - [RZ/V2M DRP-AI Support Package V7.30](#rzv-software)
     - RZ/V2MA
-        - [DRP-AI Translator V1.81](#drp-ai-translator)
-        - [RZ/V2MA Linux Package V1.1.0](#rzv-software)
-        - [RZ/V2MA DRP-AI Support Package V7.30](#rzv-software)
+        - [DRP-AI Translator V1.82](#drp-ai-translator)
+        - [RZ/V2MA Linux Package V1.1.0-update1](#rzv-software)
+        - [RZ/V2MA DRP-AI Support Package V7.31](#rzv-software)
 
 
 To install DRP-AI TVM[^1] without Docker, see [Installing DRP-AI TVM[^1]](#installing-drp-ai-tvm1).  
@@ -91,7 +91,7 @@ apt-get install -y python3-pip
 pip3 install --upgrade pip
 apt-get -y install unzip vim
 pip3 install decorator attrs scipy numpy==1.23.5 pytest
-pip3 install torch==1.8.0 torchvision==0.9.0
+pip3 install torch==1.8.0 torchvision==0.9.0 tensorflow tflite
 
 # Install onnx runtime
 wget https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-linux-x64-1.8.1.tgz -O /tmp/onnxruntime.tar.gz
@@ -113,6 +113,7 @@ Before installing DRP-AI TVM[^1] with Docker, please prepare the following files
 - poky*.sh
     - SDK installer
     - Intermediate generated file when building image/SDK.
+    - Prepare only one poky*.sh for the product to be tried in the working directory
     - See [Build RZ/V Software](#build-rzv-software) below.
     
 
@@ -151,7 +152,6 @@ Please set the values in the table below to the SDK and PRODUCT variables accord
 
 ### 4. Run docker image
 ```sh
-mkdir data
 docker run -it --name drp-ai_tvm_v2ma_container -v $(pwd)/data:/drp-ai_tvm/data drp-ai_tvm_v2ma_image
 ```
 The local `$(pwd)/data` is mounted to `/drp-ai_tvm/data` on the Docker container by the above command option.  

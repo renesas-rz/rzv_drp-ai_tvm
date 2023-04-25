@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_yolo.h
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -38,37 +38,38 @@
 #include "../common/object_detection.h"
 #include "../common/PreRuntime.h"
 #include "../command/object_detection.h"
+#include "../common/recognize_define.h"
 
 class TVM_YOLO_DRPAI : public IRecognizeModel
 {
 private:
-    constexpr static string_view TVM_MODEL_DIR_YOLOV3 = "yolov3_onnx";
-    constexpr static string_view TVM_MODEL_DIR_TINYYOLOV3 = "tinyyolov3_onnx";
-    constexpr static string_view TVM_MODEL_DIR_YOLOV2 = "yolov2_onnx";
-    constexpr static string_view TVM_MODEL_DIR_TINYYOLOV2 = "tinyyolov2_onnx";
-    constexpr static  int32_t TVM_DRPAI_IN_WIDTH = (640);
-    constexpr static  int32_t TVM_DRPAI_IN_HEIGHT = (480);
+    constexpr static string_view TVM_MODEL_DIR_YOLOV3       = "yolov3_onnx";
+    constexpr static string_view TVM_MODEL_DIR_TINYYOLOV3   = "tinyyolov3_onnx";
+    constexpr static string_view TVM_MODEL_DIR_YOLOV2       = "yolov2_onnx";
+    constexpr static string_view TVM_MODEL_DIR_TINYYOLOV2   = "tinyyolov2_onnx";
+    constexpr static int32_t TVM_DRPAI_IN_WIDTH     = (640);
+    constexpr static int32_t TVM_DRPAI_IN_HEIGHT    = (480);
 
     /*YOLO Common*/
     constexpr static string_view MODEL_NAME = "DRP-AI TVM YOLO (DRP-AI)";
-    constexpr static float  YOLO_TH_PROB = 0.5f;
-    constexpr static float  YOLO_TH_NMS = 0.5f;
+    constexpr static float YOLO_TH_PROB     = 0.5f;
+    constexpr static float YOLO_TH_NMS      = 0.5f;
 
     /*YOLOv3 Related*/
-    constexpr static  string_view LABEL_LIST = "coco-labels-2014_2017.txt";
-    constexpr static  int32_t  YOLOV3_NUM_BB = 3;
-    constexpr static int32_t  YOLOV3_NUM_INF_OUT_LAYER = 3;
-    constexpr static int32_t  TINYYOLOV3_NUM_INF_OUT_LAYER = 2;
+    constexpr static string_view LABEL_LIST = "coco-labels-2014_2017.txt";
+    constexpr static int32_t YOLOV3_NUM_BB                  = 3;
+    constexpr static int32_t YOLOV3_NUM_INF_OUT_LAYER       = 3;
+    constexpr static int32_t TINYYOLOV3_NUM_INF_OUT_LAYER   = 2;
     /*YOLOv2 Related*/
-    constexpr static  int32_t  YOLOV2_NUM_BB = 5;
-    constexpr static int32_t  YOLOV2_NUM_INF_OUT_LAYER = 1;
-    constexpr static int32_t  TINYYOLOV2_NUM_INF_OUT_LAYER = 1;
+    constexpr static int32_t YOLOV2_NUM_BB                  = 5;
+    constexpr static int32_t YOLOV2_NUM_INF_OUT_LAYER       = 1;
+    constexpr static int32_t TINYYOLOV2_NUM_INF_OUT_LAYER   = 1;
 
     /*DRP-AI Input image information*/
-    constexpr static int32_t TVM_DRPAI_IN_CHANNEL = (2);
-    constexpr static int32_t  TVM_MODEL_IN_C = (3);
-    constexpr static int32_t  TVM_MODEL_IN_W = (416);
-    constexpr static int32_t  TVM_MODEL_IN_H = (416);
+    constexpr static int32_t TVM_DRPAI_IN_CHANNEL   = (2);
+    constexpr static int32_t TVM_MODEL_IN_C         = (3);
+    constexpr static int32_t TVM_MODEL_IN_W         = (416);
+    constexpr static int32_t TVM_MODEL_IN_H         = (416);
 
 public:
     TVM_YOLO_DRPAI();
@@ -87,9 +88,9 @@ private:
     /* Pre-processing Runtime variables for pre-processing */
     PreRuntime preruntime;
     s_preproc_param_t in_param;
-    const std::string pre_dir = "preprocess_tvm_v2ma";
-    float mean[3] = { 0.0, 0.0, 0.0 };
-    float stdev[3] = { 1.0, 1.0, 1.0 };
+    std::string pre_dir = "/preprocess";
+    float mean[3]   = { 0.0, 0.0, 0.0 };
+    float stdev[3]  = { 1.0, 1.0, 1.0 };
 
     /* Class labels to be classified */
     /* YOLOv2/TinyYOLOv2 label list.  For YOLOv3/TinyYOLOv3, vector will be loaded from label_list later.*/

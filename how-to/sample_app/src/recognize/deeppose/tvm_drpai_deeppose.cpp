@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_deeppose.cpp
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -33,12 +33,22 @@ TVM_DeepPose_DRPAI::TVM_DeepPose_DRPAI() :
         TVM_DRPAI_IN_WIDTH, TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_CHANNEL,
         TVM_MODEL_IN_W, TVM_MODEL_IN_H, TVM_MODEL_IN_C, MODE_TVM_DEEPPOSE_DRPAI)
 {
+    constructor_err = 0;
     /*Initialization for DRP-AI Pre-processing*/
-    preruntime.Load(pre_dir);
+    constructor_err = preruntime.Load(pre_dir);
+    if (0 != constructor_err)
+    {
+        err_str = "[ERROR] Failed to load DRP-AI Pre-processing Runtime Object: "+ pre_dir;
+        err_str = err_str +".\nPrepare the Pre-processing Runtime Object";
+        err_str = err_str +" according to the GitHub (https://github.com/renesas-rz/rzv_drp-ai_tvm).";
+        /*Error will be caught at RecognizeBase::recognize_start()*/
+    } 
+
     /*Define pre-processing parameter*/
     in_param.pre_in_shape_w = TVM_DRPAI_IN_WIDTH;
     in_param.pre_in_shape_h = TVM_DRPAI_IN_HEIGHT;
-    in_param.pre_in_format = INPUT_YUYV;
+    in_param.pre_in_format = FORMAT_YUYV_422;
+    in_param.pre_out_format = FORMAT_RGB;
     in_param.resize_w = TVM_MODEL_IN_W;
     in_param.resize_h = TVM_MODEL_IN_H;
     in_param.resize_alg = ALG_BILINEAR;
@@ -65,6 +75,7 @@ TVM_DeepPose_DRPAI::TVM_DeepPose_DRPAI() :
  */
 int32_t TVM_DeepPose_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size)
 {
+    int32_t ret = 0;
     /*Update width and height*/
     if ((width != _capture_w) || (height != _capture_h)) 
     {
@@ -74,8 +85,8 @@ int32_t TVM_DeepPose_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width
         in_param.pre_in_shape_h = _capture_h;
     }
 
-    pre_process_drpai(addr, arg, buf_size);
-    return 0;
+    ret = pre_process_drpai(addr, arg, buf_size);
+    return ret;
 }
 /**
  * @brief inf_post_process
@@ -85,9 +96,10 @@ int32_t TVM_DeepPose_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width
  */
 int32_t TVM_DeepPose_DRPAI::inf_post_process(float* arg)
 {
+    int32_t ret = 0;
     postproc_result.clear();
-    post_process(postproc_result, arg);
-    return 0;
+    ret = post_process(postproc_result, arg);
+    return ret;
 }
 /**
  * @brief print_result
@@ -129,9 +141,15 @@ shared_ptr<PredictNotifyBase> TVM_DeepPose_DRPAI::get_command()
  */
 int8_t TVM_DeepPose_DRPAI::pre_process_drpai(uint32_t addr, float** output_buf, uint32_t* buf_size)
 {
+    int8_t ret = 0;
     in_param.pre_in_addr = (uintptr_t) addr;
     /*Run pre-processing*/
-    preruntime.Pre(&in_param, output_buf, buf_size);
+    ret = preruntime.Pre(&in_param, (void**)output_buf, buf_size);
+    if (0 != ret)
+    {
+        std::cerr << "[ERROR] Failed to run DRP-AI Pre-processing Runtime."<<std::endl;
+        return -1;
+    } 
     return 0;
 }
 /**

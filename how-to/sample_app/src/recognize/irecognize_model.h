@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : irecognize_model.h
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -59,6 +59,7 @@ public:
     }
     virtual ~IRecognizeModel() {}
     virtual int32_t inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size) { return 0; }
+    virtual int32_t inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height, uint32_t crop_left, uint32_t crop_top,  uint32_t addr, float** arg, uint32_t* buf_size) { return 0; }
     virtual int32_t inf_post_process(float* arg) { return 0; }
     virtual int32_t print_result() { return 0; }
     virtual shared_ptr<PredictNotifyBase> get_command() { return NULL; }
@@ -74,6 +75,9 @@ public:
     int32_t _model_h;
     int32_t _model_c;
     uint8_t _id;
+    /* for constructor error collection in RecognizeBase */
+    uint8_t constructor_err = 0;
+    std::string err_str;
     /* Only for pre face detection. post-processing result */
     std::vector<detection> detected_data;
 };

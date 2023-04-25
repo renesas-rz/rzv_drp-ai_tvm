@@ -3,13 +3,18 @@
 ### Model: [DeepPose](#model-information)
 Sample application code and its execution environment are provided in **[here](../../../../sample_app)**.  
 
+### Index
+- [Overview](#overview)  
+- [Model Information](#model-information)  
+- [Processing Details](#processing-details)  
+
 ## Overview
 This page explains about Facial Landmark Localization in the [sample application](../../../../sample_app) for DRP-AI TVM[^1].  
 
 <img src=./img/web.JPG width=500>  
 
 ## Model Information
-DeepPose: [MMPose Facial Landmark Localization](https://mmpose.readthedocs.io/en/latest/topics/face.html#deeppose-resnet-on-wflw)  
+DeepPose: [MMPose Facial Landmark Localization](https://github.com/open-mmlab/mmpose/blob/v0.28.1/configs/face/2d_kpt_sview_rgb_img/deeppose/wflw/resnet_wflw.md)  
 Dataset: [WFLW](https://wywu.github.io/projects/LAB/WFLW.html)  
 Input size: 1x3x256x256  
 Output size: 1x98x2
@@ -17,6 +22,11 @@ Output size: 1x98x2
 
 ### How to compile the model
 To run the Face Landmark Localization, `face_deeppose_pt` Model Object is required for DRP-AI mode and `face_deeppose_cpu` is required for CPU mode.  
+- [Operating Environment](#operating-environment)
+- [1. Save the AI model from MMPose](#1-save-the-ai-model-from-mmpose)
+- [2. Compile pytorch model for DRP-AI mode](#2-compile-pytorch-model-for-drp-ai-mode)
+- [3. Compile pytorch model for CPU mode](#3-compile-pytorch-model-for-cpu-mode)
+
 #### Operating Environment
 - mmcv-full v1.6.1  
 - MMPose v0.28.1  
@@ -73,7 +83,7 @@ scripted_model = torch.jit.trace(model, input_data).eval()
 scripted_model.save('deeppose.pt')# Save
 print("Torch model saved to ./deeppose.pt")
 ```
-2. Download the checkpoint file(`.pth`) from [the mmpose website](https://mmpose.readthedocs.io/en/latest/topics/face.html#deeppose-resnet-on-wflw) and place them in the same directory as the save script above.  
+2. Download the checkpoint file(`.pth`) from [the mmpose website](https://github.com/open-mmlab/mmpose/blob/v0.28.1/configs/face/2d_kpt_sview_rgb_img/deeppose/wflw/resnet_wflw.md) and place them in the same directory as the save script above.  
 3. Run the save script and confirm that `deeppose.pt` is generated.  
 
 #### 2. Compile pytorch model for DRP-AI mode
@@ -81,16 +91,81 @@ Follow the instuction below to prepare the `face_deeppose_pt` Model Object.
 
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
 2. Place the `deeppose.pt` file in `$TVM_HOME/../tutorials`.
-3. Change the `addr_map_start` setting in `compile_pytorch_model.py` provided in [Compile Tutorial](../../../../../tutorials) to `0x438E0000`.  
-4. Run the script with the command below.  
+3. Change the `addr_map_start` setting in `compile_pytorch_model.py` provided in [Compile Tutorial](../../../../../tutorials) to the following address, depending on the board. 
+
+| Renesas Evaluation Board Kit | Start Address |
+|------------------------------|:-------------:|
+| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
+| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
+| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
+ 
+4. Change the pre-processing details as shown below.  
+
+Before
+```py
+#L107~130
+    # 4.1.1. Define input data of preprocessing
+    config.shape_in     = [1, 480, 640, 3]
+    config.format_in    = drpai_param.FORMAT.BGR
+    config.order_in     = drpai_param.ORDER.HWC
+    config.type_in      = drpai_param.TYPE.UINT8
+    
+    # 4.1.2. Define output data of preprocessing (Will be model input)
+    model_shape_in = list(opts["input_shape"])
+    config.shape_out    = model_shape_in
+    config.format_out   = drpai_param.FORMAT.RGB
+    config.order_out    = drpai_param.ORDER.CHW
+    config.type_out     = drpai_param.TYPE.FP32 
+    # Note: type_out depends on DRP-AI TVM[*1]. Usually FP32.
+    
+    # 4.1.3. Define operators to be run.
+    mean    = [0.485, 0.456, 0.406]
+    stdev   = [0.229, 0.224, 0.225]
+    r = 255
+    cof_add = [-m*r for m in mean]
+    cof_mul = [1/(s*r) for s in stdev]
+    config.ops = [
+        op.Resize(model_shape_in[3], model_shape_in[2], op.Resize.BILINEAR),
+        op.Normalize(cof_add, cof_mul)
+    ]
+```
+After
+```py
+#L107~130
+    # 4.1.1. Define input data of preprocessing
+    config.shape_in     = [1, 480, 640, 2]
+    config.format_in    = drpai_param.FORMAT.YUYV_422
+    config.order_in     = drpai_param.ORDER.HWC
+    config.type_in      = drpai_param.TYPE.UINT8
+    
+    # 4.1.2. Define output data of preprocessing (Will be model input)
+    model_shape_in = list(opts["input_shape"])
+    config.shape_out    = model_shape_in
+    config.format_out   = drpai_param.FORMAT.RGB
+    config.order_out    = drpai_param.ORDER.CHW
+    config.type_out     = drpai_param.TYPE.FP32 
+    # Note: type_out depends on DRP-AI TVM[*1]. Usually FP32.
+    
+    # 4.1.3. Define operators to be run.
+    mean    = [0.485, 0.456, 0.406]
+    stdev   = [0.229, 0.224, 0.225]
+    r = 255
+    cof_add = [-m*r for m in mean]
+    cof_mul = [1/(s*r) for s in stdev]
+    config.ops = [
+        op.Resize(model_shape_in[3], model_shape_in[2], op.Resize.BILINEAR),
+        op.Normalize(cof_add, cof_mul)
+    ]
+```
+5. Run the script with the command below.  
 ```sh
 $ python3 compile_pytorch_model.py \
 -s 1,3,256,256 \
 -o face_deeppose_pt \
 deeppose.pt
 ```
-5. Confirm that `face_deeppose_pt` directory is generated and it contains `deploy.json`, `deploy.so` and `deploy.params` files.  
-6. Before running the application, make sure to copy the `face_deeppose_pt` directory into the execution environment directory `exe` where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
+6. Confirm that `face_deeppose_pt` directory is generated and it contains `deploy.json`, `deploy.so` and `deploy.params` files and `preprocess` directory.  
+7. Before running the application, make sure to copy the `face_deeppose_pt` directory into the execution environment directory `exe` where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
 
 
 #### 3. Compile pytorch model for CPU mode
@@ -107,10 +182,10 @@ $ cp compile_cpu_only_onnx_model.py compile_cpu_only_pytorch_model.py
 
 Before
 ```py
-#L23
+#L24
 import onnx
 
-#L59~66
+#L70~77
     # 2. Load onnx model and set input shape.
     shape_dict = {input_name: input_shape}
     # 2.1 Load onnx model
@@ -119,13 +194,14 @@ import onnx
 
     # 3.1 Run TVM Frontend
     mod, params = tvm.relay.frontend.from_onnx(onnx_model, shape_dict)
+
 ```
 After
 ```py
-#L23
+#L24
 import torch
 
-#L59~68
+#L70~79
     # 2. Load model and set input shape.
     # 2.1 Load model
     model = torch.jit.load(model_file)
@@ -136,6 +212,17 @@ import torch
 
     # 3.1 Run TVM Frontend
     mod, params = tvm.relay.frontend.from_pytorch(model, shape_list)
+```
+5. Delete the DRP-AI Pre-processing Runtime statements shown in below in `compile_cpu_only_pytorch_model.py`.  
+```
+#L119~145
+    # 4. Compile pre-processing using DRP-AI Pre-processing Runtime
+    # 4.1. Define the pre-processing data
+    config = preruntime.Config()
+...
+    
+    # 4.2. Run DRP-AI Pre-processing Runtime
+    preruntime.PreRuntime(config, output_dir+"/preprocess", PRODUCT)
 ```
 5. Run the script with the command below.  
 ```sh
@@ -155,16 +242,9 @@ deeppose.pt
 Followings are processing details if user selected "DeepPose (DRP-AI)".  
 
 #### Pre-processing
-Pre-processing is done by DRP-AI Pre-processing Runtime, which allows following pre-processing on DRP-AI.  
-
-| Function | Details |  
-|:---|:---|  
-|conv_yuv2rgb |Convert YUY2 to RGB.|  
-|resize |Resize to 256x256.|  
-|cast_to_fp16 | Cast data to FP16 for DRP-AI.|  
-|normalize | Normalize pixel values with mean and standard deviation.|  
-|transpose | Transpose HWC to CHW order. |  
-|cast_fp16_fp32 | Cast FP16 data to FP32 for DRP-AI TVM[^1] input.|  
+Pre-processing is done by DRP-AI Pre-processing Runtime.  
+Please see the [compile script](#2-compile-pytorch-model-for-drp-ai-mode) to check the pre-processing details.  
+For more information on DRP-AI Pre-processing Runtime, see its [Documentation](../../../../../docs/PreRuntime.md).  
 
 #### Inference
 The Object files `face_deeppose_pt` is generated from MMPose DeepPose pre-trained model as described in [Model Information](#model-information).  
@@ -176,6 +256,7 @@ Post-processing is processed by CPU.
 - Source Code: [tvm_cpu_deeppose.cpp](../../../src/recognize/deeppose/tvm_cpu_deeppose.cpp)  
 
 Followings are processing details if user selected "DeepPose (CPU)".  
+
 #### Pre-processing
 CPU pre-processing details are as follows.  
 Note that some of them are processed by C++ OpenCV.
