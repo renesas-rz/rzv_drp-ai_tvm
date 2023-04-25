@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_define.h
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -33,7 +33,6 @@
 // #define COUT_INFERENCE_RESULT_ON    /* Enable print infference result to console */
 #define MODEL_VGA                   /* ON=VGA Capture & Inference. OFF=FHD Capture & Inference */
 //#define SEQUENCTCIAL                /* Enable sync capture and inference*/
-#define TENTATIVE                   /*Will be deleted in the future */
 
 /*Define Mode*/
 #define MODE_TVM_UNKNOWN             (0b00000000)

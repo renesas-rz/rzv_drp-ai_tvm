@@ -57,13 +57,15 @@ drp_config_runtime = {
     "sdk_root": <SDK PATH>
 }
 ```
-Please set the start address for Renesas Evaluation Board Kit to "addr_map_start". If you use Renesas Evaluation Board Kit with the default settings, please set the each address in the table below.
+Please set the start address for Renesas Evaluation Board Kit to "addr_map_start". If you use Renesas Evaluation Board Kit with the default settings, please set the each address in the table below.  
+Address below is defined based on the pre-processing configuration.  For more details, please see [Note](#note)
 
-| Renesas Evaluation Board Kit | Start Address |
-|------------------------------|:-------------:|
-| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
-| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
-| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
+| Renesas Evaluation Board Kit | Start Address |  
+|------------------------------|:-------------:|  
+| RZ/V2L  Evaluation Board Kit | 0x838E0000    |  
+| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |  
+| RZ/V2MA Evaluation Board Kit | 0x438E0000    |  
+
 
 "toolchain_dir" and "sdk_root" is directories where DRP-AI Translator and SDK are installed, respectively.
 
@@ -98,6 +100,8 @@ There are three types of sample scripts to compile an AI model.
 2. Compile script with pytorch model [CPU and DRP-AI accelerator]   
 3. Compile script with onnx model [Only CPU]
 
+All scripts use the DRP-AI Pre-processing Runtime Compile Module to generate Object files for pre-processing, which is `preprocess` directory in the output directory.  
+For more details on DRP-AI Pre-processing Runtime, please refer to its [Documentation](../docs/PreRuntime.md).
 
 ## 1. Compile onnx models
 
@@ -128,8 +132,26 @@ python3 compile_pytorch_model.py \
 ```
 
 ----
-## 3. Compile using CPU-only deploy mode
-### 3.1. Example using Resnet from the official ONNX model zoo
+## 3. Compile tensorflow models
+### 3.1. Example using Resnet from TensorFlow Hub
+
+```sh
+# At <drp-ai_tvm>/tutorials
+# Download resnet50 model from TensorFlow Hub
+mkdir resnet50-v1
+wget https://tfhub.dev/google/imagenet/resnet_v1_50/classification/5?tf-hub-format=compressed -O resnet50-v1.tar.gz
+tar zxvf resnet50-v1.tar.gz -C resnet50-v1
+# Convert model from TensorFlow to TFLite
+python3 sample_save_tflite_model.py
+# Run DRP-AI TVM[*1] Compiler script
+python3 compile_tflite_model.py \
+    ./resnet50-v1.tflite \
+    -o resnet50_tflite
+```
+
+---
+## 4. Compile using CPU-only deploy mode
+### 4.1. Example using Resnet from the official ONNX model zoo
 ```sh
 # At <drp-ai_tvm>/tutorials
 # Download onnx model from official ONNX model zoo
@@ -143,4 +165,29 @@ python3 compile_cpu_only_onnx_model.py \
 
 Please see [Compile API](../docs/Compile_API.md) for details
 
-[*1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
+
+# Note  
+Start Address [above](#run-backend-to-build-deploy-files) is defined for following preprocessing.  
+- Input data  
+    - Shape: 4096x2060x2  
+    - Format: YUV  
+    - Order: HWC  
+    - Type: uint8  
+- Output data  
+    - Shape: 640x640x3  
+    - Format: RGB  
+    - Order: CHW  
+    - Type: float  
+- Preprocessing operations:  
+    - Resize  
+    - Normalize  
+
+When using preprocessing which has more computation than above conditions, the Start Address **must be larger** than the above value.  
+
+To set the new address, satisfy following conditions.
+- The address must be within the DRP-AI memory area, which is reserved memory area in RZ/V Linux Package.
+- The address must be aligned with 64-byte boundary.
+- The address must be larger than `(Start address of DRP-AI memory area) + (Size of memory area required by DRP-AI Pre-processing Runtime Object files)`
+
+
+[*1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.  

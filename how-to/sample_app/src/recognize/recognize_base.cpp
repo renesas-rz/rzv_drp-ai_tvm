@@ -42,7 +42,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_base.cpp
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 ***********************************************************************************************************************/
 
@@ -181,8 +181,7 @@ int32_t RecognizeBase::initialize(IRecognizeModel* model, IRecognizeModel* model
 
     std::cout << "############ MODEL 2 ############" << std::endl;
     _model_2 = shared_ptr<IRecognizeModel>(move(model_2));
-
-
+    
     std::cout << "[INFO] Second Model     :" << _model_2->model_name << std::endl;
     std::cout << "[INFO] Second Model Directory :" << _model_2->model_dir << std::endl;
     std::cout << "[INFO] Second Model outbuff   :" << _model_2->outBuffSize << std::endl;
@@ -209,6 +208,20 @@ int32_t RecognizeBase::recognize_start()
 {
     printf("############ RECOGNIZE ############\n");
     printf("Input : USB Camera\n");
+
+    /*Check if any error occured in Model constructor*/
+    if (0 != _model->constructor_err)
+    {
+        fprintf(stderr, "%s\n", _model->err_str.c_str());
+        send_app_message(_model->err_str);
+        return -1;
+    }
+    if ((MODE_TVM_UNKNOWN != mode_2)&& (0 != _model_2->constructor_err))
+    {
+        fprintf(stderr, "%s\n", _model_2->err_str.c_str());
+        send_app_message(_model_2->err_str);
+        return -1;
+    }
 
     /* Create Camera Instance */
     _capture = make_shared<Camera>();
@@ -498,9 +511,15 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
         }
         /*Pre-process*/
         me->get_time(start_time);
-        me->inference_preprocess(arg, me->mode, me->cap_w, me->cap_h, &pre_output_ptr, &out_size);
+        ret = me->inference_preprocess(arg, me->mode, &pre_output_ptr, &out_size, me->cap_w, me->cap_h);
         me->get_time(end_time);
         preproc_time = (float)((me->timedifference_msec(start_time, end_time)));
+        if (0 != ret)
+        {
+            std::cerr << "[ERROR] Failed to run pre-processing." << std::endl;
+            me->send_app_message("Failed to run pre-processing.");
+            break;
+        }
         print_measure_log("AI preprocess Time", preproc_time, "ms");
 
         /*Input data type can be either FLOAT32 or FLOAT16, which depends on the model */
@@ -584,8 +603,13 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
         data.preproc_time_ms = preproc_time;
 
         /*Post-process start (AI inference result postprocess + image compress + JSON data sending)*/
-        me->inference_postprocess(arg, me->mode, data);
-
+        ret = me->inference_postprocess(arg, me->mode, data);
+        if (0 != ret)
+        {
+            std::cerr << "[ERROR] Failed to run post-processing." << std::endl;
+            me->send_app_message("Failed to run post-processing.");
+            break;
+        }
         /*Second model processing starts*/
         uint32_t second_inf_cnt = 0;
         if (MODE_TVM_UNKNOWN != me->mode_2)
@@ -598,15 +622,6 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
             int32_t y = 0;
             int32_t w = 0;
             int32_t h = 0;
-            int32_t top = 0;
-            int32_t bottom = 0;
-            int32_t left = 0;
-            int32_t right = 0;
-            int32_t index = 0;
-            uint8_t first_input_data[me->cap_w*me->cap_h*me->cap_c];
-            /*Copy the capture data to temporary buffer*/
-            std::memcpy(first_input_data, me->input_data, me->cap_w*me->cap_h*me->cap_c*sizeof(uint8_t));
-            
             /*Get face detection result*/
             std::vector<detection> res = me->_model->detected_data;
             me->_model_2->detected_data.clear();
@@ -621,43 +636,25 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
                 /*Copy the detected data to second model object*/
                 me->_model_2->detected_data.push_back(detected);
 
-                /*Crop detected area*/
                 x = (int32_t) detected.bbox.x;
                 y = (int32_t) detected.bbox.y;
                 w = (int32_t) detected.bbox.w;
                 h = (int32_t) detected.bbox.h;
-                /*CPU YUYV only supports even number width.*/
-                if (0!= (w % 2))
-                {
-                    if (0 > (w-1)) w -= 1;
-                    else w += 1;
-                }
                 if (0 > x) x = 0;
                 if (me->cap_w - w <= x) x = me->cap_w - w - 1;
                 if (0 > y) y = 0;
                 if (me->cap_h - h <= y) y = me->cap_h - h - 1;
 
-                uint8_t crop_out_ptr[w*h*me->cap_c];
-                top    = y;
-                bottom = top + h;
-                left   = x / 2;
-                right  = left + w / 2;
-                index  = 0;
-                for (int j = top; j < bottom; j++)
-                {
-                    for (int k = left; k < right; k++)
-                    {
-                        *((uint32_t *)&crop_out_ptr[index]) = *((uint32_t *)&first_input_data[j * me->cap_w * YUY2_NUM_CHANNEL + k * YUY2_NUM_DATA]);
-                        index += YUY2_NUM_DATA;
-                    }
-                }
-
-                /*Second model pre-processing*/
-                std::memcpy(me->input_data, crop_out_ptr, w*h*me->cap_c*sizeof(uint8_t));
-                me->inference_preprocess(arg, me->mode_2, w, h, &pre_output_ptr_2, &out_size_2);
+                ret = me->inference_preprocess(arg, me->mode_2, &pre_output_ptr_2, &out_size_2, w, h, x, y);
                 me->get_time(end_time);
                 preproc_time_2 +=(float)((me->timedifference_msec(start_time, end_time)));
-                
+                if (0 != ret)
+                {
+                    std::cerr << "[ERROR] Failed to run pre-processing." << std::endl;
+                    me->send_app_message("Failed to run pre-processing.");
+                    break;
+                }
+
                 if (InOutDataType::FLOAT32 == input_data_type_2)
                 {
                     runtime_2.SetInput(0, pre_output_ptr_2);
@@ -728,12 +725,18 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
                     break;
                 }
                 /*Fill AI Inference result structure*/
-                data.predict_image = first_input_data;
+                data.predict_image = me->input_data;
                 data.predict_result = move(drpai_output_buf);
                 data.inf_time_ms = ai_time_2;
                 data.preproc_time_ms = preproc_time_2;
                 /*Post-process start (AI inference result postprocess + image compress + JSON data sending)*/
-                me->inference_postprocess(arg, me->mode_2, data);
+                ret = me->inference_postprocess(arg, me->mode_2, data);
+                if (0 != ret)
+                {
+                    std::cerr << "[ERROR] Failed to run post-processing." << std::endl;
+                    me->send_app_message("Failed to run post-processing.");
+                    break;
+                }
             }
             /*Error check in the Detection loop*/
             if (0 != ret)
@@ -813,31 +816,40 @@ void* RecognizeBase::framerate_thread(void* arg)
     me->_pthread_framerate = 0;
     return NULL;
 }
+
 /**
  * @brief inference_preprocess
  * @details Preprocess
  * @param arg pointer to itself
  * @param model_id ID for model process to be run
- * @param width new width of input data.
- * @param height new height of input data.
  * @param out out_ptr pre-processing result data
  * @param out out_size size of out_ptr
+ * @param width new width of input data. if crop is required, this would be new width of the crop box.
+ * @param height new height of input data. if crop is required, this would be new height of the crop box.
+ * @param crop_left set only if crop is required. x coordinate of the crop box. 
+ * @param crop_top set only if crop is required. y coordinate of the crop box. 
+ * @return int32_t success:0 error: != 0
  */
-void RecognizeBase::inference_preprocess(void* arg,uint8_t model_id, uint32_t width, uint32_t height,  float** out_ptr, uint32_t* out_size)
+int32_t RecognizeBase::inference_preprocess(
+    void* arg,uint8_t model_id,  float** out_ptr, uint32_t* out_size, 
+    uint32_t width, uint32_t height, uint32_t crop_left, uint32_t crop_top)
 {
     timespec start_time;
     timespec end_time;
+    int32_t ret = 0;
 
     RecognizeBase* me = (RecognizeBase*)arg;
     Measuretime m("Pre process time");
     if (me->mode != model_id)
     {
-        _model_2->inf_pre_process(me->input_data, width, height, me->capture_address, out_ptr, out_size);
+        /*Second model requires crop*/
+        ret = _model_2->inf_pre_process(me->input_data, width, height, crop_left, crop_top, me->capture_address, out_ptr, out_size);
     }
     else
     {    
-        _model->inf_pre_process(me->input_data, width, height, me->capture_address, out_ptr, out_size);
+        ret = _model->inf_pre_process(me->input_data, width, height, me->capture_address, out_ptr, out_size);
     }
+    return ret;
 }
 
 /**
@@ -846,11 +858,13 @@ void RecognizeBase::inference_preprocess(void* arg,uint8_t model_id, uint32_t wi
  * @param arg pointer to itself
  * @param model_id ID for model process to be run
  * @param data inference result data
+ * @return int32_t success:0 error: != 0
  */
-void RecognizeBase::inference_postprocess(void* arg, uint8_t model_id, recognizeData_t& data)
+int32_t RecognizeBase::inference_postprocess(void* arg, uint8_t model_id, recognizeData_t& data)
 {
     timespec start_time;
     timespec end_time;
+    int32_t ret = 0;
 
     RecognizeBase* me = (RecognizeBase*)arg;
 
@@ -859,16 +873,17 @@ void RecognizeBase::inference_postprocess(void* arg, uint8_t model_id, recognize
         Measuretime m("Post process time");
         if (me->mode != model_id)
         {
-            _model_2->inf_post_process(data.predict_result.get());
+            ret = _model_2->inf_post_process(data.predict_result.get());
         }
         else
         {
-            _model->inf_post_process(data.predict_result.get());
+            ret = _model->inf_post_process(data.predict_result.get());
         }
     }
     me->get_time(end_time);
     data.postproc_time_ms += (float)((me->timedifference_msec(start_time, end_time)));
     data.predict_result.reset();
+    return ret;
 }
 
 /**

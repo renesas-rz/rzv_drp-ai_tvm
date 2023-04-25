@@ -40,7 +40,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_base.h
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -92,8 +92,10 @@ private:
     static void* capture_thread(void* arg);
     static void* tvm_inference_thread(void* arg);
     static void* framerate_thread(void* arg);
-    void inference_preprocess(void* arg, uint8_t model_id, uint32_t width, uint32_t height, float** out_ptr, uint32_t* out_size);
-    void inference_postprocess(void* arg, uint8_t model_id, recognizeData_t& data);
+    int32_t inference_preprocess
+    (void* arg, uint8_t model_id, float** out_ptr, uint32_t* out_size, 
+        uint32_t width, uint32_t height, uint32_t crop_left = 0, uint32_t crop_top = 0);
+    int32_t inference_postprocess(void* arg, uint8_t model_id, recognizeData_t& data);
     void send_result(void* arg, uint8_t model_id, recognizeData_t& data);
     int32_t end_all_threads();
     void close_camera();
@@ -162,9 +164,6 @@ private:
     int32_t model_c_2;
     uint8_t mode_2 = MODE_TVM_UNKNOWN;
     int32_t _outBuffSize_2;
-
-    constexpr static int32_t YUY2_NUM_CHANNEL   = (2);
-    constexpr static int32_t YUY2_NUM_DATA      = (4);
 
     constexpr static int8_t MODEL_OBJ_NUM       = (3);
     std::string model_obj_names[MODEL_OBJ_NUM] = 

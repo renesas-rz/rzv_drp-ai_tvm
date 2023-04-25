@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_hrnet.h
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -35,6 +35,7 @@
 #include "../../includes.h"
 #include "../command/pose_detection.h"
 #include "../common/PreRuntime.h"
+#include "../common/recognize_define.h"
 
 /*****************************************
 * Static Variables and Macro for HRNet
@@ -77,17 +78,15 @@ private:
 
     /*Cropping Image Related*/
     /*Common*/
-    constexpr static int32_t YUY2_NUM_CHANNEL   = (2);
-    constexpr static int32_t YUY2_NUM_DATA      = (4);
     constexpr static  float HRNET_CROPPED_IMAGE_WIDTH  = (TVM_DRPAI_IN_WIDTH);
     constexpr static  float HRNET_CROPPED_IMAGE_HEIGHT = (TVM_DRPAI_IN_HEIGHT);
     /*HRNet*/
-    constexpr static int32_t CROPPED_IMAGE_LEFT = (184); //Only Even numbers can be set  
+    constexpr static int32_t CROPPED_IMAGE_LEFT = (184);
     constexpr static int32_t CROPPED_IMAGE_TOP = (0);  
     constexpr static int32_t CROPPED_IMAGE_WIDTH = (270); 
     constexpr static int32_t CROPPED_IMAGE_HEIGHT = (TVM_DRPAI_IN_HEIGHT); 
     /*HRNetv2*/
-    constexpr static int32_t CROPPED_IMAGE_LEFT_V2 = (80); //Only Even numbers can be set
+    constexpr static int32_t CROPPED_IMAGE_LEFT_V2 = (80);
     constexpr static int32_t CROPPED_IMAGE_TOP_V2 = (0);
     constexpr static int32_t CROPPED_IMAGE_WIDTH_V2 = (480);
     constexpr static int32_t CROPPED_IMAGE_HEIGHT_V2 = (TVM_DRPAI_IN_HEIGHT);
@@ -112,37 +111,30 @@ private:
 public:
     TVM_HRNET_DRPAI();
     TVM_HRNET_DRPAI(uint8_t id);
-#ifdef TENTATIVE
-    ~TVM_HRNET_DRPAI();
-#endif
+
     virtual int32_t inf_pre_process
     (uint8_t* input_data, uint32_t width, uint32_t height, uint32_t addr, float** arg, uint32_t* buf_size);
     virtual int32_t inf_post_process(float* arg);
     virtual shared_ptr<PredictNotifyBase> get_command();
     virtual int32_t print_result();
 
-    int32_t hrnet_offset(int32_t b, int32_t y, int32_t x);
 
 private:
-    int8_t pre_process(uint8_t* input_data, uint32_t addr, float** output_buf, uint32_t* buf_size);
+    int8_t pre_process_drpai(uint32_t addr, float** output_buf, uint32_t* buf_size);
     int8_t post_process(vector<pos_t>& result, float* floatarr);
 
 private:
     /* Pre-processing Runtime variables for pre-processing */
     PreRuntime preruntime;
     s_preproc_param_t in_param;
-    const std::string pre_dir = "preprocess_tvm_v2ma";
+    std::string pre_dir = "/preprocess";
     float mean[3] = { 0.485, 0.456, 0.406 };
     float stdev[3] = { 0.229, 0.224, 0.225 };
 
     int8_t sign(int32_t x);
     void coord_convert(vector<pos_t>& result, vector<vector<float>>& preds);
-#ifdef TENTATIVE
-    int8_t udmabuf_fd = 0;
-    uint8_t * crop_out_ptr;
-    uint32_t size = 0;
-    uint64_t udmabuf_crop_addr = 0; //required for tentative cropping
-#endif
+    int32_t hrnet_offset(int32_t b, int32_t y, int32_t x);
+
     /* Post-processing result */
     vector<pos_t> postproc_result;
     /* Number of DRP-AI output */

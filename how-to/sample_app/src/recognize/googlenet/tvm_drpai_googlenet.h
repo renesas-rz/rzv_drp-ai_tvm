@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_googlenet.h
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -36,6 +36,7 @@
 #include "../common/functions.h"
 #include "../common/PreRuntime.h"
 #include "../command/classification.h"
+#include "../common/recognize_define.h"
 
 class TVM_GoogleNet_DRPAI : public IRecognizeModel
 {
@@ -70,7 +71,7 @@ private:
     /* Pre-processing Runtime variables for pre-processing */
     PreRuntime preruntime;
     s_preproc_param_t in_param;
-    const std::string pre_dir = "preprocess_tvm_v2ma";
+    const std::string pre_dir = std::string(TVM_MODEL_DIR.data()) + "/preprocess";
     float mean[3] = { -123.68, -116.779, -103.939 };
     float scale[3] = { 1.0, 1.0, 1.0 };
     std::vector<std::string> label_file_map;

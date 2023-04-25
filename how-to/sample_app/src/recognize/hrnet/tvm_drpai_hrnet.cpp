@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_hrnet.cpp
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -33,15 +33,7 @@ TVM_HRNET_DRPAI::TVM_HRNET_DRPAI(uint8_t id) :
         TVM_DRPAI_IN_WIDTH, TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_CHANNEL,
         TVM_MODEL_IN_W, TVM_MODEL_IN_H, TVM_MODEL_IN_C, id)      
 {
-    preruntime.Load(pre_dir);
-
-    /*Compute normalize coefficient, cof_add/cof_mul for DRP-AI from mean/std */
-    in_param.cof_add[0]= -255*mean[0];//-123.675;
-    in_param.cof_add[1]= -255*mean[1];//-116.28;
-    in_param.cof_add[2]= -255*mean[2];//-103.53;
-    in_param.cof_mul[0]= 1/(stdev[0]*255);//0.01712475;
-    in_param.cof_mul[1]= 1/(stdev[1]*255);//0.017507;
-    in_param.cof_mul[2]= 1/(stdev[2]*255);//0.01742919;
+    constructor_err = 0;
 
     if (id == MODE_TVM_HRNET_DRPAI)
     {
@@ -56,14 +48,6 @@ TVM_HRNET_DRPAI::TVM_HRNET_DRPAI(uint8_t id) :
         pre_cropped_image_top = CROPPED_IMAGE_TOP;
         pre_cropped_image_width = CROPPED_IMAGE_WIDTH;
         pre_cropped_image_height =  CROPPED_IMAGE_HEIGHT;
-        
-        /*Define pre-processing parameter*/
-        in_param.pre_in_shape_w = pre_cropped_image_width;
-        in_param.pre_in_shape_h = pre_cropped_image_height;
-        in_param.pre_in_format = INPUT_YUYV;
-        in_param.resize_w = TVM_MODEL_IN_W;
-        in_param.resize_h = TVM_MODEL_IN_H;
-        in_param.resize_alg = ALG_BILINEAR;
         
         num_inf_out = NUM_OUTPUT_W * NUM_OUTPUT_H * NUM_OUTPUT_C;
 
@@ -92,15 +76,7 @@ TVM_HRNET_DRPAI::TVM_HRNET_DRPAI(uint8_t id) :
         pre_cropped_image_top = CROPPED_IMAGE_TOP_V2;
         pre_cropped_image_width = CROPPED_IMAGE_WIDTH_V2;
         pre_cropped_image_height =  CROPPED_IMAGE_HEIGHT_V2;
-        
-        /*Define pre-processing parameter*/
-        in_param.pre_in_shape_w = pre_cropped_image_width;
-        in_param.pre_in_shape_h = pre_cropped_image_height;
-        in_param.pre_in_format = INPUT_YUYV;
-        in_param.resize_w = TVM_MODEL_IN_W_V2;
-        in_param.resize_h = TVM_MODEL_IN_H_V2;
-        in_param.resize_alg = ALG_BILINEAR;
-        
+
         num_inf_out = NUM_OUTPUT_W_V2 * NUM_OUTPUT_H_V2 * NUM_OUTPUT_C_V2;
 
         hrnet_num_output_c = NUM_OUTPUT_C_V2;
@@ -117,69 +93,39 @@ TVM_HRNET_DRPAI::TVM_HRNET_DRPAI(uint8_t id) :
     }
      
     outBuffSize = num_inf_out;
-#ifdef TENTATIVE
-    /* Obtain udmabuf memory area starting address */
-    int8_t fd = 0;
-    char addr[1024];
-    int32_t read_ret = 0;
-    errno = 0;
-    fd = open("/sys/class/u-dma-buf/udmabuf0/phys_addr", O_RDONLY);
-    if (0 > fd)
-    {
-        fprintf(stderr, "[ERROR] Failed to open udmabuf0/phys_addr : errno=%d\n", errno);
-        return;
-    }
-    read_ret = read(fd, addr, 1024);
-    if (0 > read_ret)
-    {
-        fprintf(stderr, "[ERROR] Failed to read udmabuf0/phys_addr : errno=%d\n", errno);
-        close(fd);
-        return;
-    }
-    sscanf(addr, "%lx", &udmabuf_crop_addr);
-    close(fd);
-    /* Filter the bit higher than 32 bit */
-    udmabuf_crop_addr &= 0xFFFFFFFF;
-    /*Add capture buffer offset to udmabuf_crop_addr*/
-    udmabuf_crop_addr += TVM_DRPAI_IN_WIDTH*TVM_DRPAI_IN_HEIGHT*TVM_DRPAI_IN_CHANNEL*4;
-    size = pre_cropped_image_width * pre_cropped_image_height * TVM_DRPAI_IN_CHANNEL;
 
-    /*Mmap udmabuf for cropped image*/
-    udmabuf_fd = open("/dev/udmabuf0", O_RDWR );
-    if (udmabuf_fd < 0)
+    pre_dir = model_dir + pre_dir;
+    /*Initialization for DRP-AI Pre-processing*/
+    constructor_err = preruntime.Load(pre_dir);
+    if (0 != constructor_err)
     {
-        fprintf(stderr, "[ERROR] Failed to open udmabuf.\n");
-        return;
+        err_str = "[ERROR] Failed to load DRP-AI Pre-processing Runtime Object: "+ pre_dir;
+        err_str = err_str +".\nPrepare the Pre-processing Runtime Object";
+        err_str = err_str +" according to the GitHub (https://github.com/renesas-rz/rzv_drp-ai_tvm).";
+        /*Error will be caught at RecognizeBase::recognize_start()*/
     }
-    crop_out_ptr =(uint8_t*) mmap(NULL, size ,PROT_READ|PROT_WRITE, MAP_SHARED,  udmabuf_fd, TVM_DRPAI_IN_WIDTH*TVM_DRPAI_IN_HEIGHT*TVM_DRPAI_IN_CHANNEL*4 ); 
 
-    if (crop_out_ptr == MAP_FAILED)
-    {
-        fprintf(stderr, "[ERROR] Failed to mmap udmabuf.\n");
-        close(udmabuf_fd);
-        return;
-    }
-    /* Write once to allocate physical memory to u-dma-buf virtual space.
-    * Note: Do not use memset() for this.
-    *       Because it does not work as expected. */
-    {
-        for (int i = 0 ; i < size; i++)
-        {
-            crop_out_ptr[i] = 0;
-        }
-    }
-#endif
+    /*Define pre-processing parameter*/
+    in_param.pre_in_shape_w = TVM_DRPAI_IN_WIDTH;
+    in_param.pre_in_shape_h = TVM_DRPAI_IN_HEIGHT;
+    in_param.pre_in_format = FORMAT_YUYV_422;
+    in_param.pre_out_format = FORMAT_RGB;
+    in_param.crop_tl_x = pre_cropped_image_left;
+    in_param.crop_tl_y = pre_cropped_image_top;
+    in_param.crop_w = pre_cropped_image_width;
+    in_param.crop_h = pre_cropped_image_height;
+    in_param.resize_w = _model_w;
+    in_param.resize_h = _model_h;
+    in_param.resize_alg = ALG_BILINEAR;
+    /*Compute normalize coefficient, cof_add/cof_mul for DRP-AI from mean/std */
+    in_param.cof_add[0]= -255*mean[0];//-123.675;
+    in_param.cof_add[1]= -255*mean[1];//-116.28;
+    in_param.cof_add[2]= -255*mean[2];//-103.53;
+    in_param.cof_mul[0]= 1/(stdev[0]*255);//0.01712475;
+    in_param.cof_mul[1]= 1/(stdev[1]*255);//0.017507;
+    in_param.cof_mul[2]= 1/(stdev[2]*255);//0.01742919;
 }
-#ifdef TENTATIVE
-TVM_HRNET_DRPAI::~TVM_HRNET_DRPAI()
-{
-    munmap(crop_out_ptr, size);
-    if (udmabuf_fd > 0)
-    {
-        close(udmabuf_fd);
-    }
-}
-#endif
+
 /**
  * @brief inf_pre_process
  * @details Run pre-processing.
@@ -195,6 +141,7 @@ TVM_HRNET_DRPAI::~TVM_HRNET_DRPAI()
  */
 int32_t TVM_HRNET_DRPAI::inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size)
 {
+    int32_t ret = 0;
     /*Update width and height*/
     if ((width != _capture_w) || (height != _capture_h)) 
     {
@@ -204,8 +151,8 @@ int32_t TVM_HRNET_DRPAI::inf_pre_process(uint8_t* input_data, uint32_t width, ui
         in_param.pre_in_shape_h = _capture_h;
     }
 
-    pre_process(input_data, addr, arg, buf_size);
-    return 0;
+    ret = pre_process_drpai(addr, arg, buf_size);
+    return ret;
 }
 /**
  * @brief inf_post_process
@@ -215,9 +162,10 @@ int32_t TVM_HRNET_DRPAI::inf_pre_process(uint8_t* input_data, uint32_t width, ui
  */
 int32_t TVM_HRNET_DRPAI::inf_post_process(float* arg)
 {
+    int32_t ret = 0;
     postproc_result.clear();
-    post_process(postproc_result, arg);
-    return 0;
+    ret = post_process(postproc_result, arg);
+    return ret;
 }
 /**
  * @brief print_result
@@ -262,40 +210,28 @@ shared_ptr<PredictNotifyBase> TVM_HRNET_DRPAI::get_command()
     return shared_ptr<PredictNotifyBase>(move(ret));
 }
 /**
- * @brief pre_process
- * @details implementation pre process using Pre-processing Runtime and CPU.
- * @param input_data Input data pointer
+ * @brief pre_process_drpai
+ * @details implementation pre process using Pre-processing Runtime.
  * @param addr Physical address of input data buffer
  * @param out output_buf Output data buffer pointer holder
  * @param out buf_size Output data buffer size holder
  * @return int8_t success:0 error: != 0
  */
-int8_t TVM_HRNET_DRPAI::pre_process(uint8_t* input_data, uint32_t addr, float** arg, uint32_t* buf_size)
+int8_t TVM_HRNET_DRPAI::pre_process_drpai(uint32_t addr, float** output_buf, uint32_t* buf_size)
 {
-#ifdef TENTATIVE
-    uint8_t err_crop = 0;
-    uint32_t x;
-    uint32_t y;
-    uint32_t top    = pre_cropped_image_top;
-    uint32_t bottom = top + pre_cropped_image_height;
-    uint32_t left   = pre_cropped_image_left / 2;
-    uint32_t right  = left + pre_cropped_image_width / 2;
-    uint32_t index  = 0;
-    drpai_data_t drpai_data;
-    for (y = top; y < bottom; y++)
-    {
-        for (x = left; x < right; x++)
-        {
-            *((uint32_t *)&crop_out_ptr[index]) = *((uint32_t *)&input_data[y * TVM_DRPAI_IN_WIDTH * YUY2_NUM_CHANNEL + x * YUY2_NUM_DATA]);
-            index += YUY2_NUM_DATA;
-        }
-    }
-#endif
-    in_param.pre_in_addr = (uintptr_t) udmabuf_crop_addr;
+    int8_t ret = 0;
+    in_param.pre_in_addr = (uintptr_t) addr;
     /*Run pre-processing*/
-    preruntime.Pre(&in_param, arg, buf_size);
+    ret = preruntime.Pre(&in_param, (void**)output_buf, buf_size);
+    if (0 != ret)
+    {
+        std::cerr << "[ERROR] Failed to run DRP-AI Pre-processing Runtime."<<std::endl;
+        return -1;
+    } 
     return 0;
 }
+
+
 /**
 * @brief sign
 * @details Get the sign of the input value
@@ -342,7 +278,7 @@ void TVM_HRNET_DRPAI::coord_convert(vector<pos_t> &result, vector<vector<float>>
  */
 int8_t TVM_HRNET_DRPAI::post_process(vector<pos_t> &result,float* floatarr)
 {
-    float     lowest_kpt_score = 0;
+    float lowest_kpt_score = 0;
 
     float score = 0;
     int32_t b = 0;

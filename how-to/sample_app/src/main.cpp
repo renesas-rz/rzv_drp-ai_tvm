@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : main.cpp
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -71,7 +71,7 @@ void on_disconnect(WebsocketServer* snd)
 int32_t main(int32_t argc, char* argv[])
 {
     printf("################################################\n");
-    printf("#    RZ/V2MA DRP-AI TVM Sample Application     #\n");
+    printf("#    RZ/V DRP-AI TVM Sample Application     #\n");
     printf("################################################\n");
 
 

@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_emotionfp.cpp
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -33,40 +33,84 @@ TVM_EmotionFP_DRPAI::TVM_EmotionFP_DRPAI() :
         TVM_DRPAI_IN_WIDTH, TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_CHANNEL, 
         TVM_MODEL_IN_W, TVM_MODEL_IN_H, TVM_MODEL_IN_C, MODE_TVM_EMOTIONFP_DRPAI)
 {
-    /*Initialize opencv container*/
-    image.create(TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_WIDTH, CV_8UC2);
-    image_gray.create(TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_WIDTH, CV_8UC1);
-    image_resize.create(TVM_MODEL_IN_H, TVM_MODEL_IN_W, CV_8UC1);
-}
+    int8_t ret = 0;
+    constructor_err = 0;
+ 
+    /*Get DRP-AI memory area start address*/
+    /*Open DRP-AI Driver*/
+    errno = 0;
+    drpai_fd = open("/dev/drpai0", O_RDWR);
+    if (0 > drpai_fd )
+    {
+        err_str = "[ERROR] Failed to open DRP-AI Driver : errno="+std::to_string(errno);
+        constructor_err = -1;
+    }
+    /* Get DRP-AI Memory Area Address via DRP-AI Driver */
+    errno = 0;
+    ret = ioctl(drpai_fd , DRPAI_GET_DRPAI_AREA, &drpai_data0);
+    if (-1 == ret && 0 == constructor_err)
+    {
+        err_str = "[ERROR] Failed to get DRP-AI Memory Area : errno="+std::to_string(errno);
+        constructor_err = -1;
+    }
+    /*Set start address for pre-processing*/
+    pre_start_addr += drpai_data0.address;
+    /*Close DRP-AI Driver*/
+    if (0 <= drpai_fd )
+    {
+        errno = 0;
+        ret = close(drpai_fd );
+        if (0 != ret && 0 == constructor_err)
+        {
+            err_str = "[ERROR] Failed to close DRP-AI Driver : errno="+std::to_string(errno);
+            constructor_err = -1;
+        }
+    }
 
+    /*Initialization for DRP-AI Pre-processing*/
+    ret = preruntime.Load(pre_dir, pre_start_addr);
+    if (0 != ret && 0 == constructor_err)
+    {
+        err_str = "[ERROR] Failed to load DRP-AI Pre-processing Runtime Object: "+ pre_dir;
+        err_str = err_str +".\nPrepare the Pre-processing Runtime Object";
+        err_str = err_str +" according to the GitHub (https://github.com/renesas-rz/rzv_drp-ai_tvm).";
+        /*Error will be caught at RecognizeBase::recognize_start()*/
+    }
+    
+    /*Define pre-processing parameter*/
+    in_param.pre_in_shape_w = TVM_DRPAI_IN_WIDTH;
+    in_param.pre_in_shape_h = TVM_DRPAI_IN_HEIGHT;
+    in_param.pre_in_format = FORMAT_YUYV_422;
+    in_param.pre_out_format = FORMAT_GRAY;
+    in_param.resize_w = TVM_MODEL_IN_W;
+    in_param.resize_h = TVM_MODEL_IN_H;
+    in_param.resize_alg = ALG_BILINEAR;
+}
 /**
  * @brief inf_pre_process
  * @details Run pre-processing.
  * @details For CPU input, use input_data for input data.
  * @details For DRP-AI input, use addr for input data stored address
  * @param input_data Input data pointer
- * @param width new input data width.
- * @param height new input data width.
+ * @param width width of crop box.
+ * @param height height of crop box.
+ * @param crop_left x coordinate of the crop box top left corner.
+ * @param crop_top y coordinate of the crop box top left corner
  * @param addr Physical address of input data buffer
  * @param out output_buf Output data buffer pointer holder
  * @param out buf_size Output data buffer size holder
  * @return int32_t success:0 error: != 0
  */
-int32_t TVM_EmotionFP_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height,  uint32_t addr, float** arg, uint32_t* buf_size)
+int32_t TVM_EmotionFP_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t width, uint32_t height, uint32_t crop_left, uint32_t crop_top, uint32_t addr, float** arg, uint32_t* buf_size)
 {
-    /*Update width and height*/
-    if ((width != _capture_w) || (height != _capture_h)) 
-    {
-        _capture_w = width;
-        _capture_h = height;
-        image.release();
-        image.create(_capture_h, _capture_w, CV_8UC2);
-        image_gray.release();
-        image_gray.create(_capture_h, _capture_w, CV_8UC1);
-    }
+    int32_t ret = 0;
+    in_param.crop_w = (uint16_t) width;
+    in_param.crop_h = (uint16_t) height;
+    in_param.crop_tl_x = (uint16_t) crop_left;
+    in_param.crop_tl_y = (uint16_t) crop_top;
 
-    pre_process_cpu(input_data, arg, buf_size);
-    return 0;
+    ret = pre_process_drpai(addr, arg, buf_size);
+    return ret;
 }
 /**
  * @brief inf_post_process
@@ -76,9 +120,10 @@ int32_t TVM_EmotionFP_DRPAI:: inf_pre_process(uint8_t* input_data, uint32_t widt
  */
 int32_t TVM_EmotionFP_DRPAI::inf_post_process(float* arg)
 {
+    int32_t ret = 0;
     postproc_result.clear();
-    post_process(postproc_result, arg);
-    return 0;
+    ret = post_process(postproc_result, arg);
+    return ret;
 }
 /**
  * @brief print_result
@@ -137,42 +182,24 @@ shared_ptr<PredictNotifyBase> TVM_EmotionFP_DRPAI::get_command()
 }
 
 /**
- * @brief pre_process_cpu
- * @details implementation pre process for OpenCV
- * @param input_data input data buffer
- * @param out output_buf output data buffer pointer holder
+ * @brief pre_process_drpai
+ * @details implementation pre process using Pre-processing Runtime.
+ * @param addr Physical address of input data buffer
+ * @param out output_buf Output data buffer pointer holder
  * @param out buf_size Output data buffer size holder
  * @return int8_t success:0 error: != 0
  */
-int8_t TVM_EmotionFP_DRPAI::pre_process_cpu(uint8_t* input_data, float** output_buf, uint32_t* buf_size)
+int8_t TVM_EmotionFP_DRPAI::pre_process_drpai(uint32_t addr, float** output_buf, uint32_t* buf_size)
 {
-    float val = 0;
-    chw.clear();
-    /*Loop variant*/
-    int32_t c = 0;
-    int32_t y = 0;
-    int32_t x = 0;
-
-    /*Load input image to opencv container*/
-    image = cv::Mat(_capture_h, _capture_w, CV_8UC2, (void*)input_data);
-    /*Color conversion*/
-    cv::cvtColor(image, image_gray, cv::COLOR_YUV2GRAY_YUYV);
-    /*Resize*/
-    cv::resize(image_gray, image_resize, cv::Size(_model_w, _model_h), 0, 0, cv::INTER_AREA);
-    /*Cast to float and Transpose*/
-    for (c = 0; c < _model_c ; c++)
+    int8_t ret = 0;
+    in_param.pre_in_addr = (uintptr_t) addr;
+    /*Run pre-processing*/
+    ret = preruntime.Pre(&in_param, (void**)output_buf, buf_size);
+    if (0 != ret)
     {
-        for (y = 0; y < _model_h ; y++)
-        {
-            for (x = 0; x < _model_w ; x++)
-            {
-                val = (float) image_resize.at<uchar>(y, x);
-                chw.push_back(val);
-            }
-        }
-    }
-    /*Copy output pointer to output_buf*/
-    *output_buf = chw.data();
+        std::cerr << "[ERROR] Failed to run DRP-AI Pre-processing Runtime."<<std::endl;
+        return -1;
+    } 
     return 0;
 }
 

@@ -2,7 +2,7 @@
  * Original Code (C) Copyright Edgecortix, Inc. 2022
  * Modified Code (C) Copyright Renesas Electronics Corporation 2023
  *　
- *  *1 DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
+ *  *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -25,7 +25,7 @@
 
 /***********************************************************************************************************************
 * File Name    : tutorial_app.cpp
-* Version      : 1.0.0
+* Version      : 1.1.0
 * Description  : DRP-AI TVM[*1] Application Example
 ***********************************************************************************************************************/
 
@@ -36,26 +36,26 @@
 #include <fstream>
 #include <sys/time.h>
 #include <climits>
-#include <cstdlib>
-#include <cstring>
 
 #include "MeraDrpRuntimeWrapper.h"
 #include "PreRuntime.h"
-
 /*****************************************
 * Macro
 ******************************************/
 /*Input image info*/
 #define INPUT_IMAGE_H       (480)
 #define INPUT_IMAGE_W       (640)
-#define INPUT_IMAGE_C_YUY2  (2)
+#define INPUT_IMAGE_C       (3)
 /*Model input info*/
 #define MODEL_IN_H          (224)
 #define MODEL_IN_W          (224)
 #define MODEL_IN_C          (3)
-
 /* Image buffer (u-dma-buf) */
 unsigned char * img_buffer;
+
+/*BMP Header size for Windows Bitmap v3*/
+#define FILEHEADERSIZE          (14)
+#define INFOHEADERSIZE_W_V3     (40)
 
 /* Edgecortex Functions */
 std::ostream& operator<<(std::ostream& os, InOutDataType type)
@@ -185,33 +185,72 @@ void softmax(float* val, int32_t size)
 }
 
 /*****************************************
-* Function Name : read_bin
-* Description   : Function to load YUY2 bin file into img_buffer[]
-*                 Make sure img_buffer is allocated for size of buffer_size beforehand.
-* Arguments     : filename = name of bin file to be read
+* Function Name : read_bmp
+* Description   : Function to load BMP file into img_buffer
+* NOTE          : This is just the simplest example to read Windows Bitmap v3 file.
+*                 This function does not have header check.
+* Arguments     : filename = name of BMP file to be read
+*                 width  = BMP image width
+*                 height = BMP image height
+*                 channel = BMP image color channel
 * Return value  : 0 if succeeded
 *                 not 0 otherwise
 ******************************************/
-uint8_t read_bin(std::string filename, uint32_t buffer_size)
+int8_t read_bmp(std::string filename, uint32_t width, uint32_t height, uint32_t channel)
 {
-    FILE *fp = fopen(filename.c_str(), "rb");
-    if (fp == NULL)
+    int32_t i = 0;
+    FILE *fp = NULL;
+    size_t ret = 0;
+    uint32_t header_size = FILEHEADERSIZE + INFOHEADERSIZE_W_V3;
+    /*  Read header for Windows Bitmap v3 file. */
+    uint8_t bmp_header[header_size];
+    uint8_t * bmp_line_data;
+
+    /* Number of byte in single row */
+    /* NOTE: Number of byte in single row of Windows Bitmap image must be aligned to 4 bytes. */
+    int32_t line_width = width * channel + width % 4;
+
+    fp = fopen(filename.c_str(), "rb");
+    if (NULL == fp)
     {
-        std::cerr << "[ERROR] Failed to open binary file: "<<filename << std::endl;
         return -1;
     }
-
-    if (!fread(&img_buffer[0], sizeof(unsigned char), buffer_size, fp))
+    /* Read all header */
+    errno = 0;
+    ret = fread(bmp_header, sizeof(uint8_t), header_size, fp);
+    if (!ret)
     {
-        std::cerr << "[ERROR] Failed to read binary file: "<<filename << std::endl;
+        std::cerr << "[ERROR] Failed to run fread(): errno="<<(uint8_t) errno << std::endl;
         fclose(fp);
         return -1;
     }
-    fclose(fp);
+    /* Single row image data */
+    bmp_line_data = (uint8_t *) malloc(sizeof(uint8_t) * line_width);
+    if (NULL == bmp_line_data)
+    {
+        std::cerr << "[ERROR] Failed to malloc for fread(): errno="<<(uint8_t) errno << std::endl;
+        fclose(fp);
+        return -1;
+    }
 
+    for (i = height-1; i >= 0; i--)
+    {
+        errno = 0;
+        ret = fread(bmp_line_data, sizeof(uint8_t), line_width, fp);
+        if (!ret)
+        {
+            std::cerr << "[ERROR] Failed to run fread(): errno="<<(uint8_t) errno << std::endl;
+            free(bmp_line_data);
+            fclose(fp);
+            return -1;
+        }
+        memcpy(img_buffer+i*width*channel, bmp_line_data, sizeof(uint8_t)*width*channel);
+    }
+
+    free(bmp_line_data);
+    fclose(fp);
     return 0;
 }
-
 /*****************************************
 * Function Name : get_udmabuf_addr
 * Description   : Function to obtain the u-dma-buf start address.
@@ -262,9 +301,6 @@ static double timedifference_msec(struct timespec t0, struct timespec t1)
 int main(int argc, char** argv)
 {
     uint8_t ret = 0;
-    /* ResNet Information */
-    float mean[] = { 0.485, 0.456, 0.406 };
-    float std[] = { 0.229, 0.224, 0.225 };
     /* Label list file for ImageNet*/
     std::string labels = "synset_words_imagenet.txt";
     /* Map to store label list */
@@ -280,41 +316,13 @@ int main(int argc, char** argv)
     /* Pre-processing Runtime object */
     PreRuntime preruntime;
 
-
     /* Model Binary */
     std::string model_dir = "resnet18_onnx";
     /* Pre-processing Runtime Object */
-    const char prod_v2l[]="V2L";
-    const char prod_v2m[]="V2M";
-    const char prod_v2ma[]="V2MA";
-    const char *env_var = std::getenv("PRODUCT");
-    if (env_var == nullptr )
-    {
-        std::cerr << "[ERROR] PRODUCT variable is not set." << std::endl << "E.g., for V2MA, run \"export PRODUCT=V2MA\"." << std::endl;
-        return 0;
-    }	    
-
-    std::string pre_dir = "";
-    if ( 0 == std::strcmp(env_var, prod_v2l))
-    {
-        pre_dir += "preprocess_tvm_v2l";
-    }
-	else if ( 0 == std::strcmp(env_var, prod_v2m))
-    {
-        pre_dir += "preprocess_tvm_v2m";
-    }
-    else if ( 0 == std::strcmp(env_var, prod_v2ma))
-    {
-        pre_dir += "preprocess_tvm_v2ma";
-    }
-    else
-    {
-        std::cerr << "[ERROR] PRODUCT variable is unsupported value." << std::endl;
-        return 0;
-    }
+    std::string pre_dir = model_dir + "/preprocess";
 
     /* Input image file */
-    std::string filename = "sample.yuv";
+    std::string filename = "sample.bmp";
 
     /* About u-dma-buf
         Pre-processing Runtime requires the input buffer to be allocated in continuous memory area.
@@ -322,10 +330,9 @@ int main(int argc, char** argv)
         Refer to RZ/V2MA DRP-AI Support Package for imagebuf details. */
     /*File descriptor for u-dma-buf*/
     int8_t udmabuf_fd = 0;
-    uint32_t udmabuf_size = INPUT_IMAGE_H*INPUT_IMAGE_W*INPUT_IMAGE_C_YUY2;
     /* u-dma-buf start addres */
     uint64_t udmabuf_addr_start = 0;
-
+    uint32_t udmabuf_size = INPUT_IMAGE_H*INPUT_IMAGE_W*INPUT_IMAGE_C;
     /* Load Label list */
     label_file_map = load_label_file(labels);
     if (label_file_map.empty())
@@ -374,7 +381,7 @@ int main(int argc, char** argv)
     * Note: Do not use memset() for this.
     *       Because it does not work as expected. */
     {
-        for(int i = 0 ; i <  udmabuf_size; i++)
+        for(int i = 0 ; i < udmabuf_size; i++)
         {
             img_buffer[i] = 0;
         }
@@ -385,32 +392,50 @@ int main(int argc, char** argv)
     {
         /* Pre-processing */
         /* Read image data from file */
-        ret = read_bin(filename, INPUT_IMAGE_W*INPUT_IMAGE_H*INPUT_IMAGE_C_YUY2);
+        ret = read_bmp(filename, INPUT_IMAGE_W, INPUT_IMAGE_H, INPUT_IMAGE_C);
         if (ret > 0)
         {
-            std::cerr << "[ERROR] Failed to read bin " << std::endl;
+            std::cerr << "[ERROR] Failed to read image :"<<filename << std::endl;
             munmap(img_buffer, udmabuf_size);
             close(udmabuf_fd);
             return 0;
         }
         /*Define parameter to be changed in Pre-processing Runtime*/
         s_preproc_param_t in_param;
-        in_param.pre_in_addr = udmabuf_addr_start;
+        in_param.pre_in_addr    = udmabuf_addr_start;
         in_param.pre_in_shape_w = INPUT_IMAGE_W;
         in_param.pre_in_shape_h = INPUT_IMAGE_H;
-        in_param.pre_in_format = INPUT_YUYV;
-        in_param.resize_w = MODEL_IN_W;
-        in_param.resize_h = MODEL_IN_H;
-        in_param.resize_alg = ALG_BILINEAR;
-        /*Compute normalize coefficient, cof_add/cof_mul for DRP-AI from mean/std */
-        in_param.cof_add[0]= -255*mean[0];
-        in_param.cof_add[1]= -255*mean[1];
-        in_param.cof_add[2]= -255*mean[2];
-        in_param.cof_mul[0]= 1/(std[0]*255);
-        in_param.cof_mul[1]= 1/(std[1]*255);
-        in_param.cof_mul[2]= 1/(std[2]*255);
+        in_param.pre_in_format  = FORMAT_BGR;
+        in_param.pre_out_format = FORMAT_RGB;
+        /*Crop parameters can be changed. Currently not used.*/
+        /* 
+        in_param.crop_tl_x = 185;
+        in_param.crop_tl_y = 0;
+        in_param.crop_w = 480;
+        in_param.crop_h = 480;
+        */
+
+        /*Resize parameters can be changed. Currently not used.*/
+        /*
+        in_param.resize_w       = MODEL_IN_W;
+        in_param.resize_h       = MODEL_IN_H;
+        in_param.resize_alg     = ALG_BILINEAR;
+        */
+
+        /*Normalize parameters can be changed. Currently not used.*/
+        /* Compute normalize coefficient, cof_add/cof_mul for DRP-AI from mean/std */
+        /*
+        float mean[] = { 0.485, 0.456, 0.406 };
+        float std[] = { 0.229, 0.224, 0.225 };
+        in_param.cof_add[0] = -255*mean[0];
+        in_param.cof_add[1] = -255*mean[1];
+        in_param.cof_add[2] = -255*mean[2];
+        in_param.cof_mul[0] = 1/(std[0]*255);
+        in_param.cof_mul[1] = 1/(std[1]*255);
+        in_param.cof_mul[2] = 1/(std[2]*255);
+        */
         /*Output variables for Pre-processing Runtime */
-        float* output_ptr;
+        void* output_ptr;
         uint32_t out_size;
 
         timespec_get(&start_time, TIME_UTC);
@@ -424,13 +449,12 @@ int main(int argc, char** argv)
             return 0;
         }
         timespec_get(&end_time, TIME_UTC);
-
         /* Print Inference processing time */
         diff = timedifference_msec(start_time, end_time);
         std::cout<<"[TIME] Pre Processing Time: "<< std::fixed << std::setprecision(2)<< diff << " msec." << std::endl;
 
         /*Set Pre-processing output to be inference input. */
-        runtime.SetInput(0, output_ptr);
+        runtime.SetInput(0, (float*)output_ptr);
     }
     else if (InOutDataType::FLOAT16 == input_data_type)
     {

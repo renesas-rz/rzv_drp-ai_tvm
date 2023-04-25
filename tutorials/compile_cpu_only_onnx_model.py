@@ -1,6 +1,6 @@
 #
 #  Original code (C) Copyright EdgeCortix, Inc. 2022
-#  Modified Portion (C) Copyright Renesas Electronics Corporation 2022
+#  Modified Portion (C) Copyright Renesas Electronics Corporation 2023
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -19,6 +19,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+from drpai_preprocess import * 
 import os
 import onnx
 import numpy as np
@@ -33,6 +34,16 @@ from tvm.contrib import cc
 from optparse import OptionParser
 
 from arg_parser import get_args
+
+import sys
+PRODUCT= os.getenv("PRODUCT")
+if(PRODUCT == None):
+    print("[Error] No environment variable")
+    print("        Before running this script,")
+    print("        Please set environment variable(PRODUCT)")
+    print("        to your product name.")
+    print("        e.g. $export PRODUCT=V2L")
+    sys.exit(-1)
 
 if __name__ == "__main__":
     # 1. Get argument data
@@ -102,3 +113,35 @@ if __name__ == "__main__":
         f.write(save_param_dict(all_params))
     print("[TVM compile finished]")
     print("   Please check {0} directory".format(output_dir))
+
+    # 4. Compile pre-processing using DRP-AI Pre-processing Runtime
+    # 4.1. Define the pre-processing data
+    config = preruntime.Config()
+    
+    # 4.1.1. Define input data of preprocessing
+    config.shape_in     = [1, 480, 640, 3]
+    config.format_in    = drpai_param.FORMAT.BGR
+    config.order_in     = drpai_param.ORDER.HWC
+    config.type_in      = drpai_param.TYPE.UINT8
+    
+    # 4.1.2. Define output data of preprocessing (Will be model input)
+    model_shape_in = list(opts["input_shape"])
+    config.shape_out    = model_shape_in
+    config.format_out   = drpai_param.FORMAT.RGB
+    config.order_out    = drpai_param.ORDER.CHW
+    config.type_out     = drpai_param.TYPE.FP32 
+    # Note: type_out depends on DRP-AI TVM[*1]. Usually FP32.
+    
+    # 4.1.3. Define operators to be run.
+    mean    = [0.485, 0.456, 0.406]
+    stdev   = [0.229, 0.224, 0.225]
+    r = 255
+    cof_add = [-m*r for m in mean]
+    cof_mul = [1/(s*r) for s in stdev]
+    config.ops = [
+        op.Resize(model_shape_in[3], model_shape_in[2], op.Resize.BILINEAR),
+        op.Normalize(cof_add, cof_mul)
+    ]
+    
+    # 4.2. Run DRP-AI Pre-processing Runtime
+    preruntime.PreRuntime(config, output_dir+"/preprocess", PRODUCT)

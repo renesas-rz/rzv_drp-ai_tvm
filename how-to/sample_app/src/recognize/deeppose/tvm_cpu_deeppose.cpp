@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_cpu_deeppose.cpp
-* Version      : 1.0.4
+* Version      : 1.1.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -33,6 +33,7 @@ TVM_DeepPose_CPU::TVM_DeepPose_CPU() :
         TVM_DRPAI_IN_WIDTH, TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_CHANNEL,
         TVM_MODEL_IN_W, TVM_MODEL_IN_H, TVM_MODEL_IN_C,  MODE_TVM_DEEPPOSE_CPU )
 {
+    constructor_err = 0;
     /*Initialize opencv container*/
     image.create(TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_WIDTH, CV_8UC2);
     image_rgb.create(TVM_DRPAI_IN_HEIGHT, TVM_DRPAI_IN_WIDTH, CV_8UC3);
