@@ -1,7 +1,7 @@
 /*
  * Original Code (C) Copyright Edgecortix, Inc. 2022
  * Modified Code (C) Copyright Renesas Electronics Corporation 2023
- *　
+ *
  *  *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -42,13 +42,14 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_base.cpp
-* Version      : 1.1.0
+* Version      : 1.1.1
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 ***********************************************************************************************************************/
 
 /*****************************************
 * Includes
 ******************************************/
+#include <linux/drpai.h>
 #include "recognize_base.h"
 #include "../image_converter.h"
 #include "../command/camera_image.h"
@@ -58,6 +59,38 @@
 #include <builtin_fp16.h>
 #include <fstream>
 #include <sys/time.h>
+
+/*****************************************
+* Function Name : get_drpai_start_addr
+* Description   : Function to get the start address of DRPAImem.
+* Arguments     : -
+* Return value  : uint32_t = DRPAImem start address in 32-bit.
+******************************************/
+uint32_t get_drpai_start_addr()
+{
+    int fd  = 0;
+    int ret = 0;
+    drpai_data_t drpai_data;
+
+    errno = 0;
+
+    fd = open("/dev/drpai0", O_RDWR);
+    if (0 > fd )
+    {
+        LOG(FATAL) << "[ERROR] Failed to open DRP-AI Driver : errno=" << errno;
+        return (uint32_t)NULL;
+    }
+
+    /* Get DRP-AI Memory Area Address via DRP-AI Driver */
+    ret = ioctl(fd , DRPAI_GET_DRPAI_AREA, &drpai_data);
+    if (-1 == ret)
+    {
+        LOG(FATAL) << "[ERROR] Failed to get DRP-AI Memory Area : errno=" << errno ;
+        return (uint32_t)NULL;
+    }
+
+    return drpai_data.address;
+}
 
 /**
  * @brief RecognizeBase
@@ -468,8 +501,17 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
     recognizeData_t data;
     InOutDataType input_data_type;
     InOutDataType input_data_type_2;
+    uint32_t drpaimem_addr_start = 0;
+
 
     printf("Inference Thread Starting\n");
+
+    drpaimem_addr_start = get_drpai_start_addr();
+    if (drpaimem_addr_start == (uint32_t)NULL)
+    {
+        /* Enough error notifications are output from function get_drpai_start_addr(). */
+	return 0;
+    }
 
     if (!me->model_exist(me->dir))
     { 
@@ -479,11 +521,13 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
     }
 
     /*DRP-AI TVM[*1]::Load model_dir structure and its weight to runtime object */
-    runtime.LoadModel(me->dir);
+    runtime.LoadModel(me->dir, drpaimem_addr_start+0x32E0000);
 
     /*DRP-AI TVM[*1]::Get input data type*/
     input_data_type = runtime.GetInputDataType(0);
 
+    /* Load the secondary model as follows. The address offset is +0x10000000. */
+    /* If the primary model is larger than 256M, readjust. */
     if (MODE_TVM_UNKNOWN != me->mode_2)
     {
         if (!me->model_exist(me->dir_2))
@@ -493,7 +537,7 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
             return 0;
         }
         /*DRP-AI TVM[*1]::Load model_dir structure and its weight to runtime object */
-        runtime_2.LoadModel(me->dir_2);
+        runtime_2.LoadModel(me->dir_2, drpaimem_addr_start+0x42E0000);
         /*DRP-AI TVM[*1]::Get input data type*/
         input_data_type_2 = runtime_2.GetInputDataType(0);
     }

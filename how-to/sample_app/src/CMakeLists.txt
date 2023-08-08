@@ -1,8 +1,10 @@
 ﻿cmake_minimum_required (VERSION 3.8)
+set(CMAKE_CXX_STANDARD 17)
 project(V2MA_TVM_USB_SAMPLE)
 
 set(TVM_ROOT $ENV{TVM_HOME})
 include_directories(${TVM_ROOT}/include)
+include_directories(${TVM_ROOT}/../apps)
 include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
 include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
 include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
@@ -10,7 +12,7 @@ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
 set(EXE_NAME sample_app_drpai_tvm_usbcam_http)
 set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
 
-file(GLOB SOURCE *.cpp *.h */*.cpp */*.h  */*/*.cpp */*/*.h)
+file(GLOB SOURCE *.cpp *.h */*.cpp */*.h  */*/*.cpp */*/*.h ../../../apps/MeraDrpRuntimeWrapper.* ../../../apps/PreRuntime.* )
 add_executable (${EXE_NAME}
 ${SOURCE}
 )

@@ -37,8 +37,9 @@
           </div>
         </div>
         <div class="col-xl-6 side_right">
-          <div class="movie">
+          <div class="movie" id="pred_container">
             <canvas id="pred_canvas" width="640" height="480"></canvas>
+            <canvas id="pred_overlay_canvas" width="640" height="480"></canvas>
             <div class="movie_info">
               <p class="subtitle">Inference Result</p>
               <p class="now_time">00:00:00</p>
@@ -74,6 +75,7 @@
                   <option value="TVM_DRPAI_HRNETV2">HRNetv2 (DRP-AI)</option>
                   <option value="TVM_DRPAI_GOOGLENET">GoogleNet (DRP-AI)</option>
                   <option value="TVM_DRPAI_EMOTIONFP">Emotion FERPlus (DRP-AI)</option>
+                  <option value="TVM_DRPAI_DEEPLABV3">DeepLabv3 (DRP-AI)</option>
                 </select>
               </label>
             </div>

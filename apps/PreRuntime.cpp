@@ -223,10 +223,10 @@ bool PreRuntime::StartsWith(std::string str, std::string prefix)
 ******************************************/
 uint8_t PreRuntime::LoadFileToMemDynamic(std::string data, unsigned long offset, unsigned long size, uint32_t file_type)
 {
-    int8_t ret_load_data = PRE_SUCCESS;
-    uint8_t obj_fd = 0;
+    int8_t  ret_load_data = PRE_SUCCESS;
+    int     obj_fd = 0;
     uint8_t drpai_buf[BUF_SIZE];
-    int8_t drpai_fd = drpai_obj_info.drpai_fd;
+    int     drpai_fd = drpai_obj_info.drpai_fd;
     drpai_data_dynamic_t drpai_data_dynamic;
     uint8_t ret = 0;
     int32_t i = 0;
@@ -308,10 +308,10 @@ end:
 ******************************************/
 uint8_t PreRuntime::LoadDataToMem(std::vector<uint8_t> data, unsigned long from, unsigned long size)
 {
-    int8_t drpai_fd = drpai_obj_info.drpai_fd;
+    int          drpai_fd = drpai_obj_info.drpai_fd;
     drpai_data_t drpai_data;
-    uint8_t ret = 0;
-    int32_t i = 0;
+    uint8_t      ret = 0;
+    int32_t      i = 0;
 
     errno = 0;
     drpai_data.address = from;
@@ -453,7 +453,7 @@ uint8_t PreRuntime::ParseParamInfo(const std::string info_file)
     s_op_t tmp_op;
     s_op_param_t tmp_param;
     bool first_itr_done = false;
-    int8_t drpai_fd = drpai_obj_info.drpai_fd;
+    int  drpai_fd = drpai_obj_info.drpai_fd;
     drpai_assign_param_t drpai_param;
     uint32_t drp_param_info_size;
     errno = 0;

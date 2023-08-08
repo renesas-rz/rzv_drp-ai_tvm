@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_proc.cpp
-* Version      : 1.1.0
+* Version      : 1.1.1
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -100,6 +100,12 @@ void RecognizeProc::switch_model(std::string model)
         /* Run face detection and then run emotion estimation */
         p_recog_base->initialize(new TVM_UltraFace_DRPAI(), new TVM_EmotionFP_DRPAI());
     }
+    else if ("TVM_DRPAI_DEEPLABV3" == model)
+    {
+        /* Run semantic segmentation */
+        p_recog_base->initialize(new TVM_DeepLabv3_DRPAI());
+    }
+    
     p_recog_base->recognize_start();
 
 }

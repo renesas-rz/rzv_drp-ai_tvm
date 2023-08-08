@@ -52,20 +52,12 @@ Before run build function, set drp configuration for runtime.
 ```py
 drp_config_runtime = {
     "interpreter": False,
-    "addr_map_start": 0x438E0000,
+    "addr_map_start": 0x0,
     "toolchain_dir": <TRANSRATOR PATH>,
     "sdk_root": <SDK PATH>
 }
 ```
-Please set the start address for Renesas Evaluation Board Kit to "addr_map_start". If you use Renesas Evaluation Board Kit with the default settings, please set the each address in the table below.  
-Address below is defined based on the pre-processing configuration.  For more details, please see [Note](#note)
-
-| Renesas Evaluation Board Kit | Start Address |  
-|------------------------------|:-------------:|  
-| RZ/V2L  Evaluation Board Kit | 0x838E0000    |  
-| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |  
-| RZ/V2MA Evaluation Board Kit | 0x438E0000    |  
-
+The definition of "addr_map_start" is currently not working, so 0x0 is set.
 
 "toolchain_dir" and "sdk_root" is directories where DRP-AI Translator and SDK are installed, respectively.
 

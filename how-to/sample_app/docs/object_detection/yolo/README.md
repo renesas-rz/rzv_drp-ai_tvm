@@ -69,15 +69,8 @@ $ python3 convert_to_onnx.py yolov3
 #### 2. Compile onnx models
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
 2. Place the onnx file in `$TVM_HOME/../tutorials`.  
-3. Change the `addr_map_start` setting in `compile_onnx_model.py` provided in [Compile Tutorial](../../../../../tutorials) to the following address, depending on the board. 
 
-| Renesas Evaluation Board Kit | Start Address |
-|------------------------------|:-------------:|
-| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
-| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
-| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
-  
-4. Change the pre-processing details as shown below.  
+3. Change the pre-processing details as shown below.  
 
 Before
 ```py

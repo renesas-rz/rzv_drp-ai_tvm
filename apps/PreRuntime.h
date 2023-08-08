@@ -258,7 +258,7 @@ typedef struct
 
 typedef struct
 {
-    int8_t          drpai_fd = -1;
+    int             drpai_fd = -1;
     st_drpai_data_t data_inout;
     st_addr_info_t  drpai_address;
 } drpai_handle_t;

@@ -89,3 +89,16 @@ label {
     padding: 5px;
     margin: 10px;
 }
+#pred_container {
+    position: relative;
+}
+#pred_canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#pred_overlay_canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}

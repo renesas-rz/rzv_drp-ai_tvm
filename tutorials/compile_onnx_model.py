@@ -83,7 +83,7 @@ if __name__ == "__main__":
     # 3.2.1 Set config for DRP-AI runtime
     drp_config_runtime = {
         "interpreter": False,
-        "addr_map_start": 0x438E0000,
+        "addr_map_start": 0x0,
         "toolchain_dir": opts["drp_compiler_dir"],
         "sdk_root": opts["toolchain_dir"]
     }

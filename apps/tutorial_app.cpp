@@ -32,6 +32,7 @@
 /*****************************************
 * includes
 ******************************************/
+#include <linux/drpai.h>
 #include <builtin_fp16.h>
 #include <fstream>
 #include <sys/time.h>
@@ -252,6 +253,38 @@ int8_t read_bmp(std::string filename, uint32_t width, uint32_t height, uint32_t 
     return 0;
 }
 /*****************************************
+* Function Name : get_drpai_start_addr
+* Description   : Function to get the start address of DRPAImem.
+* Arguments     : -
+* Return value  : uint32_t = DRPAImem start address in 32-bit.
+******************************************/
+uint32_t get_drpai_start_addr()
+{
+    int fd  = 0;
+    int ret = 0;
+    drpai_data_t drpai_data;
+
+    errno = 0;
+
+    fd = open("/dev/drpai0", O_RDWR);
+    if (0 > fd )
+    {
+        LOG(FATAL) << "[ERROR] Failed to open DRP-AI Driver : errno=" << errno;
+        return (uint32_t)NULL;
+    }
+
+    /* Get DRP-AI Memory Area Address via DRP-AI Driver */
+    ret = ioctl(fd , DRPAI_GET_DRPAI_AREA, &drpai_data);
+    if (-1 == ret)
+    {
+        LOG(FATAL) << "[ERROR] Failed to get DRP-AI Memory Area : errno=" << errno ;
+        return (uint32_t)NULL;
+    }
+
+    return drpai_data.address;
+}
+
+/*****************************************
 * Function Name : get_udmabuf_addr
 * Description   : Function to obtain the u-dma-buf start address.
 * Arguments     : -
@@ -259,8 +292,8 @@ int8_t read_bmp(std::string filename, uint32_t width, uint32_t height, uint32_t 
 ******************************************/
 uint32_t get_udmabuf_addr()
 {
-    int8_t fd = 0;
-    char addr[1024];
+    int     fd = 0;
+    char    addr[1024];
     int32_t read_ret = 0;
     uint32_t udmabuf_addr_start = 0;
     errno = 0;
@@ -329,9 +362,10 @@ int main(int argc, char** argv)
         This application uses imagebuf (u-dma-buf) memory area.
         Refer to RZ/V2MA DRP-AI Support Package for imagebuf details. */
     /*File descriptor for u-dma-buf*/
-    int8_t udmabuf_fd = 0;
+    int udmabuf_fd = 0;
     /* u-dma-buf start addres */
     uint64_t udmabuf_addr_start = 0;
+    uint64_t drpaimem_addr_start = 0;
     uint32_t udmabuf_size = INPUT_IMAGE_H*INPUT_IMAGE_W*INPUT_IMAGE_C;
     /* Load Label list */
     label_file_map = load_label_file(labels);
@@ -350,7 +384,9 @@ int main(int argc, char** argv)
     }
 
     /*Load model_dir structure and its weight to runtime object */
-    runtime.LoadModel(model_dir);
+    drpaimem_addr_start = get_drpai_start_addr();
+    if (drpaimem_addr_start == (uint64_t)NULL) return 0;
+    runtime.LoadModel(model_dir, drpaimem_addr_start+0x38E0000);
 
     /*Get input data */
     auto input_data_type = runtime.GetInputDataType(0);

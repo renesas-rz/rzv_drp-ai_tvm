@@ -93,16 +93,7 @@ print("Torch model saved to ./hrnetv2.pt")
 #### Compile pytorch model
 1. Copy the `hrnetv2.pt` to the `drp-ai_tvm/tutorials` directory.
 
-2. Change the `addr_map_start` setting in `compile_pytorch_model.py` provided in [Compile Tutorial](../../../../../tutorials) to the following address, depending on the board. 
-
-| Renesas Evaluation Board Kit | Start Address |
-|------------------------------|:-------------:|
-| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
-| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
-| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
- 
-
-3. Change the pre-processing details as shown below.  
+2. Change the pre-processing details as shown below.  
 
 Before
 ```py
@@ -162,7 +153,7 @@ After
     ]
 ```
 
-4. Run the script with the command below.  
+3. Run the script with the command below.  
 ```sh
 # Run DRP-AI TVM[*1] Compiler script
 python3 compile_pytorch_model.py \
@@ -170,8 +161,8 @@ python3 compile_pytorch_model.py \
     -o hrnetv2_pt \
     -s 1,3,256,256
 ```
-5. Confirm that three files, `deploy.so`, `deploy.params`, and `deploy.json`, and `preprocess` directory have been created in the `hrnetv2_pt` directory.  
-6. Copy the `hrnetv2_pt` directory into the execution environment directory where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
+4. Confirm that three files, `deploy.so`, `deploy.params`, and `deploy.json`, and `preprocess` directory have been created in the `hrnetv2_pt` directory.  
+5. Copy the `hrnetv2_pt` directory into the execution environment directory where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
 
 ## Processing Details
 

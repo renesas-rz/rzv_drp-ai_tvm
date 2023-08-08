@@ -33,7 +33,7 @@ This compiler stack is an extension of the DRP-AI Translator to the TVM backend.
 |docs |Documents, i.e., Model list and API list|
 |img |Image files used in this document|
 |tvm | TVM repository from github |
-|3rd party | 3rd party tools |   
+|3rdparty | 3rd party tools |   
 |how-to |Sample to solve specific problems, i.e., How to run validation between x86 and DRP-AI|
 
 
