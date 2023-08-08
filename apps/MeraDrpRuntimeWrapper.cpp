@@ -1,6 +1,6 @@
 /*
  * Original Code (C) Copyright Edgecortix, Inc. 2022
- * Modified Code (C) Copyright Renesas Electronics Corporation 2022　
+ * Modified Code (C) Copyright Renesas Electronics Corporation 2023　
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -62,12 +62,16 @@ MeraDrpRuntimeWrapper::MeraDrpRuntimeWrapper() {
 
 MeraDrpRuntimeWrapper::~MeraDrpRuntimeWrapper() = default;
 
-void MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir) {
+bool MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir, uint32_t start_address = 0x00) {
     LOG(INFO) << "Loading json data...";
     const std::string json_file(model_dir + "/deploy.json");
     std::ifstream json_in(json_file.c_str(), std::ios::in);
     std::string json_data((std::istreambuf_iterator<char>(json_in)), std::istreambuf_iterator<char>());
     json_in.close();
+    if(json_data.find("drp") == json_data.npos && device_type != kDLCPU){
+        LOG(INFO) <<"Break! this model is Not for DRP-AI retry as CPU Only";
+        return false;
+    }
 
     LOG(INFO) << "Loading runtime module...";
     tvm::runtime::Module mod_syslib = tvm::runtime::Module::LoadFromFile(model_dir + "/deploy.so");
@@ -81,6 +85,11 @@ void MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir) {
     params_arr.data = params_data.data();
     params_arr.size = params_data.size();
     load_params(params_arr);
+    tvm::runtime::PackedFunc set_start_address = mod.GetFunction("set_start_address");
+    if(set_start_address != nullptr){
+      set_start_address(start_address);
+    }
+    return true;
 }
 
 template <typename T>

@@ -40,7 +40,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_base.h
-* Version      : 1.1.0
+* Version      : 1.1.1
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -61,7 +61,7 @@
 #include "../util/system_analyzer.h"
 #include "../ws_server.h"
 #include "common/recognize_define.h"
-#include "common/MeraDrpRuntimeWrapper.h"
+#include "MeraDrpRuntimeWrapper.h"
 #include "irecognize_model.h"
 #include "recognize_data.h"
 #include "../command/app_message.h"

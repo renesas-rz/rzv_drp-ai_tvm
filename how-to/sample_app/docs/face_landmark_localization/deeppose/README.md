@@ -91,15 +91,7 @@ Follow the instuction below to prepare the `face_deeppose_pt` Model Object.
 
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
 2. Place the `deeppose.pt` file in `$TVM_HOME/../tutorials`.
-3. Change the `addr_map_start` setting in `compile_pytorch_model.py` provided in [Compile Tutorial](../../../../../tutorials) to the following address, depending on the board. 
-
-| Renesas Evaluation Board Kit | Start Address |
-|------------------------------|:-------------:|
-| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
-| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
-| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
- 
-4. Change the pre-processing details as shown below.  
+3. Change the pre-processing details as shown below.  
 
 Before
 ```py
@@ -157,15 +149,16 @@ After
         op.Normalize(cof_add, cof_mul)
     ]
 ```
-5. Run the script with the command below.  
+4. Run the script with the command below.  
 ```sh
 $ python3 compile_pytorch_model.py \
 -s 1,3,256,256 \
 -o face_deeppose_pt \
 deeppose.pt
 ```
-6. Confirm that `face_deeppose_pt` directory is generated and it contains `deploy.json`, `deploy.so` and `deploy.params` files and `preprocess` directory.  
-7. Before running the application, make sure to copy the `face_deeppose_pt` directory into the execution environment directory `exe` where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
+5. Confirm that `face_deeppose_pt` directory is generated and it contains `deploy.json`, `deploy.so` and `deploy.params` files and `preprocess` directory.  
+
+6. Before running the application, make sure to copy the `face_deeppose_pt` directory into the execution environment directory `exe` where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
 
 
 #### 3. Compile pytorch model for CPU mode

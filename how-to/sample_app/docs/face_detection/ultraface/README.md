@@ -1,7 +1,5 @@
 # Face Detection
 
-### **Note: In this version (v1.1.0), it is known that the UltraFace application causes an error when compiling. If you want to try UltraFace application, please clone v1.0.4 and try it.**
-
 ### Model: [UltraFace](#model-information)
 Sample application code and its execution environment are provided in **[here](../../../../sample_app)**.  
 
@@ -29,15 +27,7 @@ Follow the instuction below to prepare the `ultraface_onnx` Model Object.
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
 2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/body_analysis/ultraface).  
 3. Place the onnx file in `$TVM_HOME/../tutorials`.
-4. Change the `addr_map_start` setting in `compile_onnx_model.py` provided in [Compile Tutorial](../../../../../tutorials) to the following address, depending on the board.  
-
-| Renesas Evaluation Board Kit | Start Address |
-|------------------------------|:-------------:|
-| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
-| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
-| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
-  
-5. Change the pre-processing details as shown below.  
+4. Change the pre-processing details as shown below.  
 Before
 ```py
 #L105~128
@@ -93,7 +83,7 @@ After
         op.Normalize(cof_add, cof_mul)
     ]
 ```
-6. Run the script with the command below.  
+5. Run the script with the command below.  
 ```sh
 $ python3 compile_onnx_model.py \
 -i input \
@@ -101,8 +91,9 @@ $ python3 compile_onnx_model.py \
 -o ultraface_onnx \
 version-RFB-320.onnx
 ```
-7. Confirm that `ultraface_onnx` directory is generated and it contains `deploy.json`, `deploy.so` and `deploy.params` files and `preprocess` directory.  
-8. Before running the application, make sure to copy the `ultraface_onnx` directory into the execution environment directory `exe` where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
+6. Confirm that `ultraface_onnx` directory is generated and it contains `deploy.json`, `deploy.so` and `deploy.params` files and `preprocess` directory.  
+
+7. Before running the application, make sure to copy the `ultraface_onnx` directory into the execution environment directory `exe` where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
 
 
 ## Processing Details

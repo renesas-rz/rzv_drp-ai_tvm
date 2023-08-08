@@ -37,15 +37,7 @@ Follow the instuction below to prepare the HRNet Model Object.
 wget https://download.openmmlab.com/mmpose/top_down/hrnet/hrnet_w32_coco_256x192-c78dce93_20200708.pth
 python3 tools/deployment/pytorch2onnx.py configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hrnet_w32_coco_256x192.py hrnet_w32_coco_256x192-c78dce93_20200708.pth
 ```
-3. Change the `addr_map_start` setting in `compile_onnx_model.py` provided in [Compile Tutorial](../../../../../tutorials) to the following address, depending on the board. 
-
-| Renesas Evaluation Board Kit | Start Address |
-|------------------------------|:-------------:|
-| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
-| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
-| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
-
-4. Change the pre-processing details as shown below.  
+3. Change the pre-processing details as shown below.  
 
 Before
 ```py
@@ -104,7 +96,7 @@ After
         op.Normalize(cof_add, cof_mul)
     ]
 ```
-5. Run the script with the command below.  
+4. Run the script with the command below.  
 ```sh
 # Run DRP-AI TVM[*1] Compiler script
 $ python3 compile_onnx_model.py \
@@ -113,8 +105,8 @@ $ python3 compile_onnx_model.py \
 -s 1,3,256,192 \
 -i input.1
 ```
-4. Confirm that three files, `deploy.so`, `deploy.params`, and `deploy.json`, and `preprocess` directory have been created in the `hrnet_onnx` directory.  
-5. Copy the `hrnet_onnx` directory into the execution environment directory where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
+5. Confirm that three files, `deploy.so`, `deploy.params`, and `deploy.json`, and `preprocess` directory have been created in the `hrnet_onnx` directory.  
+6. Copy the `hrnet_onnx` directory into the execution environment directory where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
 
 ## Processing Details
 ### DRP-AI mode

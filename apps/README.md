@@ -26,7 +26,7 @@ This page assumes that the above environment has already prepared and following 
 export TVM_ROOT=<.../drp-ai_tvm>                    # Your own path to the cloned repository.
 export TVM_HOME=${TVM_ROOT}/tvm
 export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
-export SDK=</opt/poky/3.1.14>                       # Your own Linux SDK path. Set appropriate path according to your product to use.
+export SDK=</opt/poky/3.1.21>                       # Your own Linux SDK path. Set appropriate path according to your product to use.
 export TRANSLATOR=<.../drp-ai_translator_release/>  # Your own DRP-AI Translator path.
 export PRODUCT=<V2MA>                               # Product name (V2L, V2M, or V2MA)
 ```

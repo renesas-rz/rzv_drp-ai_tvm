@@ -3,8 +3,10 @@
 This directory contains the solution to specific problems related to DRP-AI TVM[^1].  
 
 ## Index
-- [AI Sample Application](#ai-sample-application)  
-- [Tips](#tips)  
+- [How to solve specific problems](#how-to-solve-specific-problems)
+  - [Index](#index)
+  - [AI Sample Application](#ai-sample-application)
+  - [Tips](#tips)
 
 
 ## AI Sample Application
@@ -31,12 +33,12 @@ This directory contains the solution to specific problems related to DRP-AI TVM[
 </tr>
 <tr>
     <td align="center"><a href="sample_app/docs/classification/googlenet"><img src="img/classification.png"></a></td>
-    <td align="center"><a href=""><img src="img/semantic_segmentation_dev.png"></a></td>
+    <td align="center"><a href="sample_app/docs/semantic_segmentation/deeplabv3"><img src="img/semantic_segmentation.png"></a></td>
     <td align="center"><a href=""><img src="img/age_classification_dev.png"></a></td>
 </tr>
 <tr>
     <td align="center"><a href="sample_app/docs/classification/googlenet">Classification</a></td>
-    <td align="center">Semantic Segmentation </td>
+    <td align="center"><a href="sample_app/docs/semantic_segmentation/deeplabv3">Semantic Segmentation</a></td>
     <td align="center">Age Classification </td>
 </tr>
 </table>

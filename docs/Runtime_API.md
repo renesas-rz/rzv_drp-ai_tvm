@@ -25,7 +25,7 @@ InOutDataType MeraDrpRuntimeWrapper::GetInputDataType(int index);
 ### Note
  - **GetInputDataType()** method returns the data type of the input layer specified by the argument index.
 ### Return   
- - Output datat type
+ - Output data type
    - FLOAT32 : float 32bit
    - FLOAT16 : flaot 16bit 
    - OTHER : Not supported type by DRP-AI TVM[^1]
@@ -74,12 +74,15 @@ std::tuple<InOutDataType, void*, int64_t> MeraDrpRuntimeWrapper::GetOutput(int i
 ```c++
 #include "MeraDrpRuntimeWrapper.h"
 
-void MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir);
+bool MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir, 
+                                      uint32_t start_address);
 ```
 ### Note
- - Expand the inference model and its weights stored in the runtime model data directory specified by the argument `model_dir` to the resources secured in the MeraDrpRuntimeWrapper class. By executing this method, other methods defined in the MeraDrpRuntimeWrapper class can be used.
+ - Expand the runtime model data into the memory for the DRP-AI device. The directory where inference models and their weights are stored is specified by the argument `model_dir`. The memory address for the DRP-AI device is specified by the argument `start_address`.
 ### Return   
- - None
+ - If a CPU-only model is loaded into a device other than a kDLCPU device, false is returned.
+   - true : Success. There were no problems.
+   - false : CPU-only model was specified. Therefore, device_type must be set to kDLCPU.
 
 ----
 ## ProfileRun

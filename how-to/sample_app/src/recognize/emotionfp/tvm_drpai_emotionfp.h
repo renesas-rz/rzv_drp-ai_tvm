@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_emotionfp.h
-* Version      : 1.1.0
+* Version      : 1.1.1
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -36,7 +36,7 @@
 #include "../common/functions.h"
 #include "../command/classification.h"
 #include "../command/object_detection.h"
-#include "../common/PreRuntime.h"
+#include "PreRuntime.h"
 #include <linux/drpai.h>
 
 class TVM_EmotionFP_DRPAI : public IRecognizeModel
@@ -73,8 +73,8 @@ private:
 
 private:
     /*For dynamic allocation of DRP-AI Pre-processing Runtime*/
-    uint32_t pre_start_addr = PRE_START_ADDR_OFFSET;
-    int8_t drpai_fd = -1;
+    uint32_t     pre_start_addr = PRE_START_ADDR_OFFSET;
+    int          drpai_fd = -1;
     drpai_data_t drpai_data0;
 
     int32_t num_class = TVM_MODEL_OUT_C;

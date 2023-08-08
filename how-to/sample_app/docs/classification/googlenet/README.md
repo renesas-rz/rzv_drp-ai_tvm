@@ -26,15 +26,7 @@ Follow the instuction below to prepare the Model Object.
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
 2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/classification/inception_and_googlenet/googlenet).  
 3. Place the onnx file in `$TVM_HOME/../tutorials`.
-4. Change the `addr_map_start` setting in `compile_onnx_model.py` provided in [Compile Tutorial](../../../../../tutorials) to the following address, depending on the board. 
-
-| Renesas Evaluation Board Kit | Start Address |
-|------------------------------|:-------------:|
-| RZ/V2L  Evaluation Board Kit | 0x838E0000    |
-| RZ/V2M  Evaluation Board Kit | 0xC38E0000    |
-| RZ/V2MA Evaluation Board Kit | 0x438E0000    |
-
-5. Change the pre-processing details as shown below.  
+4. Change the pre-processing details as shown below.  
 Before
 ```py
 #L105~128
@@ -91,7 +83,7 @@ After
     ]
 ```
 
-6. Run the script with the command below.  
+5. Run the script with the command below.  
 ```sh
 $ python3 compile_onnx_model.py \
 -i data_0 \

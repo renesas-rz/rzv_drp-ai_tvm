@@ -43,3 +43,6 @@ if [ ${PRODUCT} != "V2MA" ] && [ ${PRODUCT} != "V2M" ] && [ ${PRODUCT} != "V2L" 
 fi
 mkdir -p ./tvm/build_runtime
 cp ./obj/build_runtime/${PRODUCT}/libtvm_runtime.so ./tvm/build_runtime/
+
+# Update Header
+cp ./setup/include/*.h ./tvm/include/tvm/runtime/

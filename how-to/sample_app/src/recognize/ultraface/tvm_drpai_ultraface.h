@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_ultraface.h
-* Version      : 1.1.0
+* Version      : 1.1.1
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -36,7 +36,7 @@
 #include "../common/box.h"
 #include "../common/functions.h"
 #include "../common/object_detection.h"
-#include "../common/PreRuntime.h"
+#include "PreRuntime.h"
 #include "../command/object_detection.h"
 #include "../common/recognize_define.h"
 

@@ -1,25 +1,29 @@
 # AI Sample Application
 
 ## Index  
-- [Overview](#overview)  
-- [Necessary Equipment](#necessary-equipment)
-- [Hardware Configuration](#hardware-configuration)
-- [File Configuration](#file-configuration)  
-    - [Source Code](#source-code)  
-    - [Execution Environment](#execution-environment)  
-- [Build the application](#build-the-application)  
-- [Setup the Execution Environment](#setup-the-execution-environment)  
-    - [1. Setup the board](#1-setup-the-board)  
-    - [2. Setup the PC filesystem](#2-setup-the-pc-filesystem)  
-    - [3. Setup Setup PC Network Environment](#3-setup-pc-network-environment)  
-- [Run the application](#run-the-application)  
-- [Quit the application](#quit-the-application)  
-- [Notes](#notes)
+- [AI Sample Application](#ai-sample-application)
+  - [Index](#index)
+  - [Overview](#overview)
+  - [Necessary Equipment](#necessary-equipment)
+  - [Hardware Configuration](#hardware-configuration)
+  - [File Configuration](#file-configuration)
+    - [Source Code](#source-code)
+    - [Execution Environment](#execution-environment)
+  - [Build the application](#build-the-application)
+  - [Setup the Execution Environment](#setup-the-execution-environment)
+    - [1. Setup the board](#1-setup-the-board)
+    - [2. Setup the PC filesystem](#2-setup-the-pc-filesystem)
+    - [3. Setup PC Network Environment](#3-setup-pc-network-environment)
+  - [Run the application](#run-the-application)
+  - [Quit the application](#quit-the-application)
+  - [Notes](#notes)
     - [1. IP Address](#1-ip-address)
-    - [2. Enqueue _capture buffer Error](#2-enqueue-_capture-buffer-error)
-- [Application Specification](#application-specification)  
-    - [Model Information](#model-information)  
-    - [Mode](#mode)  
+    - [2. Enqueue \_capture buffer Error](#2-enqueue-_capture-buffer-error)
+  - [Application Specification](#application-specification)
+    - [Model Information](#model-information)
+    - [Mode](#mode)
+      - [DRP-AI mode](#drp-ai-mode)
+      - [CPU mode](#cpu-mode)
 
 ## Overview
 This page explains about the sample application for DRP-AI TVM[^1] that uses USB Camera as an input and transfer the result via HTTP to display on HTML.  
@@ -82,6 +86,7 @@ In `exe` directory, following files are provided as execution environment to be 
 |sample_app_drpai_tvm_usbcam_http | Application itself. |  
 |coco-labels-2014_2017.txt | Label list for Object Detection. |  
 |synset_words_imagenet.txt | Label list for Classification. |  
+|pascal-voc-labels.txt | Label list for Semantic Segmentation. |
 
 In `etc` directory, following files are provided as execution environment to be placed on client PC that displays HTTP result.  
 
@@ -120,6 +125,7 @@ Please make sure to change the cross compiler path (`$SDK`) to the one generated
 |hrnetv2_pt/ | HRNetv2 model for DRP-AI mode. |[Hand Landmark Localization](docs/hand_landmark_localization/hrnetv2) |  
 |emotion_fp_onnx/ | Emotion FERPlus model for DRP-AI mode. |[Emotion Recognition](docs/emotion_recognition/emotion_ferplus) |  
 |googlenet_onnx/ | GoogleNet model for DRP-AI mode. |[Classification](docs/classification/googlenet) |  
+|deeplabv3_resnet50_pt/ | DeepLabV3 model for DRP-AI mode. |[Semantic Segmentation](docs/semantic_segmentation/deeplabv3) |
 
 3. Copy the generated model directories to `exe` directory.  
 `exe` directory should look like below.  
@@ -135,6 +141,7 @@ exe/
 │  
 ├── coco-labels-2014_2017.txt
 ├── synset_words_imagenet.txt
+├── pascal-voc-labels.txt
 └── sample_app_drpai_tvm_usbcam_http
 ```
 

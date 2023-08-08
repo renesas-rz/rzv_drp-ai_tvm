@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : tvm_drpai_yolo.cpp
-* Version      : 1.1.0
+* Version      : 1.1.1
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -146,7 +146,7 @@ TVM_YOLO_DRPAI::TVM_YOLO_DRPAI(uint8_t id) : IRecognizeModel(0, TVM_MODEL_DIR_YO
     in_param.pre_in_shape_w = TVM_DRPAI_IN_WIDTH;
     in_param.pre_in_shape_h = TVM_DRPAI_IN_HEIGHT;
     in_param.pre_in_format = FORMAT_YUYV_422;
-    in_param.pre_in_format = FORMAT_RGB;
+    in_param.pre_out_format = FORMAT_RGB;
     in_param.resize_w = TVM_MODEL_IN_W;
     in_param.resize_h = TVM_MODEL_IN_H;
     in_param.resize_alg = ALG_BILINEAR;

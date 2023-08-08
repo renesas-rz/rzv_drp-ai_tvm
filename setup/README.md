@@ -10,18 +10,10 @@ Requirements are listed below.
 - Package : git
 - Evaluation Board: RZ/V2L EVK, RZ/V2M EVK, RZ/V2MA EVK
 - Related Software Version:
-    - RZ/V2L
-        - [DRP-AI Translator V1.82](#drp-ai-translator)
-        - [RZ/V Verified Linux Package V3.0.2](#rzv-software)
-        - [RZ/V2L DRP-AI Support Package V7.30](#rzv-software)
-    - RZ/V2M
-        - [DRP-AI Translator V1.82](#drp-ai-translator)
-        - [RZ/V2M Linux Package V1.3.0-update1](#rzv-software)
-        - [RZ/V2M DRP-AI Support Package V7.30](#rzv-software)
-    - RZ/V2MA
-        - [DRP-AI Translator V1.82](#drp-ai-translator)
-        - [RZ/V2MA Linux Package V1.1.0-update1](#rzv-software)
-        - [RZ/V2MA DRP-AI Support Package V7.31](#rzv-software)
+    - [DRP-AI Translator V1.82](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
+    - [RZ/V Verified Linux Package V3.0.4](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package)
+    - DRP-AI Support Package V7.40 [RZ/V2L](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2l-drp-ai-support-package) [RZ/V2M](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package) [RZ/V2MA](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
+
 
 
 To install DRP-AI TVM[^1] without Docker, see [Installing DRP-AI TVM[^1]](#installing-drp-ai-tvm1).  
@@ -64,17 +56,17 @@ Note that environment variables must be set every time when opening the terminal
 export TVM_ROOT=<.../drp-ai_tvm>                    # Your own path to the cloned repository.
 export TVM_HOME=${TVM_ROOT}/tvm
 export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
-export SDK=</opt/poky/3.1.14>                       # Your own Linux SDK path.
+export SDK=</opt/poky/3.1.21>                       # Your own Linux SDK path.
 export TRANSLATOR=<.../drp-ai_translator_release/>  # Your own DRP-AI Translator path.
 export PRODUCT=<V2MA>                               # Product name (V2L, V2M, or V2MA)
 ```
-Please set the values in the table below to the SDK and PRODUCT variables according to Renesas Evaluation Board Kit you use.
+Please set the values in the table below to the PRODUCT variables according to Renesas Evaluation Board Kit you use.
 
-| Renesas Evaluation Board Kit | SDK              | PRODUCT  |
-|------------------------------|:----------------:|:--------:|
-| RZ/V2L  Evaluation Board Kit | /opt/poky/3.1.17 |   V2L    |
-| RZ/V2M  Evaluation Board Kit | /opt/poky/3.1.14 |   V2M    |
-| RZ/V2MA Evaluation Board Kit | /opt/poky/3.1.14 |   V2MA   |
+| Renesas Evaluation Board Kit | PRODUCT  |
+|------------------------------|:--------:|
+| RZ/V2L  Evaluation Board Kit |   V2L    |
+| RZ/V2M  Evaluation Board Kit |   V2M    |
+| RZ/V2MA Evaluation Board Kit |   V2MA   |
 
 ### 4. Install the minimal pre-requisites
 ```sh
@@ -91,7 +83,7 @@ apt-get install -y python3-pip
 pip3 install --upgrade pip
 apt-get -y install unzip vim
 pip3 install decorator attrs scipy numpy==1.23.5 pytest
-pip3 install torch==1.8.0 torchvision==0.9.0 tensorflow tflite
+pip3 install torch==1.8.0 torchvision==0.9.0 tensorflow tflite psutil
 
 # Install onnx runtime
 wget https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-linux-x64-1.8.1.tgz -O /tmp/onnxruntime.tar.gz
@@ -140,15 +132,15 @@ wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/Dockerfile
 
 ### 3. Build docker image
 ```sh
-docker build -t drp-ai_tvm_v2ma_image --build-arg SDK="/opt/poky/3.1.14" --build-arg PRODUCT="V2MA" .
+docker build -t drp-ai_tvm_v2ma_image --build-arg SDK="/opt/poky/3.1.21" --build-arg PRODUCT="V2MA" .
 ```
-Please set the values in the table below to the SDK and PRODUCT variables according to Renesas Evaluation Board Kit you use.
+Please set the values in the table below to the PRODUCT variables according to Renesas Evaluation Board Kit you use.
 
-| Renesas Evaluation Board Kit | SDK              | PRODUCT  |
-|------------------------------|:----------------:|:--------:|
-| RZ/V2L  Evaluation Board Kit | /opt/poky/3.1.17 |   V2L    |
-| RZ/V2M  Evaluation Board Kit | /opt/poky/3.1.14 |   V2M    |
-| RZ/V2MA Evaluation Board Kit | /opt/poky/3.1.14 |   V2MA   |
+| Renesas Evaluation Board Kit | PRODUCT  |
+|------------------------------|:--------:|
+| RZ/V2L  Evaluation Board Kit |   V2L    |
+| RZ/V2M  Evaluation Board Kit |   V2M    |
+| RZ/V2MA Evaluation Board Kit |   V2MA   |
 
 ### 4. Run docker image
 ```sh

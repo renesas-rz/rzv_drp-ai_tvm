@@ -17,13 +17,16 @@ const ID_HRNET      = 7;
 const ID_HRNETV2    = 8;
 const ID_GOOGLENET  = 9;
 const ID_EMOTIONFP  = 10;
+const ID_DEEPLABV3  = 11;
 
 // let socket = new WebSocket('ws://localhost:3000/ws/', 'graph-update');
 let socket = new WebSocket('ws://192.168.1.11:3000/ws/');
 let predCanvas = document.getElementById('pred_canvas');
 let defaultCanvas = document.getElementById('default_canvas');
+let overlayCanvas = document.getElementById('pred_overlay_canvas');
 let predCtx = document.getElementById('pred_canvas').getContext('2d');
 let defaultCtx = document.getElementById('default_canvas').getContext('2d');
+let overlayCtx = document.getElementById('pred_overlay_canvas').getContext('2d');
 let graphCtx = document.getElementById('graph_canvas').getContext('2d');
 let nowTimes = document.getElementsByClassName('now_time');
 let predWindowData = document.getElementById('pred_window');
@@ -198,6 +201,22 @@ function inputChange(event) {
       aiDescription.style.color ="#FFD700";
       model_id = ID_EMOTIONFP;
   }
+  else if (event.currentTarget.value == "TVM_DRPAI_DEEPLABV3")
+  {
+      aiName.innerHTML = "DeepLabv3: Semantic Segmentation";
+      caution.innerHTML= "Segments 21 classes of objects including background";
+      caution.style.color="";
+      aiDescription.innerHTML ="</br>";
+      aiDescription.style.color ="#FFD700";
+      model_id = ID_DEEPLABV3;
+  }
+
+  if (event.currentTarget.value == "TVM_DRPAI_DEEPLABV3") {
+    overlayCanvas.style.visibility ="visible";
+  }
+  else {
+    overlayCanvas.style.visibility ="hidden";
+  }
 }
 
 // Pose Estimation: Line Drawing
@@ -225,6 +244,26 @@ function drawKeyPoint(ctx, pts, ratio_x, ratio_y) {
   ctx.arc((pts.X) * ratio_x, (pts.Y) * ratio_y, 3, 0, (2 * Math.PI));
   ctx.closePath();
   ctx.fill();
+}
+
+function getVOCColorFromIndex(index) {
+  // Target bit
+  const R1 = 0b00000001;
+  const R2 = 0b00001000;
+  const G1 = 0b00000010;
+  const G2 = 0b00010000;
+  const B1 = 0b00000100;
+  const B2 = 0b00100000;
+  // Color intensity
+  const C1 = 0b10000000;
+  const C2 = 0b01000000;
+
+  let rgb = [];
+  rgb[0] = Boolean(R2 & index) * C2 + Boolean(R1 & index) * C1;
+  rgb[1] = Boolean(G2 & index) * C2 + Boolean(G1 & index) * C1;
+  rgb[2] = Boolean(B2 & index) * C2 + Boolean(B1 & index) * C1;
+
+  return rgb;
 }
 
 // USB Camera Image Process Time Measurement
@@ -619,6 +658,72 @@ $(() => {
               backdrop: 'static'
             });
           }
+    }
+    else if (datas.command_name === 'semantic_segmentation') {
+      // Clear prediction overlay canvas
+      overlayCtx.clearRect(0, 0, 640, 480)
+
+      // Base64 -> Uint8Array
+      raw = atob(datas.Value.predict);
+      predData = Uint8Array.from(Array.prototype.map.call(raw, (x) => {
+        return x.charCodeAt(0);
+      }));
+
+      // Create colormap
+      let width = predCanvas.width;
+      let height = predCanvas.height;
+      let imDat = overlayCtx.createImageData(224, 224);
+      let idx = 0;
+      for (count = 0; count < width*height; count++) {
+        let rgb = getVOCColorFromIndex(predData[count]);
+        if (rgb[0] == 0 && rgb[1] == 0 && rgb[2] == 0) {
+          idx += 4;
+        }
+        else {
+          imDat.data[idx++] = rgb[0];
+          imDat.data[idx++] = rgb[1];
+          imDat.data[idx++] = rgb[2];
+          imDat.data[idx++] = 192;
+        }
+      }
+
+      // Render colormap as overlay with scaling
+      let newCanvas = document.createElement('canvas');
+      newCanvas.width = 224;
+      newCanvas.height = 224;
+      ctx2 = newCanvas.getContext('2d');
+      ctx2.putImageData(imDat, 0, 0);
+      overlayCtx.scale(640 / 224, 480 / 224);
+      overlayCtx.drawImage(newCanvas, 0, 0);
+      overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
+
+      // Display original USB camera image.
+      webcam.src = 'data:image/jpeg;base64,' + datas.Value.img;
+      webcam.onload = function () {
+        // Dispaly USB camera image
+        predCtx.drawImage(webcam, 0, 0, 640, 480);
+
+        // Calculate process time
+        measureProcessingTime(predCtx, nowTime);
+      }
+
+      // Display detected classes
+      for (i = 0; i < datas.Value.names.length; i++) {
+        if (i != 0) {
+          predDatas[i] = '\n' + datas.Value.names[i];
+        }
+        else {
+          predDatas[i] = datas.Value.names[i];
+        }
+      }
+
+      // Calculate & Display process time
+      drpData = 'Inference time:' + '\t' + Number.parseFloat(datas.Value.drp_time).toFixed(2) + ' ms\n' +
+                'Pre-process time:' + '\t' + Number.parseFloat(datas.Value.pre_time).toFixed(2) + ' ms\n' +
+                'Post-process time:' + '\t' + Number.parseFloat(datas.Value.post_time).toFixed(2) + ' ms\n';
+
+      predWindowData.value = predDatas;
+      drpWindowData.value = drpData;
     }
   }
 })
