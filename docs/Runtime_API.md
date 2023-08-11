@@ -45,7 +45,7 @@ int MeraDrpRuntimeWrapper::GetNumOutput(void);
  - **GetNumOutput()** method returns the number of output layers of the inference model deployed to the MeraDrpRuntimeWrapper object.
 
 ### Return
- - The number of out put node. A non-zero positive integer. A value of 0 or negative indicates that a problem occurred during the processing of this function.
+ - The number of output nodes. A non-zero positive integer. A value of 0 or negative indicates that a problem occurred during the processing of this function.
 
 ----
 ## GetOutput
