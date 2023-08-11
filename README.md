@@ -79,7 +79,7 @@ If error occurred at compile/runtime operation, please refer [error list](./docs
 
 ### Tips  
 [How-to](./how-to) page includes following explanation.  
-- profilier;  
+- profiler;  
 - validation between x86 and DRP-AI;  
 - etc.  
 
