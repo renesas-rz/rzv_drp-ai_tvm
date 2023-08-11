@@ -76,7 +76,7 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 |Monodepth2 mono_640x192 encoder            |Depth            |PyTorch             |21259ms |74ms  |51774ms |55ms  |25892ms |51ms  |
 |SC-Depth resnet18_depth_256 dispnet        |Depth            |PyTorch             |49419ms |885ms |121715ms|1313ms|61011ms |925ms |
 |SC-Depth resnet50_depth_256 dispnet        |Depth            |PyTorch             |26831ms |1081ms|65763ms |2300ms|32908ms |1237ms|
-|FaceNet                                    |Face Detection   |Tensorflow          |27875ms |422ms |80234ms |917ms |45130ms |481ms |
+|FaceNet                                    |Face Detection   |TensorFlow          |27875ms |422ms |80234ms |917ms |45130ms |481ms |
 |ConvNeXt atto                              |Classification   |pytorch-image-models|12005ms |151ms |29235ms |118ms |14650ms |112ms |
 |ConvNeXt femto                             |Classification   |pytorch-image-models|12015ms |151ms |29227ms |118ms |14665ms |113ms |
 |ConvNeXt femto ols                         |Classification   |pytorch-image-models|12004ms |152ms |29228ms |118ms |14649ms |112ms |
