@@ -1,0 +1,116 @@
+diff --git torch2onnx.py torch2onnx.py
+new file mode 100644
+index 0000000..218255f
+--- /dev/null
++++ torch2onnx.py
+@@ -0,0 +1,110 @@
++#######################################################################################################################
++# DISCLAIMER
++# This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
++# other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
++# applicable laws, including copyright laws.
++# THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING
++# THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
++# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED. TO THE MAXIMUM
++# EXTENT PERMITTED NOT PROHIBITED BY LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES
++# SHALL BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO
++# THIS SOFTWARE, EVEN IF RENESAS OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
++# Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability of
++# this software. By using this software, you agree to the additional terms and conditions found by accessing the
++# following link:
++# http://www.renesas.com/disclaimer
++#
++# Copyright (C) 2023 Renesas Electronics Corporation. All rights reserved.
++#######################################################################################################################
++# Description : Export pytorch model to onnx format.
++import argparse
++import os
++import torch
++import torchvision
++import torch.onnx
++
++from drpai_compaction_tool.pytorch import make_pruning_layer_list, \
++                                          Pruner, \
++                                          get_model_info
++
++
++OPSET_VERSION = 12
++INPUT_MODEL_SHAPE = (1, 3, 224, 224)
++
++
++def parse_arg():
++    """Parse arguments from command line.
++
++    Args:
++        None
++
++    Returns:
++        args: Arguments from command line.
++    """
++
++    parser = argparse.ArgumentParser(
++                    description='PyTorch Conversion Script')
++    parser.add_argument('--weight',
++                        help='Path to weight file(.pth).',
++                        required=True)
++    parser.add_argument('--output_onnx_filepath',
++                        type=str,
++                        help='Path to output onnx file.',
++                        required=True)
++    parser.add_argument('--is_pruned_weight', action='store_true',
++                        help='When converting the model with pruned weight, please specify this option')
++
++    return parser.parse_args()
++
++
++if __name__ == "__main__":
++
++    args = parse_arg()
++
++    # Initialise one random value filled input tensor of an image size 3x224x224 (CHW)
++    dummy_input = torch.randn(*INPUT_MODEL_SHAPE)
++
++    # Loads from Torchvision ResNet-50 neural network structure
++    model = torchvision.models.get_model("resnet50",
++                                         weights=None)
++
++    # When input model is sparse, load weight by using DRP-AI Extension Pack.
++    if args.is_pruned_weight:
++        model.eval()
++
++        # Preparing for pruning the model with a pruning rate of 0.0
++        pruning_layer_list = make_pruning_layer_list(model, input_data=[dummy_input])
++        _ = Pruner(model,
++                   pruning_layer_list=pruning_layer_list,
++                   final_pr=0.0)
++
++        # Load the pruned weight
++        model.load_state_dict(torch.load(args.weight)["model"])
++
++        # Confirming the result of pruning.
++        print(get_model_info(model, [INPUT_MODEL_SHAPE]))
++
++    # When input weight is dense, load weight normaly.
++    else:
++        model.load_state_dict(torch.load(args.weight)["model"])
++
++    # create the save directory
++    output_dir = os.path.dirname(os.path.abspath(args.output_onnx_filepath))
++    if not os.path.exists(output_dir):
++        os.makedirs(output_dir, exist_ok=True)
++
++    # set the model to inference mode
++    model.eval()
++
++    # Define the input tensor and output tensor name of the converted onnx neural network
++    input_names = ["input1"]
++    output_names = ["output1"]
++
++    # Starts the pythorch to onnx conversion
++    torch.onnx.export(model,
++                      dummy_input,
++                      args.output_onnx_filepath,
++                      verbose=True,
++                      opset_version=OPSET_VERSION,
++                      input_names=input_names,
++                      output_names=output_names)

@@ -15,15 +15,16 @@ Contributors Licensed under an Apache-2.0 license.
 - Renesas RZ/V2L Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2l-contents-guide))
 - Renesas RZ/V2M Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2m-contents-guide))
 - Renesas RZ/V2MA Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2ma-contents-guide))
+- Renesas RZ/V2H Evaluation Board Kit
 
 ## Introduction
 ### Overview   
 This compiler stack is an extension of the DRP-AI Translator to the TVM backend. CPU and DRP-AI can work together for the inference processing of the AI models.  
 
-<img src=./img/tool_stack.png width=350>   
-
+<img src=./img/tool_stack.png width=350>
 
 ### File Configuration
+
 | Directory | Details |
 |:---|:---|
 |tutorials |Sample compile script|
@@ -32,15 +33,15 @@ This compiler stack is an extension of the DRP-AI Translator to the TVM backend.
 |obj |Pre-build runtime binaries|
 |docs |Documents, i.e., Model list and API list|
 |img |Image files used in this document|
-|tvm | TVM repository from github |
-|3rdparty | 3rd party tools |   
+|tvm | TVM repository from GitHub |
+|3rdparty | 3rd party tools |
 |how-to |Sample to solve specific problems, i.e., How to run validation between x86 and DRP-AI|
+|pruning | Sample scripts to prune the models with DRP-AI Extension Package  |
 
 
 ## Installation
-- [Installing DRP-AI TVM](./setup/README.md#installing-drp-ai-tvm1)
-- [Installing DRP-AI TVM for RZ/V2H](./setup/SetupV2H.md#hogehoge)
-- [Installing DRP-AI TVM with Docker](./setup/README.md#installing-drp-ai-tvm1-with-docker)
+- [Installing DRP-AI TVM (RZ/V2L, RZ/V2M, RZ/V2MA)](./setup/README.md)
+- [Installing DRP-AI TVM (RZ/V2H)](./setup/SetupV2H.md)
 
 ## Deploy AI models on DRP-AI
 ### Video
@@ -56,19 +57,31 @@ SDK generated from RZ/V Linux Package and DRP-AI Support Package is required to 
 After compiled the model, you need to copy the file to the target board (Deploy).  
 You also need to copy the C++ inference application and DRP-AI TVM[^1] Runtime Library to run the AI model inference.  
 
-<img src=./img/deploy_flow.png width=500>
+| RZ/V2L, RZ/V2M, RZ/V2MA |
+|:---|
+|<img src=./img/deploy_flow.png width=500>|
+
+| RZ/V2H |
+|:---|
+|<img src=./img/deploy_flow_V2H.png width=500>|
+
 
 Following pages show the example to compile the ResNet18 model and run it on the target board.  
 
+### [Option] Prune the model with DRP-AI Extension Package
+- [What is Pruning and Quantization?](./pruning/README.md)
+- [Installing DRP-AI Extention Package](./pruning/setup/README.md)
+- [Pruning and retraining by DRP-AI Extension Package](./pruning/how-to/torchvision_resnet50/README.md)
+
 ### Compile model with DRP-AI TVM[^1]  
 
-- [Compiling model for DRP-AI TVM](./tutorials)
-- [Compiling model for DRP-AI TVM(RZ/V2H)](./tutorials/tutorial_RZV2H.md)
+- [Compiling model for DRP-AI TVM (RZ/V2L, RZ/V2M, RZ/V2MA)](./tutorials)
+- [Compiling model for DRP-AI TVM (RZ/V2H)](./tutorials/tutorial_RZV2H.md)
 
 ### Run inference on board  
 
-- [Application Example for DRP-AI TVM](./apps)
-- [Application Example for DRP-AI TVM(RZ/V2H)](./apps/build_appV2H.md)
+- [Application Example for DRP-AI TVM (RZ/V2L, RZ/V2M, RZ/V2MA)](./apps)
+- [Application Example for DRP-AI TVM (RZ/V2H)](./apps/build_appV2H.md)
 
 ## Sample Application  
 To find more AI examples, please see [How-to](./how-to) page.  

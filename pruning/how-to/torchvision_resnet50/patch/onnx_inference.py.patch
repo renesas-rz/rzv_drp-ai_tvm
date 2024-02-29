@@ -1,0 +1,190 @@
+diff --git onnx_inference.py onnx_inference.py
+new file mode 100644
+index 0000000..7b74f29
+--- /dev/null
++++ onnx_inference.py
+@@ -0,0 +1,184 @@
++#######################################################################################################################
++# DISCLAIMER
++# This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
++# other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
++# applicable laws, including copyright laws.
++# THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING
++# THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
++# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED. TO THE MAXIMUM
++# EXTENT PERMITTED NOT PROHIBITED BY LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES
++# SHALL BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO
++# THIS SOFTWARE, EVEN IF RENESAS OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
++# Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability of
++# this software. By using this software, you agree to the additional terms and conditions found by accessing the
++# following link:
++# http://www.renesas.com/disclaimer
++#
++# Copyright (C) 2023 Renesas Electronics Corporation. All rights reserved.
++#######################################################################################################################
++# Description : Test the Resnet50 with onnx format.
++import argparse
++import os
++import math
++import datetime
++import glob
++
++import numpy as np
++from PIL import Image
++import torch
++import torchvision.transforms as transforms
++from torch.utils.data import Dataset
++import onnxruntime
++
++
++BATCH_SIZE = 1
++DEVICE = 'cpu'
++
++
++def to_numpy(tensor):
++    """Convert torch tensor to numpy array.
++
++    Args:
++        tensor: Torch tensor.
++
++    Returns:
++        arr: Numpy array.
++    """
++    return tensor.detach().numpy() if tensor.requires_grad else tensor.cpu().numpy()
++
++
++class Datasets(Dataset):
++    """Dataset for classification
++
++    Args:
++        path: Path to test dataset directory.
++        transform: Transform for testing like normalization.
++        label_list: Label list that contains label id.
++
++    Notes:
++        This class only take the *.jpg format image from `path` directory.
++    """
++    def __init__(self, path=None, transform=None, label_list=None):
++        self.transform = transform
++        self.path = path
++        self.data = []
++        self.labels = []
++
++        target_path = glob.glob(self.path + '/**/*.jpg') 
++        target_path += glob.glob(self.path + '/**/*.JPEG')
++        target_path += glob.glob(self.path + '/**/*.JPG')
++
++        for i in target_path:
++            # Create data list
++            self.data.append(i)
++
++            # Create label list
++            label = os.path.basename(os.path.dirname(i))
++            self.labels.append(label_list.index(label))
++
++    def __len__(self):
++        """Return number of data.
++        """
++        return len(self.data)
++
++    def __getitem__(self, index):
++        img_path = self.data[index]
++        img = Image.open(img_path)
++        if len(img.getbands()) != 3:
++            print("This image does not have 3 channels. :", img_path)
++            img = img.convert("RGB")
++
++        img_transformed = self.transform(img)
++        label = self.labels[index]
++
++        return img_transformed, label
++
++
++def get_args():
++    """Parse arguments from command line
++
++    Args:
++        None
++
++    Returns:
++        args: Arguments from command line
++    """
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--input_model", required=True, help="input model")
++    parser.add_argument("--data_path", default="./data/ImageNet/jpgimages/val/",
++                        help="Path to dataset")
++    args = parser.parse_args()
++    return args
++
++
++def main(args):
++    """Main function
++
++    Args:
++        args: Arguments from command line
++
++    Returns:
++        None
++    """
++
++    # Assign directory
++    directory = args.data_path
++
++    label_list = []
++    # Iterate over folder in that directory
++    for folderName in os.listdir(directory):
++        label_list.append(folderName)
++    label_list.sort()
++
++    # Make the dataloader
++    transform_test = transforms.Compose([
++        transforms.Resize(256),
++        transforms.CenterCrop(224),
++        transforms.ToTensor(),
++        transforms.Normalize(
++            mean=[0.485, 0.456, 0.406],
++            std=[0.229, 0.224, 0.225]
++        )
++    ])
++    test = Datasets(directory, transform_test, label_list)
++    batch_size = BATCH_SIZE
++    testloader = torch.utils.data.DataLoader(test, batch_size)
++
++    # Create session for onnxruntime
++    session = onnxruntime.InferenceSession(args.input_model)
++    input_name = session.get_inputs()[0].name
++
++    correct = 0
++    total = 0
++
++    start_time = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
++    with torch.no_grad():
++        for batch_idx, (inputs, targets) in enumerate(testloader):
++            inputs, targets = inputs.to(DEVICE), targets.to(DEVICE)
++
++            outputs = session.run([], {input_name: to_numpy(inputs)})
++
++            outputs = np.squeeze(outputs)
++            predict_idx = outputs.argmax()
++            total += targets.size(0)
++            if predict_idx == int(targets[0]):
++                correct += 1
++
++            # Calculate score.
++            valid_acc = (100.*correct/total)
++            print("\rTest[" + str(batch_idx + 1) + "/" + str(len(testloader)) +
++                  "] ValidAcc={:.3f}% ".format(valid_acc), end="")
++    print("   Test Finish")
++    end_time = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9)))
++
++    measure_time = math.floor((end_time - start_time).total_seconds() * 1000) / 1000
++    print("Process Time : " + str(measure_time) + "sec")
++
++
++if __name__ == "__main__":
++
++    # Parse arguments from command line.
++    args = get_args()
++
++    # Main function.
++    main(args)

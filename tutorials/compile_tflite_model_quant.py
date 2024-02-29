@@ -25,6 +25,7 @@ from drpai_preprocess import *
 import os
 import tensorflow as tf
 import tflite
+import torch
 
 import tvm
 import numpy as np
@@ -63,7 +64,7 @@ def create_random_input(inputs, model_vars, model_file):
             continue
         input_shape = opts["input_shape"]
         shape_dict[input_name] = input_shape
-        data = np.random.uniform(-1.0, 1.0, input_shape).astype(np.float32)
+        data = np.random.uniform(0.0, 1.0, input_shape).astype(np.float32)
         input_data.append(data)
         data.flatten().astype(np.float32).tofile(os.path.join(output_dir, "input_" + str(inp_idx) + ".bin"))
         inp_idx += 1
@@ -144,10 +145,11 @@ if __name__ == "__main__":
         print("Use randomize input for calibration.")
         num_frame = int(opts["num_frame"])
         print("Number input random frames: ", opts["num_frame"])
-        input_data = np.random.uniform(-1.0, 1.0, input_shape).astype(np.float32)
+        input_shape = opts["input_shape"]
+        input_data = np.random.uniform(0.0, 1.0, input_shape).astype(np.float32)
         input_data.flatten().astype(np.float32).tofile(os.path.join(output_dir, "input_0.bin"))
         for i in range(num_frame):
-            rand_calib_data = torch.randn(input_data.shape)
+            rand_calib_data = np.random.uniform(0.0, 1.0, input_data.shape).astype(np.float32)
             rt_mod.set_input(0, rand_calib_data)
             rt_mod.run()
 
@@ -161,8 +163,8 @@ if __name__ == "__main__":
             rt_mod.set_input(0, input_data)
             rt_mod.run()
             print("calib data", img_file_name)
-            
-    # 3.3.1 Set config for with x86 runtime with int8. 
+
+    # 3.3.1 Set config for with x86 runtime with int8.
     drp_config = {
         "target": "InterpreterQuant",
         "drp_compiler_version": opts["drp_compiler_version"],
@@ -172,9 +174,12 @@ if __name__ == "__main__":
     }
     output_dir="_out_quant"
     os.makedirs(output_dir, exist_ok=True)
-    input_data.flatten().astype(np.float32).tofile(os.path.join(output_dir, "input_0.bin"))
-    
+
     # 3.3.2 Run the backend compiler for x86 and generate reference output of int8.
+    ref_result_output_dir = os.path.join(opts["output_dir"],"interpreter_out")
+    os.makedirs(ref_result_output_dir, exist_ok=True)
+    input_data.flatten().astype(np.float32).tofile(
+            os.path.join(ref_result_output_dir, "input_" + str(0) + ".bin"))
     json, params, lib_path = drp.build(mod, params, "x86", drp_config, output_dir, disable_concat= opts["disable_concat"], cpu_data_type=opts["cpu_data_type"])
     lib = runtime.load_module(lib_path)
     ctx = runtime.cpu()
@@ -188,10 +193,10 @@ if __name__ == "__main__":
         byoc_output = rt_mod.get_output(i).asnumpy()
         if byoc_output.dtype == "float32":
             byoc_output.flatten().astype(np.float32).tofile(
-                os.path.join(output_dir, "ref_result_" + str(i) + ".bin"))
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) + "_fp32.bin"))
         elif byoc_output.dtype == "float16":
             byoc_output.flatten().astype(np.float16).tofile(
-                os.path.join(output_dir, "ref_result_" + str(i) + ".bin"))
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) +"_fp16.bin"))
 
     # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
@@ -219,21 +224,21 @@ if __name__ == "__main__":
     # 4. Compile pre-processing using DRP-AI Pre-processing Runtime
     # 4.1. Define the pre-processing data
     config = preruntime.Config()
-    
+
     # 4.1.1. Define input data of preprocessing
     config.shape_in     = [1, 480, 640, 3]
     config.format_in    = drpai_param.FORMAT.BGR
     config.order_in     = drpai_param.ORDER.HWC
     config.type_in      = drpai_param.TYPE.UINT8
-    
+
     # 4.1.2. Define output data of preprocessing (Will be model input)
     model_shape_in = list(opts["input_shape"])
     config.shape_out    = model_shape_in
     config.format_out   = drpai_param.FORMAT.RGB
     config.order_out    = drpai_param.ORDER.HWC
-    config.type_out     = drpai_param.TYPE.FP32 
+    config.type_out     = drpai_param.TYPE.FP32
     # Note: type_out depends on DRP-AI TVM[*1]. Usually FP32.
-    
+
     # 4.1.3. Define operators to be run.
     r = 255
     cof_add = [-m*r for m in mean]
@@ -242,6 +247,6 @@ if __name__ == "__main__":
         op.Resize(model_shape_in[2], model_shape_in[1], op.Resize.BILINEAR),
         op.Normalize(cof_add, cof_mul)
     ]
-    
+
     # 4.2. Run DRP-AI Pre-processing Runtime
     preruntime.PreRuntime(config, opts["output_dir"]+"/preprocess", PRODUCT)

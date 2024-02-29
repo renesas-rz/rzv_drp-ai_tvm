@@ -44,13 +44,28 @@ fi
 cp -r ${CALIBRATION_DIR}/${INPUT}/input ${MODEL_DIR}/${INPUT}
 cp -r ${CALIBRATION_DIR}/${INPUT}/output ${MODEL_DIR}/${INPUT}
 
+if [ -z $OPTIMIZER_ENABLE ] ; then
+  PREOPTIMIZE=${MODEL_DIR}/${INPUT}/pre_optimize_model.onnx
+  mv ${MODEL_DIR}/${INPUT}/model.onnx $PREOPTIMIZE
+  python3 ${TOOL_DIR}../translator/DRP-AI_Translator/onnx_optimizer/run_onnx_optimizer.py\
+    --file_in $PREOPTIMIZE --file_out ${MODEL_DIR}/${INPUT}/model.onnx
+else
+  if "${OPTIMIZER_ENABLE}" ; then
+    PREOPTIMIZE=${MODEL_DIR}/${INPUT}/pre_optimize_model.onnx
+    mv ${MODEL_DIR}/${INPUT}/model.onnx $PREOPTIMIZE
+    python3 ${TOOL_DIR}../translator/DRP-AI_Translator/onnx_optimizer/run_onnx_optimizer.py\
+      --file_in $PREOPTIMIZE --file_out ${MODEL_DIR}/${INPUT}/model.onnx
+  fi
+fi
+
 work_dir=$PWD
 cd ${TOOL_DIR}
 python3 -m drpai_quantizer.cli_interface --calibrate_method MinMax \
         --input_model_path ${work_dir}/${MODEL_DIR}/${INPUT} \
         --output_model_path ${work_dir}/${OUTPUT} --tvm \
         ${QUANT_OPTION} \
-        exclude_act_func_dir ${work_dir}/exclude_operator
+        exclude_act_func_dir ${work_dir}/exclude_operator 
+
 
 RET_CODE=$?
 if [ ${RET_CODE} -ne 0 ]; then

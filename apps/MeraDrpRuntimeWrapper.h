@@ -38,7 +38,9 @@ class MeraDrpRuntimeWrapper {
   template <typename T>
   void SetInput(int input_index, const T* data_ptr);
   void Run();
+  void Run(int freq_index);
   void ProfileRun(const std::string& profile_table, const std::string& profile_csv);
+  void ProfileRun(const std::string& profile_table, const std::string& profile_csv, int freq_index);
   int GetNumInput(std::string model_dir);
   InOutDataType GetInputDataType(int index);
   int GetNumOutput();
