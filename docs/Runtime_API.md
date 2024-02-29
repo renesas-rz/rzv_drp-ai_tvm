@@ -5,13 +5,13 @@
 
 | Function name                                    | Note                                                        |
 | ----------------------------------------- | ----------------------------------------------------------- |
-| [GetInputDataType](#GetInputDataType) | Return input data type                                    |
-| [GetNumOutput](#GetNumOutput)         | Get the number of outputs from the graph.                   |
-| [GetOutput](#GetOutput)               | Returns inference result                                        |
-| [LoadModel](#LoadModel)               | Deploy the DRP-AI TV[^1] model       |
-| [ProfileRun](#ProfileRun)             | Run AI model graph with profile                                  |
-| [Run](#Run)                           |Run AI model graph                                                   |
-| [SetInput](#SetInput)                 | Copy data to the input layer                                |
+| [GetInputDataType](#getinputdatatype) | Return input data type                                    |
+| [GetNumOutput](#getnumoutput)         | Get the number of outputs from the graph.                   |
+| [GetOutput](#getoutput)               | Returns inference result                                        |
+| [LoadModel](#loadmodel)               | Deploy the DRP-AI TV[^1] model       |
+| [ProfileRun](#profilerun)             | Run AI model graph with profile                                  |
+| [Run](#run)                           |Run AI model graph                                                   |
+| [SetInput](#setinput)                 | Copy data to the input layer                                |
 
 ----
 ## GetInputDataType
@@ -45,7 +45,7 @@ int MeraDrpRuntimeWrapper::GetNumOutput(void);
  - **GetNumOutput()** method returns the number of output layers of the inference model deployed to the MeraDrpRuntimeWrapper object.
 
 ### Return
- - The number of out put node. A non-zero positive integer. A value of 0 or negative indicates that a problem occurred during the processing of this function.
+ - The number of output nodes. A non-zero positive integer. A value of 0 or negative indicates that a problem occurred during the processing of this function.
 
 ----
 ## GetOutput
@@ -78,11 +78,16 @@ bool MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir,
                                       uint32_t start_address);
 ```
 ### Note
- - Expand the runtime model data into the memory for the DRP-AI device. The directory where inference models and their weights are stored is specified by the argument `model_dir`. The memory address for the DRP-AI device is specified by the argument `start_address`.
-### Return   
- - If a CPU-only model is loaded into a device other than a kDLCPU device, false is returned.
-   - true : Success. There were no problems.
-   - false : CPU-only model was specified. Therefore, device_type must be set to kDLCPU.
+
+- Expand the runtime model data into the memory for the DRP-AI device. The directory where inference models and their weights are stored is specified by the argument `model_dir`. The memory address for the DRP-AI device is specified by the argument `start_address`.
+
+### Return
+
+- Except v1.1.1 and earlier, If a CPU-only model is loaded , false is returned.
+  - true : Success. There were no problems.
+  - false : CPU-only model was specified. Therefore, device_type must be set to kDLCPU.
+
+   If you will load CPU-only model, change kDLDrpAi to kDLCPU in the apps/MeraDrpRuntimeWrapper.cpp.
 
 ----
 ## ProfileRun

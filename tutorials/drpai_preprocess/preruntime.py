@@ -917,11 +917,10 @@ class PreRuntime():
         cur_path = os.getcwd() # get current path
 
         # Necessary variables
-        # dynamic_alloc_addr = 0x40000000
-        dynamic_alloc_addr = 0x00000000
-        addr_file = os.path.join(cur_path, "addr_map.yaml")
+        # dynamic_alloc_addr = "0x40000000"
+        dynamic_alloc_addr = "0x00000000"
+        
         pp_file = os.path.join(cur_path, "preprocess.yaml")
-        dummy_file = ""
         prefix = "pp"
         translator_out_path = os.path.join(TRANSLATOR, 'output', prefix)
         pp_out_path = os.path.join(cur_path, self.out_dir)
@@ -938,35 +937,62 @@ class PreRuntime():
 
         # Choose device of run script
         drpai_tran.set_translator(self.product)
-
-        # Make address map file with dynamic allocatable address.
-        drpai_tran.make_addrfile(dynamic_alloc_addr, addr_file)  
-
+        
         # Run DRP-AI Translator
-        drpai_tran.run_translate("pp", \
-            onnx=dummy_file, \
-            prepost=pp_file, \
-            addr=addr_file, \
-            options=["-PrePostOnly"]
-        )
+        PRODUCT= os.getenv("PRODUCT")
+        if(PRODUCT == 'V2H'):
+            drpai_tran.run_translate("pp", \
+                prepost=pp_file, \
+                s_addr=dynamic_alloc_addr, \
+                options=["--PrePostOnly"]
+            )
 
-        # Move result to output directory specified in argument.
-        # Generate only necessary files from DRP-AI Translator
-        dir_list = [
-            'aimac_desc.bin', 
-            'drp_desc.bin', 
-            'drp_param.bin', 
-            prefix+'_drpcfg.mem', 
-            prefix+'_weight.dat', 
-            'drp_param_info.txt', 
-            prefix+'_addrmap_intm.txt'
-        ]
+            # Move result to output directory specified in argument.
+            # Generate only necessary files from DRP-AI Translator
+            dir_list = [
+                'aimac_desc.bin',
+                'aimac_cmd.bin', 
+                'aimac_param_desc.bin', 
+                'aimac_param_cmd.bin',  
+                'drp_desc.bin', 
+                'drp_param.bin', 
+                'drp_config.mem', 
+                'weight.bin', 
+                'drp_param_info.txt', 
+                'addr_map.txt'
+            ]
+            expected_dirlen = 18
+        else:
+            # Make address map file with dynamic allocatable address.
+            addr_file = os.path.join(cur_path, "addr_map.yaml")
+            drpai_tran.make_addrfile(dynamic_alloc_addr, addr_file)  
+
+            dummy_file = ""
+            drpai_tran.run_translate("pp", \
+                onnx=dummy_file, \
+                prepost=pp_file, \
+                addr=addr_file, \
+                options=["-PrePostOnly"]
+            )
+            # Move result to output directory specified in argument.
+            # Generate only necessary files from DRP-AI Translator
+            dir_list = [
+                'aimac_desc.bin', 
+                'drp_desc.bin', 
+                'drp_param.bin', 
+                prefix+'_drpcfg.mem', 
+                prefix+'_weight.dat', 
+                'drp_param_info.txt', 
+                prefix+'_addrmap_intm.txt'
+            ]
+            expected_dirlen = 21
+
         # DEBUG: generate all intermediate files of DRP-AI Translator
         if (debug):
             dir_list = os.listdir(translator_out_path)
 
         # Check DRP-AI Translator passed or failed
-        if (0 == len(dir_list) or (debug and 21 != len(dir_list))):
+        if (0 == len(dir_list) or (debug and expected_dirlen != len(dir_list))):
             print("[ERROR] DRP-AI Pre-processing Runtime failed.", flush=True)
             sys.exit(-1)
         for p in dir_list:

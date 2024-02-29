@@ -225,7 +225,7 @@ static const std::unordered_map<uint16_t, std::string> format_string_table =
 typedef struct
 {
     std::string   directory_name;
-    uint32_t      start_address;
+    uint64_t      start_address;
     unsigned long object_files_size;
     unsigned long data_in_addr;
     unsigned long data_in_size;
@@ -253,6 +253,12 @@ typedef struct
     unsigned long drp_config_size;
     unsigned long weight_addr;
     unsigned long weight_size;
+    unsigned long aimac_param_cmd_addr;
+    unsigned long aimac_param_cmd_size;
+    unsigned long aimac_param_desc_addr;
+    unsigned long aimac_param_desc_size;
+    unsigned long aimac_cmd_addr;
+    unsigned long aimac_cmd_size;
 } st_addr_info_t;
 
 
@@ -267,7 +273,7 @@ typedef struct
 {
     uint16_t pre_in_shape_w = INVALID_SHAPE;
     uint16_t pre_in_shape_h = INVALID_SHAPE;
-    uint32_t pre_in_addr    = INVALID_ADDR;
+    uint64_t pre_in_addr    = INVALID_ADDR;
     uint16_t pre_in_format  = INVALID_FORMAT;
     uint16_t pre_out_format = INVALID_FORMAT;
     uint8_t resize_alg      = INVALID_RESIZE_ALG;
@@ -362,8 +368,12 @@ class PreRuntime {
         PreRuntime();
         ~PreRuntime();
 
+        uint8_t Load(const std::string pre_dir, uint64_t start_addr);
         uint8_t Load(const std::string pre_dir, uint32_t start_addr = INVALID_ADDR, uint8_t mode = MODE_PRE);
+        int     SetInput(void *indata);
         uint8_t Pre(s_preproc_param_t* param, void** out_ptr, uint32_t* out_size);
+        uint8_t Pre(void** out_ptr, uint32_t* out_size, uint64_t phyaddr);
+        int     Occupied_size;
 
     private:
         /*Internal parameter value holder*/
@@ -394,6 +404,11 @@ class PreRuntime {
         bool crop_included      = false;
         bool resize_included    = false;
         bool normalize_included = false;
+        
+        /*Since ADRCONV cannot delete just any entry, a means to reconfigure everything became necessary.*/
+        uint64_t start_addr_v2h;
+        uint64_t mapped_in_addr_v2h;
+
         /*Supported Format*/
         const uint16_t supported_format_in[17] = 
         { 
@@ -423,31 +438,36 @@ class PreRuntime {
         };
         /*Functions*/
         uint8_t ReadAddrmapTxt(std::string addr_file);
+        uint8_t WritePrerunData(const std::string dir);
         uint8_t LoadFileToMemDynamic(std::string data, unsigned long offset, unsigned long size, uint32_t file_type);
+        uint8_t LoadFileToMemDynamic(std::string data, unsigned long offset, unsigned long size);
+        uint8_t LoadDataToMem(std::vector<uint8_t> *data, unsigned long from, unsigned long size);
         uint8_t LoadDataToMem(std::vector<uint8_t> data, unsigned long from, unsigned long size);
+        uint8_t ReadFileData(std::vector<uint8_t> *data, std::string file, unsigned long size);
         uint8_t ReadFileData(std::vector<uint8_t> &data, std::string file, unsigned long size);
         uint8_t GetResult(unsigned long output_addr, unsigned long output_size);
         uint8_t ParseParamInfo(const std::string info_file);
         uint8_t LoadParamInfo();
         uint8_t UpdateParamToDynamic(uint32_t start_addr);
         
-        int8_t UpdateParamData(const s_preproc_param_t param);
-        int8_t UpdateWeightData(const s_preproc_param_t param);
+        int8_t  UpdateParamData(const s_preproc_param_t param);
+        int8_t  UpdateWeightData(const s_preproc_param_t param);
 
-        void UpdateInputShape(const uint16_t w, const uint16_t h);
-        void UpdateResizeShape(const uint16_t w, const uint16_t h);
-        void UpdateResizeAlg(const uint8_t val);
-        void UpdateFormat(const uint16_t input_val, const uint16_t output_val);
+        void    UpdateInputShape(const uint16_t w, const uint16_t h);
+        void    UpdateResizeShape(const uint16_t w, const uint16_t h);
+        void    UpdateResizeAlg(const uint8_t val);
+        void    UpdateFormat(const uint16_t input_val, const uint16_t output_val);
         uint8_t UpdateCoefficient(const float* cof_add, const float* cof_mul);
-        void UpdateCropParam(const uint16_t tl_x, const uint16_t tl_y, const uint16_t w, const uint16_t h);
+        void    UpdateCropParam(const uint16_t tl_x, const uint16_t tl_y, const uint16_t w, const uint16_t h);
 
-        bool IsDifferentFmInternal(const float* cof_add, const float* cof_mul);
-        void WriteValue(uint16_t offset, uint32_t value, uint8_t size);
-        bool IsInSupportedList(uint16_t format, uint8_t is_input);
-        bool IsSupportedFormat(const s_preproc_param_t param, uint16_t format_in, uint16_t format_out);
+        bool    IsDifferentFmInternal(const float* cof_add, const float* cof_mul);
+        void    WriteValue(uint16_t offset, uint32_t value, uint8_t size);
+        bool    IsInSupportedList(uint16_t format, uint8_t is_input);
+        bool    IsSupportedFormat(const s_preproc_param_t param, uint16_t format_in, uint16_t format_out);
         uint32_t GetStartAddress(uint32_t addr, drpai_data_t drpai_data);
-        bool StartsWith(std::string str, std::string prefix);
-        double timedifference_msec(struct timespec t0, struct timespec t1);
+        uint64_t GetStartAddress(uint64_t addr, drpai_data_t drpai_data);
+        bool    StartsWith(std::string str, std::string prefix);
+        double  timedifference_msec(struct timespec t0, struct timespec t1);
 };
 
 #endif //PRERUNTIME_H
