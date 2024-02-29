@@ -30,7 +30,8 @@ def get_args():
     """
     usage = "usage: %prog [options] model_file"
     parser = OptionParser(usage)
-    parser.set_defaults(drp_compiler_dir='./drp-ai_translator_release', toolchain_dir='/opt/poky/2.4.3', disable_concat = False)
+    parser.set_defaults(drp_compiler_dir='./drp-ai_translator_release', toolchain_dir='/opt/poky/3.1.21', disable_concat = False, quantization_tool='./drpai_quant', num_frame=1, cpu_data_type="float16")
+    parser.add_option("-r", "--record_dir", dest="record_dir", help="Calibration data record directory", metavar="DIR")
     parser.add_option("-d", "--drp_compiler_dir", dest="drp_compiler_dir", help="DRP-AI Translator root directory", metavar="DIR")
     parser.add_option("-t", "--toolchain_dir", dest="toolchain_dir", help="Cross-compilation toolchain root directory", metavar="DIR")
     parser.add_option("-o", "--output_dir", dest="output_dir", help="Output directory", metavar="DIR") # Pattern 2
@@ -38,6 +39,13 @@ def get_args():
     parser.add_option("-i", "--input_name", dest="input_name", help="Input name")
     parser.add_option("--level",dest="level", default=1, help="Optimization level[0 or 1]")
     parser.add_option("-q", "--fp16", action="store_true", dest="fp16", help="Convert to FP16")
+    parser.add_option("-n", "--num_frame", dest="num_frame", default=1, help="Number input frames")
+    parser.add_option("-c", "--quantization_tool", dest="quantization_tool", help="Quantization tool directory", metavar="DIR")
+    parser.add_option("-f", "--cpu_data_type", dest="cpu_data_type", default="float16", help="Specify cpu data type (float16/float32)", metavar="float16 or float32")
+    parser.add_option("--images", dest="image_dir", help="Specifies the directory where calibration images are contained.", metavar="DIR")
+    parser.add_option("-v", "--drp_compiler_version", dest="drp_compiler_version", help="DRP-AI Translator version (091 or 100)", metavar="VERSION ID")
+    parser.add_option("-p", "--quantization_option", dest="quantization_option", default="", help="drpai quantization option, example -p \"-az True\"", metavar="OPTION")
+
     (options, args) = parser.parse_args()
     opts = vars(options)
     if len(args) != 1:

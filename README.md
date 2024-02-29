@@ -39,6 +39,7 @@ This compiler stack is an extension of the DRP-AI Translator to the TVM backend.
 
 ## Installation
 - [Installing DRP-AI TVM](./setup/README.md#installing-drp-ai-tvm1)
+- [Installing DRP-AI TVM for RZ/V2H](./setup/SetupV2H.md#hogehoge)
 - [Installing DRP-AI TVM with Docker](./setup/README.md#installing-drp-ai-tvm1-with-docker)
 
 ## Deploy AI models on DRP-AI
@@ -55,15 +56,19 @@ SDK generated from RZ/V Linux Package and DRP-AI Support Package is required to 
 After compiled the model, you need to copy the file to the target board (Deploy).  
 You also need to copy the C++ inference application and DRP-AI TVM[^1] Runtime Library to run the AI model inference.  
 
-<img src=./img/deploy_flow.png width=500>   
+<img src=./img/deploy_flow.png width=500>
 
 Following pages show the example to compile the ResNet18 model and run it on the target board.  
 
 ### Compile model with DRP-AI TVM[^1]  
-Please see [Tutorial](./tutorials).  
+
+- [Compiling model for DRP-AI TVM](./tutorials)
+- [Compiling model for DRP-AI TVM(RZ/V2H)](./tutorials/tutorial_RZV2H.md)
 
 ### Run inference on board  
-Please see [Application Example](./apps) page.  
+
+- [Application Example for DRP-AI TVM](./apps)
+- [Application Example for DRP-AI TVM(RZ/V2H)](./apps/build_appV2H.md)
 
 ## Sample Application  
 To find more AI examples, please see [How-to](./how-to) page.  
@@ -79,7 +84,7 @@ If error occurred at compile/runtime operation, please refer [error list](./docs
 
 ### Tips  
 [How-to](./how-to) page includes following explanation.  
-- profilier;  
+- profiler;  
 - validation between x86 and DRP-AI;  
 - etc.  
 

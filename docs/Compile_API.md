@@ -60,15 +60,15 @@ Keep **0x0** to "addr_map_start" for Renesas RZ/V Evaluation Board Kit.
 
 
 ----
-## Appendix 1 : Argments of sample scripts
+## Appendix 1 : Arguments of sample scripts
 
 |option|Note|
 |----|----|
 |-o/--output_dir|Output directory to save compile results.|
 |-i/--input_name|AI model input node name. (Not required for pytorch models)|
 |-s/--input_shape|AI model input node shape|
-|[option]-d/--drp_compiler_dir|DRP-AI Translator installed directory. This argument can be omitted by setting environment variables as shown follwoing: "export TRANSLATOR=<.../drp-ai_translator> "|
-|[option]-t/--toolchain_dir|SDK(Cross compiler) installed directory. This argument can be omitted by setting environment variables as shown follwoing: "export SDK=</opt/poky/3.1.21>"|
+|[option]-d/--drp_compiler_dir|DRP-AI Translator installed directory. This argument can be omitted by setting environment variables as shown following: "export TRANSLATOR=<.../drp-ai_translator> "|
+|[option]-t/--toolchain_dir|SDK(Cross compiler) installed directory. This argument can be omitted by setting environment variables as shown following: "export SDK=</opt/poky/3.1.21>"|
 |[option]--level | Optimization level at compile. "1" is the default and compiles with optimal settings. If "0" is set to this option,  complex models can be deployed, but inference speed is slower.|
 
 [*1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.

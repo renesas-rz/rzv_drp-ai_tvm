@@ -82,16 +82,16 @@ if __name__ == "__main__":
     print("   Run TVM backend compiler with DRP-AI Translator")
     # 3.2.1 Set config for DRP-AI runtime
     drp_config_runtime = {
-        "interpreter": False,
+        "target": "DrpAi",
         "addr_map_start": 0x0,
         "toolchain_dir": opts["drp_compiler_dir"],
         "sdk_root": opts["toolchain_dir"]
     }
     # 3.2.2 Run backend compiler
     drp.build(mod, \
-                   params, \
-                   "arm", \
-                   drp_config_runtime, \
+                params, \
+                "arm", \
+                drp_config_runtime, \
                    output_dir=output_dir, \
                    disable_concat = opts["disable_concat"]
                    )

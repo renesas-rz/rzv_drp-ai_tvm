@@ -29,7 +29,11 @@ if(TRANSLATOR == None):
     print("        to the directory where you installed DRP-AI Translator")
     print("        e.g. $export TRANSLATOR=/home/user/drp-ai_translator_release/")
     sys.exit(-1)
+DRP_TOOLS = TRANSLATOR + "/DRP-AI_Translator"
+sys.path.append(DRP_TOOLS)
 DRP_TOOLS = TRANSLATOR + "/DRP-AI_translator"
+sys.path.append(DRP_TOOLS)
+DRP_TOOLS = TRANSLATOR + "/pythonIF"
 sys.path.append(DRP_TOOLS)
 from python_api import *
 
