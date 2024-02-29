@@ -1,4 +1,4 @@
-# DRP-AI TVM[^1] Application Example
+# DRP-AI TVM[^1] Application Example (RZ/V2H)
 
 This page explains how to use the application provided in this directory, which is the example to run ResNet18 inference on the target board.
 
@@ -41,9 +41,6 @@ Run `cmake` command.
 ```sh
 cmake -DCMAKE_TOOLCHAIN_FILE=./toolchain/runtime.cmake -DV2H=ON ..
 
-#And the case of using an old V2H development board.
-#sed -i -e 's/DEBUG_LOG/DEBUG_LOG -DWITH_V2H_DEV/g' ../CMakeLists.txt 
-#cmake -DCMAKE_TOOLCHAIN_FILE=./toolchain/runtime.cmake -DV2H=ON ..
 ```
 
 ### 2. Build
@@ -111,8 +108,6 @@ cp -r $TVM_ROOT/tutorials/resnet18_torch/  tvm/
 cp -r $TVM_ROOT/tutorials/resnet50_tflite/  tvm/
 cp -r $TVM_ROOT/tutorials/resnet50_v1_onnx_cpu/  tvm/
 
-#IF you using an old V2H development board.
-#cp $TVM_ROOT/obj/build_runtime/V2H_NOCMA/libtvm_runtime.so tvm/ 
 tar cvfz tvm.tar.gz tvm/
 ```
 
@@ -127,6 +122,8 @@ cd ~/tvm
 export LD_LIBRARY_PATH=.
 cp -r resnet50_v1_onnx resnet18_onnx
 ./tutorial_app
+#./tutorial_app 6 #run DRP-AI with 315Mhz
+
 
 rm -r resnet18_onnx
 cp -r resnet18_torch resnet18_onnx

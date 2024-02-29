@@ -53,6 +53,23 @@ if(PRODUCT != 'V2H'):
     print("        e.g. $export PRODUCT=V2H")
     sys.exit(-1)
 
+def create_random_input_from_rt(rt_mod):
+    shape_dict = {}
+    input_data = []
+    input_shape = opts["input_shape"]
+    for key, value in rt_mod.get_input_info()[0].items():
+        if input_shape == tuple(value):
+            if 'input_name' in locals():
+                print("multi input is unexpected.")
+            input_name = key
+            if rt_mod.get_input_info()[1][key] != "float32":
+                print("unexpected sta type")
+    shape_dict[input_name] = input_shape
+    data = np.random.uniform(0.0, 1.0, input_shape).astype(np.float32)
+    input_data.append(data)
+    return shape_dict, input_data
+
+
 def create_random_input(inputs, model_vars, model_file):
     shape_dict = {}
     input_data = []
@@ -63,7 +80,7 @@ def create_random_input(inputs, model_vars, model_file):
             continue
         input_shape = opts["input_shape"]
         shape_dict[input_name] = input_shape
-        data = np.random.uniform(-1.0, 1.0, input_shape).astype(np.float32)
+        data = np.random.uniform(0.0, 1.0, input_shape).astype(np.float32)
         input_data.append(data)
         data.flatten().astype(np.float32).tofile(os.path.join(output_dir, "input_" + str(inp_idx) + ".bin"))
         inp_idx += 1
@@ -94,7 +111,8 @@ if __name__ == "__main__":
      -t : toolchain path (Cross compiler/SDK)
      -c : Concat disable mode. Safety compile mode.
     """
-
+    np.random.seed(1234567)
+    
     # 1. Get argument data
     (opts, model_file) = get_args()
     output_dir=opts["output_dir"]
@@ -149,7 +167,7 @@ if __name__ == "__main__":
         print("Number input random frames: ", opts["num_frame"])
 
         for i in range(num_frame):
-            shape_dict, input_data = create_random_input(onnx_model.graph.input, model_vars, model_file)
+            shape_dict, input_data = create_random_input_from_rt(rt_mod)
             for inp_idx in range(len(input_data)):
                 rt_mod.set_input(inp_idx, input_data[inp_idx])
             rt_mod.run()
@@ -159,12 +177,14 @@ if __name__ == "__main__":
         for i in range(len(input_list)):
             img_file_name = str(input_list[i])
             image = cv2.imread(img_file_name)
-            input_data = pre_process_imagenet_pytorch(image, mean, stdev, need_transpose=True)
-            input_data = np.expand_dims(input_data, 0)
-            rt_mod.set_input(0, input_data)
+            single_input_data = pre_process_imagenet_pytorch(image, mean, stdev, need_transpose=True)
+            single_input_data = np.expand_dims(single_input_data, 0)
+            input_data = [single_input_data]
+            for inp_idx in range(len(input_data)):
+                rt_mod.set_input(inp_idx, input_data[inp_idx])
             rt_mod.run()
             print("calib data", img_file_name)
-            
+
     # 3.3.1 Set config for with x86 runtime with int8. 
     drp_config = {
         "target": "InterpreterQuant",
@@ -175,15 +195,19 @@ if __name__ == "__main__":
     }
     output_dir="_out_quant"
     os.makedirs(output_dir, exist_ok=True)
-    #input_data.numpy().flatten().astype(np.float32).tofile(os.path.join(output_dir, "input_0.bin"))
-    input_data.flatten().astype(np.float32).tofile(os.path.join(output_dir, "input_0.bin"))
     # 3.3.2 Run the backend compiler for x86 and generate reference output of int8.
+    ref_result_output_dir = os.path.join(opts["output_dir"],"interpreter_out")
+    os.makedirs(ref_result_output_dir, exist_ok=True)
+    input_data[0].flatten().astype(np.float32).tofile(
+            os.path.join(ref_result_output_dir, "input_" + str(0) + ".bin"))
     json, params, lib_path = mera.drp.build(mod, params, "x86", drp_config, output_dir, disable_concat= opts["disable_concat"], cpu_data_type=opts["cpu_data_type"])
     lib = runtime.load_module(lib_path)
     ctx = runtime.cpu()
     rt_mod = graph_executor.create(json, lib, ctx)
     rt_mod.set_input(**params)
-    rt_mod.set_input(input_name, input_data)
+    rt_mod.set_input(0, input_data[0])
+#    for inp_idx in range(len(input_data)):
+#        rt_mod.set_input(inp_idx, input_data[inp_idx])
     rt_mod.run()
 
     # 3.3.3 Save to use as reference output.
@@ -191,11 +215,11 @@ if __name__ == "__main__":
         byoc_output = rt_mod.get_output(i).asnumpy()
         if byoc_output.dtype == "float32":
             byoc_output.flatten().astype(np.float32).tofile(
-                os.path.join(output_dir, "ref_result_" + str(i) + ".bin"))
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) + "_fp32.bin"))
         elif byoc_output.dtype == "float16":
             byoc_output.flatten().astype(np.float16).tofile(
-                os.path.join(output_dir, "ref_result_" + str(i) + ".bin"))
-    
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) +"_fp16.bin"))
+
     # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")

@@ -396,7 +396,15 @@ int main(int argc, char **argv)
 
     timespec_get(&start_time, TIME_UTC);
     std::cout << "Running tvm runtime" << std::endl;
-    runtime.Run();
+    if(argc == 1)
+    {
+        runtime.Run();
+
+    } 
+    else 
+    {
+        runtime.Run(std::stoi(argv[1]));
+    }
     timespec_get(&end_time, TIME_UTC);
 
     /* Print Inference processing time */

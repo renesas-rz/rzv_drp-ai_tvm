@@ -1,7 +1,7 @@
-# Compile AI models   
+# Compile AI models (RZ/V2L, RZ/V2M, RZ/V2MA)  
 
 This tutorial show how to compile an onnx AI model.
-
+And how to compile for **RZ/V2H**, [see here](tutorial_RZV2H.md).
 
 ### Download pretraind onnx model
 
@@ -9,7 +9,7 @@ Before running compile script, prepare pretrained onnx model. This tutorial uses
 
 ```sh
 cd ${TVM_ROOT}/tutorials/
-wget https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet18-v1-7.onnx
+wget https://github.com/onnx/models/raw/main/validated/vision/classification/resnet/model/resnet18-v1-7.onnx
 ```
 
 ### Import libraries
@@ -85,7 +85,9 @@ tutorials
 These files are needed to run the run-time program on a evaluation board. See ["How to Run the Application"](../apps/README.md)  for how to deploy.   
 
 ----
+
 # Sample Scripts
+
 There are three types of sample scripts to compile an AI model.
 
 1. Compile script with onnx model [CPU and DRP-AI accelerator]   
@@ -101,7 +103,7 @@ For more details on DRP-AI Pre-processing Runtime, please refer to its [Document
 ```sh
 cd ./tutorials/
 # Download onnx model from official ONNX model zoo
-wget https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet18-v1-7.onnx
+wget https://github.com/onnx/models/raw/main/validated/vision/classification/resnet/model/resnet18-v1-7.onnx
 python3 compile_onnx_model.py \
     ./resnet18-v1-7.onnx \
     -o resnet18_onnx \
@@ -138,16 +140,19 @@ python3 sample_save_tflite_model.py
 # Run DRP-AI TVM[*1] Compiler script
 python3 compile_tflite_model.py \
     ./resnet50-v1.tflite \
-    -o resnet50_tflite
+    -o resnet50_tflite -s 1,224,224,3
 ```
 
----
+----
+
 ## 4. Compile using CPU-only deploy mode
+
 ### 4.1. Example using Resnet from the official ONNX model zoo
+
 ```sh
 # At <drp-ai_tvm>/tutorials
 # Download onnx model from official ONNX model zoo
-wget https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet18-v1-7.onnx
+wget https://github.com/onnx/models/raw/main/validated/vision/classification/resnet/model/resnet18-v1-7.onnx
 python3 compile_cpu_only_onnx_model.py \
         ./resnet18-v1-7.onnx \
         -o resnet18_onnx_cpu \
@@ -157,8 +162,8 @@ python3 compile_cpu_only_onnx_model.py \
 
 Please see [Compile API](../docs/Compile_API.md) for details
 
+## Note
 
-# Note  
 Start Address [above](#run-backend-to-build-deploy-files) is defined for following preprocessing.  
 - Input data  
     - Shape: 4096x2060x2  
@@ -177,9 +182,9 @@ Start Address [above](#run-backend-to-build-deploy-files) is defined for followi
 When using preprocessing which has more computation than above conditions, the Start Address **must be larger** than the above value.  
 
 To set the new address, satisfy following conditions.
+
 - The address must be within the DRP-AI memory area, which is reserved memory area in RZ/V Linux Package.
 - The address must be aligned with 64-byte boundary.
 - The address must be larger than `(Start address of DRP-AI memory area) + (Size of memory area required by DRP-AI Pre-processing Runtime Object files)`
-
 
 [*1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.  

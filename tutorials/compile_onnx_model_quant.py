@@ -54,6 +54,33 @@ if(PRODUCT != 'V2H'):
     sys.exit(-1)
 
 
+# Input shape helper
+# Some ONNX only contain symbolic shapes for non-batch dimensions
+def get_standard_input_shape(network_name):
+    standard_input_shape = {
+        'fcn-resnet50-11.onnx': [1, 3, 520, 520],
+        'fcn-resnet101-11.onnx': [1, 3, 520, 520],
+    }
+    for k in standard_input_shape.keys():
+        if k in network_name:
+            return standard_input_shape[k]
+
+
+def get_input_shape(network_filename, inp_msg):
+    # we set the batch dimension to 1
+    batch_dim = 1
+
+    dim_info = MessageToDict(inp_msg).get("type").get("tensorType").get("shape").get("dim")
+    is_symbolic = False
+    for d in dim_info[1::]:
+        if "dimParam" in d:
+            is_symbolic = True
+            break
+    if is_symbolic:
+        return get_standard_input_shape(network_filename)
+    else:
+        return [batch_dim] + [int(d.get("dimValue")) for d in dim_info[1::]]
+
 
 def create_random_input(inputs, model_vars, model_file):
     shape_dict = {}
@@ -63,7 +90,7 @@ def create_random_input(inputs, model_vars, model_file):
         input_name = inp.name
         if input_name not in model_vars:
             continue
-        input_shape = opts["input_shape"]
+        input_shape = get_input_shape(model_file, inp)
         shape_dict[input_name] = input_shape
         data = np.random.uniform(-1.0, 1.0, input_shape).astype(np.float32)
         input_data.append(data)
@@ -193,6 +220,8 @@ if __name__ == "__main__":
     shape_dict, input_data = create_random_input(onnx_model.graph.input, model_vars, model_file)
 
     # 3.3.2 Run the backend compiler for x86 and generate reference output of int8.
+    ref_result_output_dir = os.path.join(opts["output_dir"],"interpreter_out")
+    os.makedirs(ref_result_output_dir, exist_ok=True)
     json, params, lib_path = mera.drp.build(mod, params, "x86", drp_config, output_dir, disable_concat= opts["disable_concat"], cpu_data_type=opts["cpu_data_type"])
     lib = runtime.load_module(lib_path)
     ctx = runtime.cpu()
@@ -200,6 +229,8 @@ if __name__ == "__main__":
     rt_mod.set_input(**params)
     for inp_idx in range(len(input_data)):
         rt_mod.set_input(inp_idx, input_data[inp_idx])
+        input_data[inp_idx].flatten().tofile(
+            os.path.join(ref_result_output_dir, "input_" + str(inp_idx) + ".bin"))
     rt_mod.run()
 
     # 3.3.3 Save to use as reference output.
@@ -207,10 +238,10 @@ if __name__ == "__main__":
         byoc_output = rt_mod.get_output(i).asnumpy()
         if byoc_output.dtype == "float32":
             byoc_output.flatten().astype(np.float32).tofile(
-                os.path.join(output_dir, "ref_result_" + str(i) + ".bin"))
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) + "_fp32.bin"))
         elif byoc_output.dtype == "float16":
             byoc_output.flatten().astype(np.float16).tofile(
-                os.path.join(output_dir, "ref_result_" + str(i) + ".bin"))
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) +"_fp16.bin"))
 
     # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
@@ -237,21 +268,21 @@ if __name__ == "__main__":
     # 4. Compile pre-processing using DRP-AI Pre-processing Runtime Only for RZ/V2H
     # 4.1. Define the pre-processing data
     config = preruntime.Config()
-    
+
     # 4.1.1. Define input data of preprocessing
     config.shape_in     = [1, 480, 640, 3]
     config.format_in    = drpai_param.FORMAT.BGR
     config.order_in     = drpai_param.ORDER.HWC
     config.type_in      = drpai_param.TYPE.UINT8
-    
+
     # 4.1.2. Define output data of preprocessing (Will be model input)
     model_shape_in = list(opts["input_shape"])
     config.shape_out    = model_shape_in
     config.format_out   = drpai_param.FORMAT.RGB
     config.order_out    = drpai_param.ORDER.CHW
-    config.type_out     = drpai_param.TYPE.FP32 
+    config.type_out     = drpai_param.TYPE.FP32
     # Note: type_out depends on DRP-AI TVM[*1]. Usually FP32.
-    
+
     # 4.1.3. Define operators to be run.
     r = 255
     cof_add = [-m*r for m in mean]
@@ -260,6 +291,6 @@ if __name__ == "__main__":
         op.Resize(model_shape_in[3], model_shape_in[2], op.Resize.BILINEAR),
         op.Normalize(cof_add, cof_mul)
     ]
-    
+
     # 4.2. Run DRP-AI Pre-processing Runtime
     preruntime.PreRuntime(config, opts["output_dir"]+"/preprocess", PRODUCT)
