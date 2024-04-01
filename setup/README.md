@@ -14,11 +14,10 @@ Requirements are listed below.
 - Package : git
 - Evaluation Board: RZ/V2L EVK, RZ/V2M EVK, RZ/V2MA EVK
 - Related Software Version:
+  - [DRP-AI Translator V1.84](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
   - RZ/V2L
-  - [DRP-AI Translator V1.83](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
     - [RZ/V2L AI SDK v2.10](https://www.renesas.com/software-tool/rzv2l-ai-software-development-kit)
   - RZ/V2M, RZ/V2MA
-    - [DRP-AI Translator V1.83](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
     - [RZ/V Verified Linux Package V3.0.4 or lator](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package)
     - DRP-AI Support Package V7.40 or lator [RZ/V2L](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2l-drp-ai-support-package) [RZ/V2M](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package) [RZ/V2MA](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
 

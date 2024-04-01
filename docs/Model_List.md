@@ -6,7 +6,7 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 |------------------------|------------|------------|-------------|-------------|
 | DRP-AI TVM[^1]         | v1.1.1     | v1.1.1     | v1.1.1      | v2.2.0      |
 | Evaluation Board       | RZ/V2L EVK | RZ/V2M EVK | RZ/V2MA EVK | RZ/V2H EVK  |
-| DRP-AI Translator      | v1.82      | v1.82      | v1.82       | v1.83       |
+| DRP-AI Translator      | v1.82      | v1.82      | v1.82       | i8 v1.01    |
 | Linux Package          | v3.0.2     | v1.3.0     | v1.0.0      | AISDK v3.00 |
 | DRP-AI Support Package | v7.30      | v7.30      | v7.20       | AISDK v3.00 |
 
@@ -47,7 +47,7 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 |[YOLOv8m](https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8m.pt)                                                                                              |Object Detection |ONNX                |147706ms|1020ms |356004ms|987ms  |177888ms|971ms  |        |        |
 |[YOLOv8l](https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8l.pt)                                                                                              |Object Detection |ONNX                |143141ms|447ms  |352785ms|398ms  |176179ms|399ms  |        |        |
 |[YOLOv8x](https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8x.pt)                                                                                              |Object Detection |ONNX                |60873ms |594ms  |147215ms|524ms  |73570ms |522ms  |        |        |
-|[YOLOX_s](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth)                                                                                   |Object Detection |ONNX                |56540ms |402ms  |138831ms|368ms  |69598ms |373ms  |        |69ms    |
+|[YOLOX_s](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth)                                                                                   |Object Detection |ONNX                |56540ms |402ms  |138831ms|368ms  |69598ms |373ms  |        |16ms    |
 |[YOLOX_m](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth)                                                                                   |Object Detection |ONNX                |150285ms|686ms  |361990ms|580ms  |180987ms|587ms  |        |        |
 |[YOLOX_l](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_l.pth)                                                                                   |Object Detection |ONNX                |139775ms|289ms  |344315ms|228ms  |172028ms|229ms  |        |        |
 |[YOLOX_x](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_x.pth)                                                                                   |Object Detection |ONNX                |65489ms |463ms  |157959ms|341ms  |78918ms |344ms  |        |        |

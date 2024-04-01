@@ -365,7 +365,7 @@ int main(int argc, char** argv)
     int udmabuf_fd = 0;
     /* u-dma-buf start addres */
     uint64_t udmabuf_addr_start = 0;
-    uint64_t drpaimem_addr_start = 0;
+    uint32_t drpaimem_addr_start = 0;
     uint32_t udmabuf_size = INPUT_IMAGE_H*INPUT_IMAGE_W*INPUT_IMAGE_C;
     /* Load Label list */
     label_file_map = load_label_file(labels);
@@ -385,7 +385,7 @@ int main(int argc, char** argv)
 
     /*Load model_dir structure and its weight to runtime object */
     drpaimem_addr_start = get_drpai_start_addr();
-    if (drpaimem_addr_start == (uint64_t)NULL) return 0;
+    if (drpaimem_addr_start == (uint32_t)NULL) return 0;
     runtime.LoadModel(model_dir, drpaimem_addr_start+0x38E0000);
 
     /*Get input data */
