@@ -162,7 +162,17 @@ Please set `OPTIMIZER_ENABLE=false`  as below.
 ``` bash
 OPTIMIZER_ENABLE=false python3 compile_onnx_model_quant.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images calibrate_images_voc -v 100
 ```
-### b. Interpreter mode
+
+### b. SPARSE_ENABLE option
+SPARSE_ENABLE is sparse option.  
+This option is enabled by default.  
+If you want to explicitly disable Sparse mode (to ensure processing in Dense mode), specify this option to false.  
+Please set `SPARSE_ENABLE=false`  as below.  
+``` bash
+SPARSE_ENABLE=false python3 compile_onnx_model_quant.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images calibrate_images_voc -v 100
+```
+
+### c. Interpreter mode
 
 Interpreter mode is inference-simulation function supported by DRP-AI TVM[^1].  
 You can refer inference results from quantized models on PC.  

@@ -34,6 +34,16 @@ ONNX_FILE=$6
 work_dir=$PWD
 mkdir -p ${OUT}
 
+if [ -z $SPARSE_ENABLE ] ; then
+  SPARSE_OPT="--sparse"
+else
+  if "${SPARSE_ENABLE}" ; then
+    SPARSE_OPT="--sparse"
+  else
+    SPARSE_OPT=" "
+  fi
+fi
+
 expected_result_files=(
   "addr_map.txt"
   "addr_map.yaml"
@@ -58,7 +68,7 @@ for file in "${expected_result_files[@]}"; do
 done
 
 cd ${TOOL_DIR}
-python3 DRP-AI_Translator/run.py ${CNAME} --onnx ${work_dir}/${ONNX_FILE} --prepost ${work_dir}/${PREPOST_FILE} --s_addr ${START_ADDR}
+python3 DRP-AI_Translator/run.py ${CNAME} --onnx ${work_dir}/${ONNX_FILE} --prepost ${work_dir}/${PREPOST_FILE} --s_addr ${START_ADDR} ${SPARSE_OPT}
 
 cd ${work_dir}
 mv ${TOOL_DIR}/output/${CNAME}/* ${OUT}/
