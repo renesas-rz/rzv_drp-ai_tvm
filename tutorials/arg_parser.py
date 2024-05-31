@@ -30,7 +30,7 @@ def get_args():
     """
     usage = "usage: %prog [options] model_file"
     parser = OptionParser(usage)
-    parser.set_defaults(drp_compiler_dir='./drp-ai_translator_release', toolchain_dir='/opt/poky/3.1.21', disable_concat = False, quantization_tool='./drpai_quant', num_frame=1, cpu_data_type="float16")
+    parser.set_defaults(drp_compiler_dir='./drp-ai_translator_release', toolchain_dir='/opt/poky/3.1.21', disable_concat = False, quantization_tool='./drpai_quant', qat=False, qat_type="pytorch", num_frame=1, cpu_data_type="float16")
     parser.add_option("-r", "--record_dir", dest="record_dir", help="Calibration data record directory", metavar="DIR")
     parser.add_option("-d", "--drp_compiler_dir", dest="drp_compiler_dir", help="DRP-AI Translator root directory", metavar="DIR")
     parser.add_option("-t", "--toolchain_dir", dest="toolchain_dir", help="Cross-compilation toolchain root directory", metavar="DIR")
@@ -45,6 +45,9 @@ def get_args():
     parser.add_option("--images", dest="image_dir", help="Specifies the directory where calibration images are contained.", metavar="DIR")
     parser.add_option("-v", "--drp_compiler_version", dest="drp_compiler_version", help="DRP-AI Translator version (091 or 100)", metavar="VERSION ID")
     parser.add_option("-p", "--quantization_option", dest="quantization_option", default="", help="drpai quantization option, example -p \"-az True\"", metavar="OPTION")
+    parser.add_option("-a", "--qat", action="store_true", dest="qat", default=False, help="Option to select compile from exported QAT model", metavar="OPTION")
+    parser.add_option("-m", "--qat_type", dest="qat_type", help="QAT type", metavar="QAT TYPE")
+
 
     (options, args) = parser.parse_args()
     opts = vars(options)

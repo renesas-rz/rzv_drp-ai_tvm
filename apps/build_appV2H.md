@@ -122,7 +122,7 @@ cd ~/tvm
 export LD_LIBRARY_PATH=.
 cp -r resnet50_v1_onnx resnet18_onnx
 ./tutorial_app
-#./tutorial_app 6 #run DRP-AI with 315Mhz
+#./tutorial_app 5 #run DRP-AI with 315Mhz
 
 
 rm -r resnet18_onnx

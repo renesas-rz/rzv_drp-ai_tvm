@@ -161,7 +161,12 @@ if __name__ == "__main__":
     # 3.1 Run TVM Frontend
     print("-------------------------------------------------")
     print("   Run TVM frotend compiler ")
-    mod, params = relay.frontend.from_onnx(onnx_model, shape_dict)
+    if opts["qat"]:
+        from tvm.relay.mera.drp.from_onnx_qat import QatType
+        qat_type = QatType.from_str(opts["qat_type"])
+        mod, params = mera.drp.from_onnx_qat(onnx_model, shape_dict, qat_type, opts["quantization_tool"])
+    else:
+        mod, params = relay.frontend.from_onnx(onnx_model, shape_dict)
 
     # 3.2 Create calibration data(using random values.)
     drp_config = {

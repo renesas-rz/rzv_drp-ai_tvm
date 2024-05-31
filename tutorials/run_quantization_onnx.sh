@@ -70,7 +70,10 @@ python3 -m drpai_quantizer.cli_interface --calibrate_method MinMax \
 RET_CODE=$?
 if [ ${RET_CODE} -ne 0 ]; then
   echo "Error: drpai_quantize.py failed"
-  exit ${RET_CODE}
+  if [ ! -e ${work_dir}/${OUTPUT} ]; then
+    exit ${RET_CODE}
+  fi
+  echo "However, the output file exists! The quantization process continued."
 fi
 
 cd ${work_dir}

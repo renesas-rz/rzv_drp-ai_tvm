@@ -20,8 +20,8 @@ RUN pip3 install --upgrade pip
 RUN pip3 install pillow==8.2.0 scipy==1.5.4 psutil
 RUN pip3 install cython==0.29.32
 RUN pip3 install decorator attrs
-RUN pip3 install torchvision==0.16.2 tqdm
-RUN pip3 install tensorflow tflite
+RUN pip3 install torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu
+RUN pip3 install tensorflow tflite tqdm
 
 # Install onnxruntime
 RUN wget https://github.com/microsoft/onnxruntime/releases/download/v1.16.1/onnxruntime-linux-x64-1.16.1.tgz -O /tmp/onnxruntime.tar.gz \
