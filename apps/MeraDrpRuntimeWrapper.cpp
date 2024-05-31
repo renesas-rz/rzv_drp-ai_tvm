@@ -121,7 +121,7 @@ void MeraDrpRuntimeWrapper::SetInput(int input_index, const T* data_ptr) {
 
     DLDevice ctx;
     ctx.device_id = device_id;
-    ctx.device_type = DLDeviceType(device_type);
+    ctx.device_type = DLDeviceType(kDLCPU);
 
     auto input_array = tvm::runtime::NDArray::Empty(in_shape, xx.DataType(), ctx);
     auto input_data = (T*)(input_array->data);

@@ -55,7 +55,7 @@ cd $TVM_ROOT/tutorials/
 # Download resnet18 model from torchvision & save it as resnet18.pt
 pip3 install torchvision==0.9.1
 python3 sample_save_torch_model.py
-pip3 install torchvision==0.16.2
+pip3 install torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu
 # Run DRP-AI TVM Compiler script
 python3 compile_pytorch_model_quant.py ./resnet18.pt -o resnet18_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,3,224,224
 ```

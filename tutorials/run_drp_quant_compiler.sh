@@ -34,6 +34,24 @@ ONNX_FILE=$6
 work_dir=$PWD
 mkdir -p ${OUT}
 
+if [ -z $OPTIMIZER_ENABLE ] ; then
+  echo "RUN Optimizer again"
+  ONNX_PATH=${work_dir}/${ONNX_FILE}
+  PREOPTIMIZE=${ONNX_PATH//model_quantization.onnx/pre_optimize_model.onnx}
+  python3 ${TOOL_DIR}../translator/DRP-AI_Translator/onnx_optimizer/run_onnx_optimizer.py\
+    --file_in $PREOPTIMIZE --file_out ${work_dir}/_tmp_model.onnx \
+    --prepost ${work_dir}/${PREPOST_FILE}
+else
+  if "${OPTIMIZER_ENABLE}" ; then
+    echo "RUN Optimizer again"
+    ONNX_PATH=${work_dir}/${ONNX_FILE}
+    PREOPTIMIZE=${ONNX_PATH//model_quantization.onnx/pre_optimize_model.onnx}
+    python3 ${TOOL_DIR}../translator/DRP-AI_Translator/onnx_optimizer/run_onnx_optimizer.py\
+      --file_in $PREOPTIMIZE --file_out ${work_dir}/_tmp_model.onnx \
+      --prepost ${work_dir}/${PREPOST_FILE}
+  fi
+fi
+
 if [ -z $SPARSE_ENABLE ] ; then
   SPARSE_OPT="--sparse"
 else
