@@ -24,19 +24,13 @@
 from drpai_preprocess import * 
 import os
 import onnx
-import tvm
 import sys
-import numpy as np
 
-from tvm import relay, runtime
+from tvm import relay
 from tvm.relay.mera import drp
-from tvm.contrib import graph_executor
-from google.protobuf.json_format import MessageToDict
-from optparse import OptionParser
 
+from drpai_preprocess import preruntime, drpai_param, op
 from arg_parser import get_args
-
-import json
 
 PRODUCT= os.getenv("PRODUCT")
 if(PRODUCT == None):
