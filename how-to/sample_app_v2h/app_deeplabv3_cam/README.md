@@ -52,17 +52,17 @@ $TRANSLATOR/../onnx_models/DeepLabV3_sparse90.onnx \
  -v 100
 ```
 
-## Setup the Execution Environment  
+## Setup the Execution Environment
 
-### 1. Setup the board  
+### 1. Copy and archive files
 
 ```bash
 cd $TVM_ROOT/../
-rm -r sample_deeplabv3  ; mkdir sample_deeplabv3 
-cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_deeplabv3/
-cp $TVM_ROOT/how-to/sample_app_v2h/app_deeplabv3_cam/src/build/app_deeplabv3_cam sample_deeplabv3/
-cp -r $TVM_ROOT/tutorials/deeplabv3_cam sample_deeplabv3/
-tar cvfz sample_deeplabv3.tar.gz sample_deeplabv3/
+rm -r sample_deeplabv3_cam  ; mkdir sample_deeplabv3_cam
+cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_deeplabv3_cam/
+cp $TVM_ROOT/how-to/sample_app_v2h/app_deeplabv3_cam/src/build/app_deeplabv3_cam sample_deeplabv3_cam/
+cp -r $TVM_ROOT/tutorials/deeplabv3_cam sample_deeplabv3_cam/
+tar cvfz sample_deeplabv3.tar.gz sample_deeplabv3_cam/
 ```
 
 ## Run the application
@@ -78,10 +78,11 @@ tar cvfz sample_deeplabv3.tar.gz sample_deeplabv3/
 ### 2. **(On RZ/V Board)** Copy and Try it  
 
 For example, as follows.
+
 ```sh
 scp <yourhost>:sample_deeplabv3.tar.gz .
 tar xvfz sample_deeplabv3.tar.gz 
-cd sample_deeplabv3/
+cd sample_deeplabv3_cam/
 export LD_LIBRARY_PATH=.
 ./app_deeplabv3_cam
 ```

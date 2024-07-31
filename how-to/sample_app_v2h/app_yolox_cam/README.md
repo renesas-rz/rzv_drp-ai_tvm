@@ -35,27 +35,27 @@ sed -i -e '/cof_add/d' compile_onnx_model_quant.py
 sed -i -e '/cof_mul/d' compile_onnx_model_quant.py
 
 python3 compile_onnx_model_quant.py \
-$TVM_ROOT/how-to/sample_app_v2h/app_yolox_cam/yolox-S_VOC.onnx \
--o yolox_cam \
--t $SDK \
--d $TRANSLATOR \
--c $QUANTIZER \
--s 1,3,640,640 \
--v 100 \
---images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ 
+$TRANSLATOR/../onnx_models/YoloX-S_VOC_sparse70.onnx \
+ -o yolox_cam \
+ -t $SDK \
+ -d $TRANSLATOR \
+ -c $QUANTIZER \
+ -s 1,3,640,640 \
+ --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
+ -v 100
 ```
 
 ## Setup the Execution Environment  
 
-### 1. Setup the board  
+### 1. Copy and archive files
 
 ```bash
 cd $TVM_ROOT/../
-rm -r sample_app ; mkdir sample_app
-cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_app/
-cp $TVM_ROOT/how-to/sample_app_v2h/app_yolox_cam/src/build/sample_app_drpai_tvm_yolox_cam sample_app/
-cp -r $TVM_ROOT/tutorials/yolox_cam sample_app/
-tar cvfz sample.tar.gz sample_app/
+rm -r sample_yolox_cam ; mkdir sample_yolox_cam
+cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_yolox_cam/
+cp $TVM_ROOT/how-to/sample_app_v2h/app_yolox_cam/src/build/sample_app_drpai_tvm_yolox_cam sample_yolox_cam/
+cp -r $TVM_ROOT/tutorials/yolox_cam sample_yolox_cam/
+tar cvfz sample_yolox.tar.gz sample_yolox_cam/
 ```
 
 ## Run the application
@@ -73,9 +73,9 @@ tar cvfz sample.tar.gz sample_app/
 For example, as follows.
 
 ```sh
-scp <yourhost>:sample.tar.gz .
-tar xvfz sample.tar.gz 
-cd sample_app/
+scp <yourhost>:sample_yolox.tar.gz .
+tar xvfz sample_yolox.tar.gz
+cd sample_yolox_cam/
 export LD_LIBRARY_PATH=.
 ./sample_app_drpai_tvm_yolox_cam
 # ./sample_app_drpai_tvm_yolox_cam 2 5 # run DRP-AI at 315Mhz

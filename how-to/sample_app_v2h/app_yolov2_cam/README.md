@@ -52,15 +52,15 @@ $TRANSLATOR/../onnx_models/YoloV2_sparse90.onnx \
 
 ## Setup the Execution Environment  
 
-### 1. Setup the board  
+### 1. Copy and archive files
 
 ```bash
 cd $TVM_ROOT/../
-rm -r sample_yolov2 ; mkdir sample_yolov2
-cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_yolov2/
-cp $TVM_ROOT/how-to/sample_app_v2h/app_yolov2_cam/src/build/app_yolov2_cam sample_yolov2/
-cp -r $TVM_ROOT/tutorials/yolov2_cam sample_yolov2/
-tar cvfz sample_yolov2.tar.gz sample_yolov2/
+rm -r sample_yolov2_cam ; mkdir sample_yolov2_cam
+cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_yolov2_cam/
+cp $TVM_ROOT/how-to/sample_app_v2h/app_yolov2_cam/src/build/app_yolov2_cam sample_yolov2_cam
+cp -r $TVM_ROOT/tutorials/yolov2_cam sample_yolov2_cam/
+tar cvfz sample_yolov2.tar.gz sample_yolov2_cam/
 ```
 
 ## Run the application
@@ -76,10 +76,11 @@ tar cvfz sample_yolov2.tar.gz sample_yolov2/
 ### 2. **(On RZ/V Board)** Copy and Try it  
 
 For example, as follows.
+
 ```sh
 scp <yourhost>:sample_yolov2.tar.gz .
 tar xvfz sample_yolov2.tar.gz 
-cd sample_yolov2/
+cd sample_yolov2_cam/
 export LD_LIBRARY_PATH=.
 ./app_yolov2_cam
 ```

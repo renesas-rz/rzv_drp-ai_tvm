@@ -247,7 +247,12 @@ if __name__ == "__main__":
         elif byoc_output.dtype == "float16":
             byoc_output.flatten().astype(np.float16).tofile(
                 os.path.join(ref_result_output_dir, "ref_result_" + str(i) +"_fp16.bin"))
-
+        elif byoc_output.dtype == "int64":
+            byoc_output.flatten().astype(np.int64).tofile(
+                os.path.join(output_dir, "ref_result_" + str(i) + ".bin"))
+        else:
+            assert False, "Unsupport this data type" + byoc_output.dtype
+    
     # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")

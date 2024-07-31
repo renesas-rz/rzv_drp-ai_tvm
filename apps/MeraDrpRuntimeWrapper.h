@@ -25,6 +25,7 @@
 enum class InOutDataType {
   FLOAT32,
   FLOAT16,
+  INT64,
   OTHER
 };
 

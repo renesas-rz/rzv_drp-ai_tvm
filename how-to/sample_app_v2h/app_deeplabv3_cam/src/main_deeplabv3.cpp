@@ -1063,6 +1063,10 @@ int32_t main(int32_t argc, char * argv[])
     auto logger = spdlog::basic_logger_mt("logger", time_buf);
     spdlog::set_default_logger(logger);
 
+    unsigned long OCA_list[16];
+    for (int i=0; i < 16; i++) OCA_list[i] = 0;
+    OCA_Activate( &OCA_list[0] );
+
     /* DRP-AI Frequency Setting */
     if (2 <= argc)
     {

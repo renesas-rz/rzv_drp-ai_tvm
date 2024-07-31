@@ -44,7 +44,7 @@ def get_args():
     parser.add_option("-f", "--cpu_data_type", dest="cpu_data_type", default="float16", help="Specify cpu data type (float16/float32)", metavar="float16 or float32")
     parser.add_option("--images", dest="image_dir", help="Specifies the directory where calibration images are contained.", metavar="DIR")
     parser.add_option("-v", "--drp_compiler_version", dest="drp_compiler_version", help="DRP-AI Translator version (091 or 100)", metavar="VERSION ID")
-    parser.add_option("-p", "--quantization_option", dest="quantization_option", default="", help="drpai quantization option, example -p \"-az True\"", metavar="OPTION")
+    parser.add_option("-p", "--quantization_option", dest="quantization_option", default="", help="drpai quantization option, example -p \"-az\"", metavar="OPTION")
     parser.add_option("-a", "--qat", action="store_true", dest="qat", default=False, help="Option to select compile from exported QAT model", metavar="OPTION")
     parser.add_option("-m", "--qat_type", dest="qat_type", help="QAT type", metavar="QAT TYPE")
 

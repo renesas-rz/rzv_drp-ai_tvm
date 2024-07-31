@@ -47,7 +47,7 @@ $TRANSLATOR/../onnx_models/Resnet50v1_sparse90.onnx \
 
 ## Setup the Execution Environment  
 
-### 1. Setup the board  
+### 1. Copy and archive files
 
 ```bash
 cd $TVM_ROOT/../
@@ -90,9 +90,9 @@ On application window, following information is displayed.
 - Camera capture
 - Classification result (Class name of Top1-5 detected and their probabilities.)  
 - Processing times
-    - Pre-Proc + Inference (DRP-AI): Processing time taken for AI inference and its pre/post-processes on DRP-AI. [msec]
-    - Post-Proc (CPU): Processing time taken for post-processes of AI inference on CPU. [msec]
-    - AI/Camera Frame Rate: The number of AI inferences per second and the number of Camera captures per second. [fps]
+  - Pre-Proc + Inference (DRP-AI): Processing time taken for AI inference and its pre/post-processes on DRP-AI. [msec]
+  - Post-Proc (CPU): Processing time taken for post-processes of AI inference on CPU. [msec]
+  - AI/Camera Frame Rate: The number of AI inferences per second and the number of Camera captures per second. [fps]
 
 ### 4. How Terminate Application
 

@@ -458,6 +458,15 @@ int main(int argc, char **argv)
             floatarr[n] = data_ptr[n];
         }
     }
+    else if (InOutDataType::INT64 == std::get<0>(output_buffer)) 
+    {
+        std::cout << "Output data type : INT64." << std::endl;
+        /* Extract data in FP32 <float>. */
+        int64_t* data_ptr = reinterpret_cast<int64_t*>(std::get<1>(output_buffer));
+
+        std::cout << "[INFO] There are no prepost for INT64. End." << std::endl;
+        return 0;
+    }
     else
     {
         std::cerr << "[ERROR] Output data type : not floating point type." << std::endl;

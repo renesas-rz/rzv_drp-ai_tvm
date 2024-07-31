@@ -14,7 +14,7 @@ Here, we explain how to compile and deploy the application example for ResNet 18
 |exe | Execution environment required for running the application on the board |
 |toolchain | Application compilation toolchain |  
 |CMakeLists.txt |CMake configuration |  
-|tutorial_app.cpp |C++ application main source code |  
+|tutorial_app_v2ml.cpp |C++ application main source code |  
 |*.cpp |Other C++ application source code |  
 |*.h |C++ header file |  
 |README.md |This file. Instructions to use the application.|  

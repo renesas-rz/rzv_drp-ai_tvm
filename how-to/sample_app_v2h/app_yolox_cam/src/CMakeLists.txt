@@ -1,4 +1,5 @@
-﻿cmake_minimum_required (VERSION 3.10)
+﻿# CMakeList.txt : CMake projects in V2H_TVM_USBMIPI_SAMPLE with yolox
+cmake_minimum_required (VERSION 3.10)
 project(V2H_TVM_USBMIPI_SAMPLE)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -21,10 +22,11 @@ add_executable (${EXE_NAME}
 ${SOURCE}
 )
 
-add_compile_options(${EXE_NAME}  ${CXX} ${LDFLAGS} -l -g m -lrt -Ofast -O2 -mtune=cortex-a55 -DNDEBUG -Wall)
+target_compile_options(${EXE_NAME} PRIVATE -O3 -Ofast -mtune=cortex-a55 -Wall)
 target_compile_definitions(${EXE_NAME} PRIVATE IMAGE_MODE)
 target_compile_definitions(${EXE_NAME} PRIVATE V2H)
 target_compile_definitions(${EXE_NAME} PRIVATE DEBUG_LOG)
+target_compile_definitions(${EXE_NAME} PRIVATE NDEBUG)
 target_compile_features(${EXE_NAME} PUBLIC  cxx_std_17)
 link_directories(${POKY_PATH}/usr/lib64/)
 include_directories("include")
