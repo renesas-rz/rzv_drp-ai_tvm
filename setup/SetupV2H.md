@@ -48,7 +48,7 @@ export PYTHONPATH=${PWD}/DRP-AI_Translator_i8/drpAI_Quantizer:${PYTHONPATH}
 
 #### Install RZ/V Software
 
-1. Download the *RZ/V2H AI SDK* from [Renesas Web Page](https://renesas-rz.github.io/rzv_ai_sdk/latest/).  
+1. Download the *RZ/V2H AI SDK* from [Renesas Web Page](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit).  
 
 2. Install SDK .  
 The following example shows a case where downloaded software is stored under /tmp/ .
@@ -161,5 +161,5 @@ For example, you can use this directory to copy files created on the Docker cont
 [^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
 
 
-[def]: https://renesas-rz.github.io/rzv_ai_sdk/latest/
+[def]: https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit
 [def2]: https://www.renesas.com/software-tool/drp-ai-translator-i8

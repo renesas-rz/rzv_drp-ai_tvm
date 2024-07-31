@@ -1,6 +1,6 @@
 # CMakeList.txt : CMake projects in app_yolov2_cam
 cmake_minimum_required (VERSION 3.10)
-project (app_yolox_cam)
+project (app_yolov2_cam)
 set(CMAKE_CXX_STANDARD 17)
 
 # Setting and including TVM Directory
@@ -23,10 +23,11 @@ ${SOURCE}
 ../../app_yolox_cam/src/image_yolox.cpp
 )
 
-add_compile_options(${EXE_NAME}  ${CXX} ${LDFLAGS} -l -g m -lrt -Ofast -O2 -mtune=cortex-a55 -DNDEBUG -Wall)
+target_compile_options(${EXE_NAME} PRIVATE -O3 -Ofast -mtune=cortex-a55 -Wall)
 target_compile_definitions(${EXE_NAME} PRIVATE IMAGE_MODE)
 target_compile_definitions(${EXE_NAME} PRIVATE V2H)
 target_compile_definitions(${EXE_NAME} PRIVATE DEBUG_LOG)
+target_compile_definitions(${EXE_NAME} PRIVATE NDEBUG)
 target_compile_features(${EXE_NAME} PUBLIC  cxx_std_17)
 link_directories(${POKY_PATH}/usr/lib64/)
 include_directories("include")
@@ -46,4 +47,3 @@ if(OpenCV_FOUND)
 endif()
 
 target_link_libraries(${EXE_NAME} ${TVM_RUNTIME_LIB})
-

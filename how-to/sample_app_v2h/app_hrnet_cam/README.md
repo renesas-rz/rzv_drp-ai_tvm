@@ -50,7 +50,7 @@ $TRANSLATOR/../onnx_models/hrnet_w32_coco_256x192_sparse90.onnx \
 
 ## Setup the Execution Environment
 
-### 1. Setup the board
+### 1. Copy and archive files
 
 ```bash
 cd $TVM_ROOT/../

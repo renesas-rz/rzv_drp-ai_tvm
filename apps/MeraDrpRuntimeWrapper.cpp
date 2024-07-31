@@ -109,26 +109,32 @@ bool MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir, uint64_t sta
 
 template <typename T>
 void MeraDrpRuntimeWrapper::SetInput(int input_index, const T* data_ptr) {
-    LOG(INFO) << "Loading input...";
-
     tvm::runtime::PackedFunc get_input = mod.GetFunction("get_input");
     tvm::runtime::NDArray xx = get_input(input_index);
     auto in_shape = xx.Shape();
-    int64_t in_size = 1;
+    std::vector<int64_t> ishape{};
     for (unsigned long i = 0; i < in_shape.size(); ++i) {
-      in_size *= in_shape[i];
+      ishape.emplace_back(in_shape[i]);
     }
 
-    DLDevice ctx;
-    ctx.device_id = device_id;
-    ctx.device_type = DLDeviceType(kDLCPU);
-
-    auto input_array = tvm::runtime::NDArray::Empty(in_shape, xx.DataType(), ctx);
-    auto input_data = (T*)(input_array->data);
-    std::memcpy(input_data, data_ptr, sizeof(T) * in_size);
+    DLTensor dlt;
+    dlt.device = {kDLCPU, 0};
+    dlt.ndim = ishape.size();
+    dlt.shape = ishape.data();
+    dlt.byte_offset = 0;
+    dlt.strides = nullptr;
+    dlt.data = const_cast<void*>(static_cast<const void*>(data_ptr));
+    if (std::is_same<T, float>::value) {
+      dlt.dtype = {kDLFloat, 32, 1};
+    } else if (std::is_same<T, uint16_t>::value) {
+      dlt.dtype = {kDLFloat, 16, 1};
+    } else {
+      LOG(FATAL) << "Unsupport input type " << typeid(T).name();
+    }
     tvm::runtime::PackedFunc set_input = mod.GetFunction("set_input");
-    set_input(input_index, input_array);
+    set_input(input_index, &dlt);
 }
+
 template void MeraDrpRuntimeWrapper::SetInput<float>(int input_index, const float*);
 template void MeraDrpRuntimeWrapper::SetInput<unsigned short>(int input_index, const unsigned short*);
 
@@ -141,19 +147,9 @@ void MeraDrpRuntimeWrapper::Run(int freq_index) {
 }
 
 void MeraDrpRuntimeWrapper::ProfileRun(const std::string& profile_table, const std::string& profile_csv) {
-    tvm::runtime::PackedFunc profile = mod.GetFunction("profile");
-    tvm::runtime::Array<tvm::runtime::profiling::MetricCollector> collectors;
-    tvm::runtime::profiling::Report report = profile(collectors);
+    
+    ProfileRun(profile_table, profile_csv, 1);
 
-    std::string rep_table = report->AsTable();
-    std::ofstream ofs_table (profile_table, std::ofstream::out);
-    ofs_table << rep_table << std::endl;
-    ofs_table.close();
-
-    std::string rep_csv = report->AsCSV();
-    std::ofstream ofs_csv (profile_csv, std::ofstream::out);
-    ofs_csv << rep_csv << std::endl;
-    ofs_csv.close();
 }
 
 void MeraDrpRuntimeWrapper::ProfileRun(const std::string& profile_table, const std::string& profile_csv, int freq_index) {
@@ -223,6 +219,8 @@ std::tuple<InOutDataType, void*, int64_t> MeraDrpRuntimeWrapper::GetOutput(int i
       data_type = InOutDataType::FLOAT32;
     } else if (out.DataType().is_float() && out.DataType().bits() == 16) {
       data_type = InOutDataType::FLOAT16;
+    } else if (out.DataType().is_int() && out.DataType().bits() == 64) {
+      data_type = InOutDataType::INT64;
     }
     return std::make_tuple(data_type, reinterpret_cast<void*>(out->data), out_size);
 }
