@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content="Renesas RZ/V AI | The best solution for starting your AI applications." name="title">
+    <meta name="keywords" content="rzv,ai application,ai app,edge ai,vision ai, aritificial intelligence">
+    <meta name="description" content="Renesas Electronics provides AI Applications for Pre-trained AI model on RZ/V and AI SDK for application development.">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JRL1VWTZC1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-JRL1VWTZC1');
+    </script>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How to compile Your Own Model | DRP-AI TVM on RZ/V series</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="How to compile Your Own Model" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The best solution for starting your AI applications." />
+<meta property="og:description" content="The best solution for starting your AI applications." />
+<link rel="canonical" href="http://localhost:4000/rzv_drp-ai_tvm/compile_your_own_model.html" />
+<meta property="og:url" content="http://localhost:4000/rzv_drp-ai_tvm/compile_your_own_model.html" />
+<meta property="og:site_name" content="DRP-AI TVM on RZ/V series" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to compile Your Own Model" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2024-09-11T12:48:36+09:00","description":"The best solution for starting your AI applications.","headline":"How to compile Your Own Model","url":"http://localhost:4000/rzv_drp-ai_tvm/compile_your_own_model.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="assets/css/style.css?v=">
+    <script src="assets/js/drm-ai_tvm.js"></script>
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/rzv_drp-ai_tvm/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js" type="text/javascript"></script>
+
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="row">
+          <div class="top col-12">
+            How to compile Your Own Model
+          </div>
+      </div>
+    </div>
+    <br>
+    <br>
+
+    <div class="wrapper">
+      <section>
+        <h2 id="compile-your-own-model-for-rzv2h">Compile your own model for RZ/V2H</h2>
+<p>You can compile your model using a sample script <em>compile_onnx_model_quant.py</em>.<br />
+However, since input size and data format of camera and input shape of AI model are different for each application and model, you need to change parameters in the script and some options to compile it.<br />
+Resnet50 was used as a sample model in the “How to Compile Sample Model”. In this page, it is explained how to change from Resnet50 to YOLOX as an example.<br />
+Here are some tips applying to your model.</p>
+
+<p><img src="./img/HowToCompileYourOwnModel.png" width="60%" /></p>
+
+<h1 id="video">Video</h1>
+
+<div class="ratio ratio-16x9">
+    <iframe src="https://players.brightcove.net/5260471205001/default_default/index.html?videoId=6361753833112" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen=""></iframe>
+</div>
+
+<p><br /></p>
+
+<h2 id="work-flow">Work flow</h2>
+<p>In explaining how to compile the file, we will first give an overview of the process.<br />
+From this point on, we will follow these steps.<br />
+In this chapter, yolox is used as an example.</p>
+
+<p><img src="./img/compile_flow.png" width="100%" /></p>
+
+<p><strong><a href="#1-confirm-the-model-information">1. Confirm the model information</a></strong><br />
+In order to modify the sample script in the next step, you will need the following information about the model.</p>
+
+<ul>
+  <li>input format of the model</li>
+  <li>input format of the app</li>
+</ul>
+
+<p>In step1, confirm this information.</p>
+
+<p><strong><a href="#2-modify-the-sample-script">2. Modify the sample script</a></strong><br />
+In the sample script, generation for pre-runtime code and quantization is also performed when the model is compiled.<br />
+In order to perform these processes, the sample scripts must also be modified to match the input format of the target model and the input size and format of the application.
+Based on the information confirmed in the step1, this step rewrites a part of the sample script.</p>
+
+<p><strong><a href="#3-compile-the-sample-script-with-different-arguments">3. Compile the AI model</a></strong><br />
+When executing the sample script on the command line, you can pass the necessary information as an option.<br />
+In compiling the target model, options should be changed accordingly.<br />
+This section describes those options that need to be changed.</p>
+
+<p><strong><a href="#4-build-the-app">4. Build the app</a></strong><br />
+Build an app to run the compiled model.</p>
+
+<p><strong><a href="#5-run-on-the-board">5. Run on the board</a></strong><br />
+Copy the compiled model and the built application to the board for inference.</p>
+
+<h2 id="setup-environment">Setup Environment</h2>
+<p>Please refer to <a href="./compile_sample_model.html">this page</a> to set up environment before beginning this workflow.<br />
+And from this point on, it is worked in the docker container.</p>
+
+<p>Then, move to working directory, where is <em>$TVM_ROOT/tutorials</em>.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">cd</span> <span class="nv">$TVM_ROOT</span>/tutorials/</code></pre></figure>
+
+<p>Next, copy the model which you would like to compile to your working directory.<br />
+<em><code class="language-plaintext highlighter-rouge">docker cp</code></em> command is useful to copy files into the docker container.</p>
+
+<p>If you have pruned the yolox model using the DRP-AI Extension Pack on <a href="./pruning.html">this page</a>, you can use the pruned model.</p>
+
+<p>If you have not pruned the model, you can use the prepared model.  <em>$TVM_ROOT/how-to/sample_app_v2h/app_yolox_cam/yolox-S_VOC.onnx</em></p>
+
+<p><a id="1-confirm-the-model-information"></a></p>
+<h2 id="1-confirm-the-model-information">1. Confirm the model information</h2>
+<p>First of all, you should find out about the input format of the model and application.</p>
+
+<p><a href="https://netron.app/">Netron</a> is useful to check the model information about the shape of input.  <br />
+Also, check the input format of the app from the app source code.</p>
+
+<p><img src="./img/netron.png" width="60%" /></p>
+
+<p>In the case of yolox, which is the example in this case, the following parameters can be confirmed.<br />
+Input shape of the model：[1,3,640,640]<br />
+Input shape of the app  ：[1920, 1920, 2]<br />
+Input format of the app ：YUYV_422</p>
+
+<p><a id="2-modify-the-sample-script"></a></p>
+<h2 id="2-modify-the-sample-script">2. Modify the sample script</h2>
+<p>Next step, you need to modify a preprocess sentences of sample script to fit your model based on the model information which is confirmed in chapter1 because it is necessary to preprocess the input image to match the model input when you will inference using your own model. The sample scripts already contain this preprocess.</p>
+
+<h3 id="calibration">Calibration</h3>
+<p>In the <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/tutorials/compile_onnx_model_quant.py#L101"><em>compile_onnx_model_quant.py</em></a>, the following process is used to utilize the calibration data.(L.101 ～ L.112)<br />
+See <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/tutorials/tutorial_RZV2H.md#tips">here</a> for more information about calibration .</p>
+
+<p>By changing to the following process, the yolox in this example can be executed.</p>
+
+<figure class="highlight"><pre><code class="language-diff" data-lang="diff"><span class="p">def pre_process_imagenet_pytorch(img, mean=[0.485, 0.456, 0.406], stdev=[0.229, 0.224, 0.225], dims=None, need_transpose=False):
+</span>    
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(img)
+<span class="gd">-   img = F.resize(img, 256, Image.BILINEAR)
+</span><span class="gi">+   img = F.resize(img, 640, Image.BILINEAR)
+</span><span class="gd">-   img = F.center_crop(img, 224)
+</span><span class="gi">+   img = F.center_crop(img, 640)
+</span><span class="gd">-   img = F.to_tensor(img)
+</span><span class="gi">+   img = F.pil_to_tensor(img)
+</span><span class="gd">-   std = stdev
+-   img = F.normalize(img, mean, std, inplace=False)
+</span>    if not need_transpose:
+        img = img.permute(1, 2, 0) # NHWC
+    img = np.asarray(img, dtype='float32')
+    return img</code></pre></figure>
+
+<p>For example, you can modify a script like below.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'s/256/640/g'</span> compile_onnx_model_quant.py <span class="c">#Change resizing the image to 256x256 to 640</span>
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'s/ 224/ 640/g'</span> compile_onnx_model_quant.py <span class="c">#Change Center Cropping parameter 224 to 640</span>
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'s/to_tensor/pil_to_tensor/g'</span> compile_onnx_model_quant.py
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'/std = stdev/d'</span> compile_onnx_model_quant.py <span class="c">#Don't apply normalization</span>
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'/F.normalize/d'</span> compile_onnx_model_quant.py</code></pre></figure>
+
+<h3 id="pre-runtime">pre-runtime</h3>
+<p>In the  <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/tutorials/compile_onnx_model_quant.py#L273"><em>compile_onnx_model_quant.py</em></a>, the pre-processing runtime is compiled with the following process（L.273 ~ L.301）<br />
+See <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/docs/PreRuntime.md#2412-config">here</a> for more information about PreRuntime.</p>
+
+<p>By changing to the following process, the yolox in this example can be executed.</p>
+
+<figure class="highlight"><pre><code class="language-diff" data-lang="diff">    # 4. Compile pre-processing using DRP-AI Pre-processing Runtime Only for RZ/V2H
+    # 4.1. Define the pre-processing data
+    config = preruntime.Config()
+
+    # 4.1.1. Define input data of preprocessin
+<span class="gd">-   config.shape_in     = [1, 480, 640, 3]
+</span><span class="gi">+   config.shape_in     = [1, 1920, 1920, 2]
+</span><span class="gd">-   config.format_in    = drpai_param.FORMAT.BGR
+</span><span class="gi">+   config.format_in    = drpai_param.FORMAT.YUYV_422
+</span>    config.order_in     = drpai_param.ORDER.HWC
+    config.type_in      = drpai_param.TYPE.UINT8
+
+    # 4.1.2. Define output data of preprocessing (Will be model input)
+    model_shape_in = list(opts["input_shape"])
+    config.shape_out    = model_shape_in
+    config.format_out   = drpai_param.FORMAT.RGB
+    config.order_out    = drpai_param.ORDER.CHW
+    config.type_out     = drpai_param.TYPE.FP32
+    # Note: type_out depends on DRP-AI TVM[*1]. Usually FP32.
+
+    # 4.1.3. Define operators to be run.
+    r = 255
+<span class="gd">-   cof_add = [-m*r for m in mean]
+-   cof_mul = [1/(s*r) for s in stdev]
+</span>    config.ops = [
+        op.Resize(model_shape_in[3], model_shape_in[2], op.Resize.BILINEAR),
+        op.Normalize(cof_add, cof_mul)
+    ]
+
+    # 4.2. Run DRP-AI Pre-processing Runtime
+    preruntime.PreRuntime(config, opts["output_dir"]+"/preprocess", PRODUCT)</code></pre></figure>
+
+<p>For example, you can modify a script like below.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'s/480, 640, 3/1920, 1920, 2/g'</span> compile_onnx_model_quant.py <span class="c">#change Input image data shape [1, 480, 640, 3] to [1, 1920, 1920, 2]</span>
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'s/FORMAT.BGR/FORMAT.YUYV_422/g'</span> compile_onnx_model_quant.py <span class="c">#chage Input format BGR to YUYV.</span>
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'/cof_add/d'</span> compile_onnx_model_quant.py <span class="c">#Don't apply normalization</span>
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'/cof_mul/d'</span> compile_onnx_model_quant.py</code></pre></figure>
+
+<p>This completes the modification of the sample script.</p>
+
+<p><a id="3-compile-the-sample-script-with-different-arguments"></a></p>
+<h2 id="3-compile-the-sample-script-with-different-arguments">3. Compile the sample script with different arguments</h2>
+
+<p>Using modified sample script in chapter 2, yolox can be compiled by the following command.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span>python3 compile_onnx_model_quant.py <span class="se">\</span>
+<span class="o">&gt;</span> <span class="nv">$TVM_ROOT</span>/how-to/sample_app_v2h/app_yolox_cam/yolox-S_VOC.onnx <span class="se">\　</span><span class="c"># target model file to compile</span>
+<span class="gp">&gt;</span><span class="w"> </span><span class="nt">-o</span> yolox_cam <span class="se">\　</span><span class="c"># specified a output file name</span>
+<span class="gp">&gt;</span><span class="w"> </span><span class="nt">-t</span> <span class="nv">$SDK</span> <span class="se">\　</span><span class="c"># path to toolchain</span>
+<span class="gp">&gt;</span><span class="w"> </span><span class="nt">-d</span> <span class="nv">$TRANSLATOR</span> <span class="se">\　</span><span class="c"># path to DRP-AI Translator</span>
+<span class="gp">&gt;</span><span class="w"> </span><span class="nt">-c</span> <span class="nv">$QUANTIZER</span> <span class="se">\　</span><span class="c"># path to DRP-AI Quantizer</span>
+<span class="gp">&gt;</span><span class="w"> </span><span class="nt">-s</span> 1,3,640,640 <span class="se">\　</span><span class="c"># input shape of the target model</span>
+<span class="gp">&gt;</span><span class="w"> </span><span class="nt">--images</span> <span class="nv">$TRANSLATOR</span>/../GettingStarted/tutorials/calibrate_sample/ <span class="se">\ </span><span class="c"># Specifies the directory where calibration images are contained</span>
+<span class="gp">&gt;</span><span class="w"> </span><span class="nt">-v</span> 100</code></pre></figure>
+
+<p>This sample script can optionally specify information needed to compile it.
+In this example, the following information is specified</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">option</th>
+      <th style="text-align: left">discription</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">augment</td>
+      <td style="text-align: left">model file</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-o</td>
+      <td style="text-align: left">output file name</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-t</td>
+      <td style="text-align: left">path to toolchain</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-d</td>
+      <td style="text-align: left">path to DRP-AI Translator</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-c</td>
+      <td style="text-align: left">path to DRP-AI Quantizer</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-s</td>
+      <td style="text-align: left">input shape of the target model</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-images</td>
+      <td style="text-align: left">Specifies the directory where calibration images are contained</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-v</td>
+      <td style="text-align: left">input constant value</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Detailed information on options is provided in <a href="#appendix">Appendix</a>.</p>
+
+<p><a id="4-build-the-app"></a></p>
+<h2 id="4-build-the-app">4. Build the app</h2>
+
+<ol>
+  <li>Please refer to <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/apps/build_appV2H.md#how-to-build-the-application">Application Example for V2H</a>.  An example of command execution is shown below.</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">cd</span> <span class="nv">$TVM_ROOT</span>/how-to/sample_app_v2h/app_yolox_cam/src
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">mkdir </span>build
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">cd </span>build
+<span class="go">
+</span><span class="gp">root@docker_hostname:#</span><span class="w"> </span>cmake <span class="nt">-DCMAKE_TOOLCHAIN_FILE</span><span class="o">=</span><span class="nv">$TVM_ROOT</span>/apps/toolchain/runtime.cmake ..　 
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">sed</span> <span class="nt">-i</span> <span class="nt">-e</span> <span class="s1">'s/INPUT_CAM_TYPE 0/INPUT_CAM_TYPE 1/g'</span> ../define.h  <span class="c"># 0 for USB cam, 1 for MIPI cam to build</span>
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span>make</code></pre></figure>
+
+<ol>
+  <li>The <code class="language-plaintext highlighter-rouge">sample_app_drpai_tvm_yolox_cam</code> application binary is generated.</li>
+</ol>
+
+<p><a id="5-run-on-the-board"></a></p>
+<h2 id="5-run-on-the-board">5. Run on the board</h2>
+
+<h3 id="5-1-preparing-the-necessary-files-to-run-on-the-board">5-1. Preparing the necessary files to run on the board</h3>
+<p>Prepare the necessary files to run on the board.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">cd</span> <span class="nv">$TVM_ROOT</span>/../
+<span class="gp">$</span><span class="w"> </span><span class="nb">rm</span> <span class="nt">-r</span> sample_app <span class="p">;</span> <span class="nb">mkdir </span>sample_app
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$TVM_ROOT</span>/obj/build_runtime/V2H/libtvm_runtime.so sample_app/
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$TVM_ROOT</span>/how-to/sample_app_v2h/app_yolox_cam/src/build/sample_app_drpai_tvm_yolox_cam sample_app/
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nt">-r</span> <span class="nv">$TVM_ROOT</span>/tutorials/yolox_cam sample_app/
+<span class="gp">$</span><span class="w"> </span><span class="nb">tar </span>cvfz sample.tar.gz sample_app/
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp </span>sample.tar.gz <span class="nv">$TVM_ROOT</span>/data/</code></pre></figure>
+
+<h3 id="5-2-connecting-camera-and-display">5-2. Connecting Camera and Display</h3>
+<p>After setup your board refering to <a href="./compile_sample_model.html#4-Run-inference">here</a>, please connect cammera and display refering to <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/how-to/sample_app_v2h/app_yolox_cam/README.md#1-connecting-camera-and-display">this page</a>.</p>
+
+<h3 id="on-rzv-board-copy-and-try-it"><strong>(On RZ/V Board)</strong> Copy and Try it</h3>
+
+<p>For example, as follows.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">cd</span> /home/root/
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span>scp &lt;yourhost&gt;:&lt;homedirectory&gt;/data/sample.tar.gz <span class="nb">.</span>
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">tar </span>xvfz sample.tar.gz 
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">cd </span>sample_app/
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">export </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="nb">.</span>
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span>./sample_app_drpai_tvm_yolox_cam</code></pre></figure>
+
+<p>Following window shows up on HDMI screen</p>
+
+<p><img src="./img/application_result_on_hdmi_yolox.png" width="480" /></p>
+
+<p>On application window, following information is displayed.</p>
+
+<ul>
+  <li>Camera capture</li>
+  <li>Object Detection result (Bounding boxes, class name and score.)</li>
+  <li>Processing times
+    <ul>
+      <li>Pre-Proc + Inference (DRP-AI): Processing time taken for AI inference and its pre/post-processes on DRP-AI. [msec]</li>
+      <li>Post-Proc (CPU): Processing time taken for post-processes of AI inference on CPU. [msec]</li>
+      <li>AI/Camera Frame Rate: The number of AI inferences per second and the number of Camera captures per second. [fps]</li>
+    </ul>
+  </li>
+</ul>
+
+<p>To terminate the application, press <code class="language-plaintext highlighter-rouge">Enter</code> key on the Linux console terminal of RZ/V2H Evaluation Board Kit.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">&lt;timestamp&gt;_app_yolox_cam.log</code> file is to be generated under the <code class="language-plaintext highlighter-rouge">logs</code> folder and is to be recorded the text logs of AI inference results and AI processing time and rate.</p>
+
+<pre><code class="language-txt">[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] ************************************************
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   RZ/V2H DRP-AI Sample Application
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Model : Megvii-Base Detection YOLOX | yolox_cam
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Input : MIPI Camera
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] ************************************************
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI inference...
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 1
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 4
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (457, 245, 208, 427)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : person (Class 14)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 89.1 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 7
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (457, 354, 297, 250)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : bicycle (Class 1)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 90.9 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 10
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (181, 214, 388, 441)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : bus (Class 5)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 50.5 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  bounding box Count  : 3
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Pre-Proc + Inference (DRP-AI): XX.X [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Post-Proc (CPU): X.X [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] AI Frame Rate XX [fps]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI inference...
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 2
+</code></pre>
+
+<p><strong>Here is the end of the workflow.</strong></p>
+<h1 id="appendix">Appendix</h1>
+
+<h2 id="options">options</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">option</th>
+      <th style="text-align: left">discription</th>
+      <th style="text-align: left">example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">-o, –output_dir</td>
+      <td style="text-align: left">Output directory to save compile results.</td>
+      <td style="text-align: left">-o DIR_NAME</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-t, –toolchain_dir</td>
+      <td style="text-align: left">Cross-compilation toolchain root directory</td>
+      <td style="text-align: left">-t DIR_NAME</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-d, –drp_compiler_dir</td>
+      <td style="text-align: left">DRP-AI Translator root directory</td>
+      <td style="text-align: left">-d DIR_NAME</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-v, –drp_compiler_version,</td>
+      <td style="text-align: left">DRP-AI Translator version (091 or 100)</td>
+      <td style="text-align: left">-v 100</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-c, –quantization_tool</td>
+      <td style="text-align: left">Quantization tool directory</td>
+      <td style="text-align: left">-c DIR_NAME</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-s, –input_shape,</td>
+      <td style="text-align: left">AI model input node shape</td>
+      <td style="text-align: left">-s 1,3,224,224</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-i, –input_name</td>
+      <td style="text-align: left">AI model input node name. (Not required for pytorch models)</td>
+      <td style="text-align: left">-i DIR_NAME</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-n, –num_frame (default=1)</td>
+      <td style="text-align: left">number of images to use for calibration</td>
+      <td style="text-align: left">-n 10</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">–images</td>
+      <td style="text-align: left">Specifies the directory where calibration images are contained</td>
+      <td style="text-align: left">–images DIR_NAME</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-r, –record_dir</td>
+      <td style="text-align: left">Calibration data record directory</td>
+      <td style="text-align: left">-r DIR_NAME</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">–level (default=1)</td>
+      <td style="text-align: left">Optimization level at compile. “1” is the default and compiles with optimal settings. If “0” is set to this option, complex models can be deployed, but inference speed is slower.</td>
+      <td style="text-align: left">–level 0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-q, –fp16</td>
+      <td style="text-align: left">Convert to FP16</td>
+      <td style="text-align: left">-q</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-f, –cpu_data_type (default=”float16”)</td>
+      <td style="text-align: left">Specify cpu data type (float16/float32)</td>
+      <td style="text-align: left">-f float16</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">-p, –quantization_option (default=””)</td>
+      <td style="text-align: left">drpai quantization option</td>
+      <td style="text-align: left">-p "-az"</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>For example, you can compile your model using the sample script with the some options like below.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">#</span><span class="w"> </span>python3 compile_onnx_model_quant.py <span class="se">\</span>
+<span class="o">&gt;</span>   ./resnet50-v1-7.onnx <span class="se">\</span>
+<span class="o">&gt;</span>   <span class="nt">-o</span> resnet50_v1_onnx <span class="se">\</span>
+<span class="o">&gt;</span>   <span class="nt">-t</span> <span class="nv">$SDK</span> <span class="se">\</span>
+<span class="o">&gt;</span>   <span class="nt">-d</span> <span class="nv">$TRANSLATOR</span> <span class="se">\</span>
+<span class="o">&gt;</span>   <span class="nt">-c</span> <span class="nv">$QUANTIZER</span> <span class="se">\</span>
+<span class="o">&gt;</span>   <span class="nt">--images</span> <span class="nv">$TRANSLATOR</span>/../GettingStarted/tutorials/calibrate_sample/ <span class="se">\</span>
+<span class="o">&gt;</span>   <span class="nt">-v</span> 100 </code></pre></figure>
+
+
+      </section>
+
+   
+            
+      
+        <script>
+        $(function () {
+                var pagetop = $('.page-top-button');
+                pagetop.hide();
+                $(window).scroll(function () {
+                  if ($(this).scrollTop() > 100) {
+                    pagetop.fadeIn();
+                  } else {
+                    pagetop.fadeOut();
+                  }
+                });
+                pagetop.click(function () {
+                  $('body, html').animate({ scrollTop: 0 }, 500);
+                  return false;
+                });
+              });
+        </script>
+
+        <div class="row">
+              <div class="col-12" align="right">
+                <a class=" page-top-button btn " href="#page-top" role="button" onclick="scrollToTop()">
+                    Back to Top >
+                </a>
+            </div>
+        </div>
+
+ 
+
+      <footer>
+      </footer>
+    </div>
+    <script src="/rzv_drp-ai_tvm/assets/js/scale.fix.js"></script>
+  </body>
+</html>

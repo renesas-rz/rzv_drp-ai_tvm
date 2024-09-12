@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content="Renesas RZ/V AI | The best solution for starting your AI applications." name="title">
+    <meta name="keywords" content="rzv,ai application,ai app,edge ai,vision ai, aritificial intelligence">
+    <meta name="description" content="Renesas Electronics provides AI Applications for Pre-trained AI model on RZ/V and AI SDK for application development.">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JRL1VWTZC1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-JRL1VWTZC1');
+    </script>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How to Prune Your Own Model | DRP-AI TVM on RZ/V series</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="How to Prune Your Own Model" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The best solution for starting your AI applications." />
+<meta property="og:description" content="The best solution for starting your AI applications." />
+<link rel="canonical" href="http://localhost:4000/rzv_drp-ai_tvm/pruning.html" />
+<meta property="og:url" content="http://localhost:4000/rzv_drp-ai_tvm/pruning.html" />
+<meta property="og:site_name" content="DRP-AI TVM on RZ/V series" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to Prune Your Own Model" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2024-09-11T12:48:36+09:00","description":"The best solution for starting your AI applications.","headline":"How to Prune Your Own Model","url":"http://localhost:4000/rzv_drp-ai_tvm/pruning.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="assets/css/style.css?v=">
+    <script src="assets/js/drm-ai_tvm.js"></script>
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/rzv_drp-ai_tvm/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js" type="text/javascript"></script>
+
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="row">
+          <div class="top col-12">
+            How to Prune Your Own Model
+          </div>
+      </div>
+    </div>
+    <br>
+    <br>
+
+    <div class="wrapper">
+      <section>
+        <h2 id="introduction">Introduction</h2>
+<p>Nodes are interconnected in a neural network as shown in the figure below. Methods of reducing the number of parameters by removing weights between nodes or removing nodes are referred to as “pruning”. A neural network to which pruning has not been applied is generally referred to as a dense neural network.
+Applying pruning to a neural network leads to a slight deterioration in the accuracy of the model but can reduce the power required by hardware and accelerate the inference process.</p>
+
+<p><img src="./img/pruning_desc.png" width="600" alt="Schematic View of the Pruning of a Neural Network" /></p>
+
+<div class="note">
+  <span class="note-title">Note</span>
+    In the use of pruning tool for DRP-AI, we recommend pruning by at least 70% to improve the processing performance of the DRP-AI.
+</div>
+
+<h2 id="work-flow">Work flow</h2>
+<p>DRP-AI for RZ/V2H supports the feature of efficiently calculating the pruned AI model. Therefore, power efficiency is improved by using the pruned AI model.<br />
+This document explains how to prune your own model by using DRP-AI Extension package, which provides a pruning function optimized for the DRP-AI.<br />
+In this case, yolox-s provided by <a href="https://github.com/Megvii-BaseDetection/YOLOX/tree/0.3.0">Megvii-BaseDetection framework</a> is used as an example to explain it.</p>
+
+<p><img src="./img/pruning_flow.png" width="100%" alt="Flow of the DRP-AI Extension Pack" /></p>
+
+<p>This document follows the following steps.</p>
+
+<p>In 2-1. this step performs initial training. Initial training involves training of the AI model without pruning. Use the code for use in initial training and a dataset you have prepared.
+If you have pretarained model, you can skip this chapter.<br />
+In 2-2, this step performs pruning your own model. This step includes retraining of the AI model by adding
+the DRP-AI Extension Pack to the code for use in initial training.<br />
+In 2-3, this step checks the accuracy of the pruned model after one round of pruning then retraining has been completed.</p>
+
+<ol>
+  <li>
+    <p><a href="#1-setup">Setup the DRP-AI Extension Pack</a><br />
+ 1-1. <a href="#1-1">Download the DRP-AI Extension Pack</a><br />
+ 1-2. <a href="#1-2">Setup the DRP-AI Extension Pack with Docker</a><br />
+ 1-3. <a href="#1-3"> Setup the training environment for your own model</a></p>
+  </li>
+  <li>
+    <p><a href="#2-prune-your-model">Prune your model</a><br />
+ 2-1. <a href="#2-1-prepare-the-datasets-and-pre-trained-model">Prepare the datasets and pre-trained model for your own model</a><br />
+ 2-2. <a href="#2-2-pruning-then-retraining">Prune the model (YOLOX-s)</a><br />
+ 2-3. <a href="#2-3-test-the-pruned-model">Test the pruned model</a></p>
+  </li>
+</ol>
+
+<!--
+# Video
+<div class="ratio ratio-16x9">
+  <iframe src=""
+  allowfullscreen
+  webkitallowfullscreen
+  mozallowfullscreen></iframe>
+</div>
+-->
+
+<p><a id="1-setup"></a></p>
+<h1 id="1-setup-the-drp-ai-extension-pack">1. Setup the DRP-AI Extension Pack</h1>
+
+<div class="note">
+  <span class="note-title">Note1</span>
+    If you have set up your development environment using docker such as DRP-AI TVM installation with Docker, exit the container once and create a docker image for this installation.
+</div>
+
+<p><a id="1-1"></a></p>
+<h3 id="1-1-download-the-drp-ai-extension-pack">1-1. Download the DRP-AI Extension Pack</h3>
+<p>Download DRP-AI Extension Pack from below.<br />
+<a href="https://www.renesas.com/us/en/software-tool/drp-ai-extension-pack-pruning-tool">https://www.renesas.com/us/en/software-tool/drp-ai-extension-pack-pruning-tool</a></p>
+
+<p><a id="1-2"></a></p>
+<h3 id="1-2-setup-the-drp-ai-extension-pack-with-docker">1-2. Setup the DRP-AI Extension Pack with Docker</h3>
+
+<p>Preparing workspace</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">mkdir </span>prune-work
+<span class="gp">$</span><span class="w"> </span><span class="nb">cd </span>prune-work
+<span class="gp">$</span><span class="w"> </span>git clone https://github.com/renesas-rz/rzv_drp-ai_tvm.git
+<span class="gp">$</span><span class="w"> </span><span class="nb">cd </span>rzv_drp-ai_tvm/pruning/setup/docker
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$HOME</span>/Downloads/drpai-extension-pack_ver<span class="k">*</span>.tar.gz ./</code></pre></figure>
+
+<p>Comfirming necessary files.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">ls</span>
+<span class="go">drpai-extension-pack_ver1.0.0.tar.gz  torch.Dockerfile</span></code></pre></figure>
+
+<p>Build docker image.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>docker build <span class="nt">-t</span> drpai_ext_pt_img <span class="nt">-f</span> torch.Dockerfile .</code></pre></figure>
+
+<p>Comfirming a docker image is built properly</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>docker images | <span class="nb">grep </span>drpai_ext_pt_img
+<span class="go">drpai_ext_pt_img                  latest                              XXXXXXXXXXXXX        X seconds ago       12.4GB</span></code></pre></figure>
+
+<p>Please change to the working directory prepared for YOLOX and then execute the following command to run a docker image.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">cd</span> <span class="nv">$HOME</span>/prune-work/rzv_drp-ai_tvm/pruning/how-to/megvii-basedetection_yolox
+<span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="nt">--shm-size</span><span class="o">=</span>32gb <span class="nt">--gpus</span> all <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>:/workspace <span class="nt">-w</span> /workspace drpai_ext_pt_img</code></pre></figure>
+
+<p>The local <code class="language-plaintext highlighter-rouge">$(pwd)</code> is mounted to <code class="language-plaintext highlighter-rouge">/workspace</code> on the Docker container by the above command option.</p>
+
+<p>For example, you can use this directory to copy files created on the Docker container to your local environment.</p>
+
+<p><a id="1-3"></a></p>
+<h3 id="1-3-setup-the-training-environment-for-your-own-model">1-3. Setup the training environment for your own model</h3>
+<p>In this chapter, install python libraries needed to run and create codes for pruning then retraing.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span>./setup.sh
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">ls</span>
+<span class="go">YOLOX/ patch/ setup.sh README.md</span></code></pre></figure>
+
+<p>Move to the working directory with the following command.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">cd </span>YOLOX
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">ls</span>
+<span class="go">torch2onnx.py yolox_voc_s_pruning_conf.py onnx_voc_evaluator.py eval_with_pruned_model.py yolox/</span></code></pre></figure>
+
+<p><a id="2-prune-your-model"></a></p>
+<h1 id="2-prune-your-model">2. Prune your model</h1>
+
+<div class="note">
+  <span class="note-title">Note</span>
+    This chapter takes <u><b>a long time</b></u> to retrain the AI model.  
+    In our environment (Tesla V100 was used), it takes about <u><b>4days</b></u>.  
+    If only want to validate RZ/V2H operation, please skip this chapter.
+</div>
+
+<p><a id="2-1-prepare-the-datasets-and-pre-trained-model"></a></p>
+<h3 id="2-1-prepare-the-datasets-and-pre-trained-model-for-your-own-model">2-1. Prepare the datasets and pre-trained model for your own model</h3>
+
+<div class="note">
+  <span class="note-title">Note</span>
+    This step performs initial training. Initial training involves training of the AI model without pruning. Use the code for use in initial training and a dataset you have prepared.
+    If you have pretarained model, you can skip this chapter.
+</div>
+
+<p>In this tutorial use the pascal VOC dataset. 
+To find more details please visit <a href="http://host.robots.ox.ac.uk/pascal/VOC/">http://host.robots.ox.ac.uk/pascal/VOC/</a>.<br />
+Please download the dataset present at the following links.</p>
+<ul>
+  <li>http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar</li>
+  <li>http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar</li>
+  <li>http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">mkdir</span> <span class="nt">-p</span> datasets
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">tar </span>xvf VOCtrainval_06-Nov-2007.tar <span class="nt">-C</span> datasets
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">tar </span>xvf VOCtest_06-Nov-2007.tar <span class="nt">-C</span> datasets
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">tar </span>xvf VOCtrainval_11-May-2012.tar <span class="nt">-C</span> datasets
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">ls </span>datasets/VOCdevkit
+<span class="go"> VOC2012/ VOC2007/</span></code></pre></figure>
+
+<p>To create the initial trained model, this chapter uses the COCO pretrained-model provided by Megvii-BaseDetection for initializing the model.
+Initial training can be performed by executing the following command</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span>wget https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span>python3 <span class="nt">-m</span> yolox.tools.train <span class="nt">-f</span> exps/example/yolox_voc/yolox_voc_s.py <span class="nt">-c</span> yolox_s.pth <span class="nt">-d</span> 1 <span class="nt">-b</span> 64 <span class="nt">--fp16</span> <span class="nt">-o</span></code></pre></figure>
+
+<div class="note">
+  <span class="note-title">Note</span>
+    <li> -f: experiment description file </li>
+    <li> -c: checkpoint file  </li>
+    <li> -d: number of gpu devices  </li>
+    <li> -b: total batch size  </li>
+    <li> --fp16: mixed precision training  </li>
+    <li> -o: occupy GPU memory first for training. </li>
+</div>
+
+<p>After training is finished, the trained weight is contained in the <code class="language-plaintext highlighter-rouge">YOLOX_outputs/yolox_voc_s</code> folder.<br />
+And the trained weight is named <code class="language-plaintext highlighter-rouge">best_ckpt.pth</code>.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">ls </span>YOLOX_outputs/yolox_voc_s
+<span class="go">... best_ckpt.pth train_log.txt tensorboard/</span></code></pre></figure>
+
+<p><a id="2-2-pruning-then-retraining"></a></p>
+<h3 id="2-2-pruning-then-retraining">2-2. Pruning then retraining</h3>
+<p>This step performs pruning your own model. This step includes retraining of the AI model by adding the DRP-AI Extension Pack to the code for use in initial training.<br />
+In Steps 1-3, the code with the DRP-AI Extension Pack has already been output.
+Therefore, read on <a href="#perform-pruning-then-retraining">here</a> if you would like to do pruning then retraining now.<br />
+If you would like to know how the DRP-AI Extension Pack is added, please continue reading.</p>
+
+<div class="note">
+  <span class="note-title">Note</span>
+    Please also refer to <a href="https://www.renesas.com/us/en/software-tool/drp-ai-extension-pack-pruning-tool">DRP-AI Extension Pack UM</a>.
+</div>
+
+<p>The following file is the code with the DRP-AI Extension Pack. In the case of  YOLOX, this file will be used to do the pruning then retraining.<br />
+　<code class="language-plaintext highlighter-rouge">yolox_voc_s_pruning_conf.py</code><br />
+And this step explains how the DRP-AI Extension Pack is added using this file as an example.</p>
+
+<p>In YOLOX, initial training is executed using a class called <a href="https://github.com/Megvii-BaseDetection/YOLOX/blob/main/yolox/core/trainer.py"><em>Trainer</em></a>.
+The <em><code class="language-plaintext highlighter-rouge">Trainer class</code></em> provides a number of easy-to-use functions, such as the <em>before_train()</em> function to be called before training and the <em>before_epoch()</em> function to be called before the start of one epoch.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Trainer</span><span class="p">:</span>
+  <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="c1"># function to execute training
+</span>  
+   <span class="k">def</span> <span class="nf">before_train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># function called before training
+</span>
+   <span class="k">def</span> <span class="nf">before_ecoch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="c1"># function called before the start of one epoch
+</span>
+<span class="p">....</span> <span class="c1">#Other functions exist</span></code></pre></figure>
+
+<p>Extend (inherit) the functionality of this Trainer and add the DRP-AI Extension Pack.
+The DRP-AI Extension Pack is added to the following functions in the Trainer class.</p>
+
+<ul>
+  <li>resume_train(): aunction called when loading trained weights</li>
+  <li>before_train(): Function called before training</li>
+  <li>before_iter(): Function called before 1 iteration</li>
+</ul>
+
+<p>Specifically, the DRP-AI Extension Pack is added to the YOLOX code in the following four steps.</p>
+
+<p>(1). <strong>Importing the DRP-AI Extension Pack module</strong><br />
+(2). <strong>Loading the trained model</strong>　(edit resume_train() fucntion)<br />
+(3). <strong>Preparing for pruning the model</strong>　(edit before_train() function)<br />
+(4). <strong>Updating the pruning parameters</strong> (edit before_iter() function)</p>
+
+<h5 id="1-importing-the-drp-ai-extension-pack-module">(1). <strong>Importing the DRP-AI Extension Pack module</strong></h5>
+<p>Import the DRP-AI Extension Pack module to the code written with PyTorch for use in initial training.<br />
+Specifically, the DRP-AI Extension Pack is added on lines 62-64 on the right side.<br />
+Below is the difference between yolox/core/trainer.py and yolox_voc_s_pruning_conf.py that is used to train. The red parts are the deleted parts and the green parts are the added parts.<br />
+The deleted sections are used in yolox/core/trainer.py but not in yolox_voc_s_pruning_conf.py, so they have been removed.</p>
+<details class="boxdetails" open="">
+  <summary>Click for more details</summary>
+    <img src="./img/pruning1.png" width="400%" />    
+</details>
+<p><br /></p>
+
+<h5 id="2-loading-the-trained-model">(2). <strong>Loading the trained model</strong></h5>
+<p>Load the trained model to initialize the model weights.<br />
+Lines 190-193 on the right side of the figure below are the relevant sections.<br />
+Here, the <em>resume_train()</em> function in the Trainer class is modified to load the initial trained model.<br />
+The <em>resume_train()</em> function is called when loading learned weights.<br />
+In order to be able to load pruning then retrained models, the <em>load_pruned_state_dict()</em> function is used in lines 194-196 on the right side.</p>
+<details class="boxdetails" open="">
+  <summary>Click for more details</summary>
+    <img src="./img/pruning2.png" width="400%" />  
+</details>
+<p><br /></p>
+
+<h5 id="3-preparing-for-pruning-the-model">(3). <strong>Preparing for pruning the model</strong></h5>
+<p>Execute the pruning API function to prepare for pruning the model. <br />
+After the pruning API function has been executed, confirming that pruning has been performed with the <em>get_model_info()</em> function is recommended.<br />
+Lines 136-145 on the right side of the figure below are the relevant sections.<br />
+The <em>before_train()</em> function in the Trainer class is modified to call the pruning API.<br />
+The <em>before_train()</em> function is called once before training.</p>
+
+<p>In addition, the following modifications are made as unique changes to the code in this tutorial. Normally, you do not need to make these changes. (These are proprietary modifications that are required by YOLOX.)</p>
+<ol>
+  <li>The code in this tutorial uses the environment variable <em>PRUNING_RATE</em> to allow the pruning rate to be set.<br />
+Lines 129-135 on the right side are where the environment variable is used to obtain the pruning rate.</li>
+  <li>The code in this tutorial changes from an EMA to the EMA that is valid for the pruned model.<br />
+Lines 148-150 on the right side are the relevant sections, changing from <em>ModelEMA()</em> to <em>PrunedModelEMA()</em>.</li>
+</ol>
+
+<p>※EMA:  Abbreviation of Exponential Moving Average.</p>
+
+<details class="boxdetails" open="">
+  <summary>Click for more details</summary>
+    <img src="./img/pruning3.png" width="400%" />  
+</details>
+<p><br /></p>
+
+<h5 id="4-updating-the-pruning-parameters">(4). <strong>Updating the pruning parameters</strong></h5>
+<p>Update the pruning parameters during training. The API function (<em>pruner.update()</em>) must be called at the start of each iteration.<br />
+Lines 176 on the right side of the figure below are the relevant sections.<br />
+Normally, <em>pruner.update()</em> should be called at the beginning of each iteration.<br />
+For YOLOX, <em>modify before_iter()</em> function in the Trainer class and call it at the beginning of each iteration.  <br />
+Specifically, pruning parameters is updated in the <em>before_iter()</em> function in the Trainer class.<br />
+The <em>before_iter()</em> function is called before one iteration of training. Updating the pruning parameters here allows the pruning parameters to be updated at the start of each iteration.</p>
+<details class="boxdetails" open="">
+  <summary>Click for more details</summary>
+    <img src="./img/pruning4.png" width="400%" />  
+</details>
+<p><br /></p>
+
+<p><a id="perform-pruning-then-retraining"></a></p>
+
+<h5 id="perform-pruning-then-retraining"><strong>Perform pruning then retraining</strong></h5>
+<p>Pruning then retraining can be performed by executing the following command.<br />
+For more information about this options, please click <a href="https://github.com/Megvii-BaseDetection/YOLOX/blob/0.3.0/docs/quick_run.md#3reproduce-our-results-on-coco">here</a>. <br />
+This chapter uses the trained model on VOC which is created above for initializing the model.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nv">PRUNING_RATE</span><span class="o">=</span>0.7 python3 <span class="nt">-m</span> yolox.tools.train <span class="nt">-f</span> yolox_voc_s_pruning_conf.py <span class="nt">-c</span> YOLOX_outputs/yolox_voc_s/best_ckpt.pth <span class="nt">-d</span> 1 <span class="nt">-b</span> 32 <span class="nt">--fp16</span> <span class="nt">-o</span></code></pre></figure>
+
+<div class="note">
+  <span class="note-title">Note1</span>
+    The pruning rate is set as an environment variable (PRUNING_RATE) in this tutorial.<br />
+    When performing the pruning then retraining, please set `PRUNING_RATE` environment variable.
+</div>
+
+<div class="note">
+  <span class="note-title">Note2</span>
+    We recommend using the same parameters for pruning then retraining, such as epoch and batch size, as those that were set for initial training.<br />
+    However, in this tutorial the batch size is changed from 64 to 32 because of our GPU memory limitations. <br />
+    If you have a high performance GPU, please set the batch size to 64.
+</div>
+
+<p>After retraining, the <code class="language-plaintext highlighter-rouge">YOLOX_outputs/yolox_voc_s_pruning_conf</code> folder can be confirmed. <br />
+And the trained weight is named <code class="language-plaintext highlighter-rouge">best_ckpt.pth</code>.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">ls </span>YOLOX_outputs/yolox_voc_s_pruning_conf
+<span class="go">... best_ckpt.pth train_log.txt tensorboard/</span></code></pre></figure>
+
+<p><a id="2-3-test-the-pruned-model"></a></p>
+<h3 id="2-3-test-the-pruned-model">2-3. Test the pruned model</h3>
+<p>Finally, check the accuracy of the AI model after one round of pruning then retraining has been completed.<br />
+In this chapter, the accuracy of the pruned model is measured to ensure that its accuracy is maintained after pruning then retraining.</p>
+
+<p>Convert pytorch format model to onnx format model first.<br />
+For more information about this options, please click <a href="https://github.com/Megvii-BaseDetection/YOLOX/tree/0.3.0/demo/ONNXRuntime#convert-your-model-to-onnx">here</a>.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span>python3 torch2onnx.py <span class="nt">-f</span> yolox_voc_s_pruning_conf.py <span class="nt">-c</span> YOLOX_outputs/yolox_voc_s_pruning_conf/best_ckpt.pth <span class="nt">--output-name</span> pruned_model.onnx <span class="nt">--is_pruned_weight</span></code></pre></figure>
+
+<p>Test the pruned model with onnx format.<br />
+For more information about this options, please click <a href="https://github.com/Megvii-BaseDetection/YOLOX/blob/0.3.0/docs/quick_run.md#4evaluation">here</a>.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span>python3 eval_with_pruned_model.py <span class="nt">-f</span> yolox_voc_s_pruning_conf.py <span class="nt">-c</span> pruned_model.onnx <span class="nt">-b</span> 1 <span class="nt">-d</span> 1 <span class="nt">--conf</span> 0.001</code></pre></figure>
+
+<p>The following log can be confirmed. It shows the accuracy of the trained model.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="c">...
+</span><span class="go">map_5095: 0.6120537790481723
+map_50: 0.8182438030405812
+</span><span class="c">...</span></code></pre></figure>
+
+<p>(Option) If test the pruned model with pytorch format, please run the following command.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span>python3 eval_with_pruned_model.py <span class="nt">-f</span> yolox_voc_s_pruning_conf.py <span class="nt">-c</span> YOLOX_outputs/yolox_voc_s_pruning_conf/best_ckpt.pth <span class="nt">-b</span> 64 <span class="nt">-d</span> 1 <span class="nt">--conf</span> 0.001 <span class="nt">--is_pruned_weight</span> <span class="nt">--use_pytorch_model</span></code></pre></figure>
+
+<p><strong>Here is the end of the workflow.</strong><br />
+The next step is to deploy this pruned model. <a href="./compile_your_own_model.html">Go to the next page.</a></p>
+
+<h1 id="appendix">Appendix</h1>
+
+<h2 id="faq">FAQ</h2>
+<h3 id="indexerror-caught-indexerror-in-dataloader-worker-process-0-or-runtimeerror-pin-memory-thread-exited-unexpectedly">IndexError: Caught IndexError in DataLoader worker process 0. or RuntimeError: Pin memory thread exited unexpectedly</h3>
+<p>If the above error occured during the training or retraining, please retry the training or retraining command.</p>
+
+<h3 id="runtimeerror-cudnn-error-cudnn_status_internal_error">RuntimeError: cuDNN error: CUDNN_STATUS_INTERNAL_ERROR</h3>
+<p>If the above error occured during the training or retraining, please remove <code class="language-plaintext highlighter-rouge">-o</code> option from the training or retraining command.</p>
+
+<h3 id="userwarning-cuda-initialization-unexpected-error-from-cudagetdevicecount">UserWarning: CUDA initialization: Unexpected error from cudaGetDeviceCount().</h3>
+<p>Please update nvidia driver on host pc.</p>
+
+<h2 id="tips">Tips</h2>
+<h3 id="how-to-find-difference-between-code-for-initial-training-and-code-for-pruning-then-retraining">How to find difference between code for initial training and code for pruning then retraining</h3>
+<p>Please execute the following command to find difference between code for initial training and code for pruning then retraining.</p>
+
+<p>You can find how to add the DRP-AI Extension Pack APIs to code for initial training.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span>diff <span class="nt">-u</span> yolox/core/trainer.py yolox_voc_s_pruning_conf.py</code></pre></figure>
+
+<h3 id="reference-accuracy-results-of-pruning-then-retraining">Reference: Accuracy results of pruning then retraining</h3>
+<p>When pruning then retraining was performed in our environment, the accuracy results were shown as follows.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center">mAP@0.5</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">Baseline</td>
+      <td style="text-align: center">82.50%</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Pruning rate 70%</td>
+      <td style="text-align: center">81.80%</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <span class="note-title">Note</span>
+    This information is just for reference purposes because the above results are not guaranteed.
+</div>
+
+<h2 id="usage-notes">Usage Notes</h2>
+<ul>
+  <li>Do not use Exponential Moving Average (EMA) with gradual pruning. It may cause incorrect pruning result.<br />
+Note: For YOLOX, the default training setting uses EMA.</li>
+</ul>
+
+      </section>
+
+   
+            
+      
+        <script>
+        $(function () {
+                var pagetop = $('.page-top-button');
+                pagetop.hide();
+                $(window).scroll(function () {
+                  if ($(this).scrollTop() > 100) {
+                    pagetop.fadeIn();
+                  } else {
+                    pagetop.fadeOut();
+                  }
+                });
+                pagetop.click(function () {
+                  $('body, html').animate({ scrollTop: 0 }, 500);
+                  return false;
+                });
+              });
+        </script>
+
+        <div class="row">
+              <div class="col-12" align="right">
+                <a class=" page-top-button btn " href="#page-top" role="button" onclick="scrollToTop()">
+                    Back to Top >
+                </a>
+            </div>
+        </div>
+
+ 
+
+      <footer>
+      </footer>
+    </div>
+    <script src="/rzv_drp-ai_tvm/assets/js/scale.fix.js"></script>
+  </body>
+</html>

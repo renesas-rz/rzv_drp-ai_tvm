@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content="Renesas RZ/V AI | The best solution for starting your AI applications." name="title">
+    <meta name="keywords" content="rzv,ai application,ai app,edge ai,vision ai, aritificial intelligence">
+    <meta name="description" content="Renesas Electronics provides AI Applications for Pre-trained AI model on RZ/V and AI SDK for application development.">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JRL1VWTZC1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-JRL1VWTZC1');
+    </script>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How to Compile Sample Model | DRP-AI TVM on RZ/V series</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="How to Compile Sample Model" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The best solution for starting your AI applications." />
+<meta property="og:description" content="The best solution for starting your AI applications." />
+<link rel="canonical" href="http://localhost:4000/rzv_drp-ai_tvm/compile_sample_model.html" />
+<meta property="og:url" content="http://localhost:4000/rzv_drp-ai_tvm/compile_sample_model.html" />
+<meta property="og:site_name" content="DRP-AI TVM on RZ/V series" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to Compile Sample Model" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2024-09-11T12:52:59+09:00","description":"The best solution for starting your AI applications.","headline":"How to Compile Sample Model","url":"http://localhost:4000/rzv_drp-ai_tvm/compile_sample_model.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="assets/css/style.css?v=">
+    <script src="assets/js/drm-ai_tvm.js"></script>
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/rzv_drp-ai_tvm/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js" type="text/javascript"></script>
+
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="row">
+          <div class="top col-12">
+            How to Compile Sample Model
+          </div>
+      </div>
+    </div>
+    <br>
+    <br>
+
+    <div class="wrapper">
+      <section>
+        <p><img src="./img/overview.png" width="100%" />
+<br /></p>
+
+<p>There are 3 tutorials about AI deployment tools for RZ/V2H.</p>
+<ul>
+  <li>For easy understanding DRP-AI TVM by using sample model, please follow instructions on this page.</li>
+  <li><a href="./pruning.html">For understanding how to prune your own model, please click here</a>.</li>
+  <li><a href="./compile_your_own_model.html">For understanding how to compile your own model, please click here</a>.</li>
+</ul>
+
+<p><br /></p>
+
+<h1 id="video">Video</h1>
+<div class="ratio ratio-16x9">
+  <iframe src="https://players.brightcove.net/5260471205001/default_default/index.html?videoId=6361753634112" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" width="80%"></iframe>
+</div>
+
+<p><br /></p>
+
+<h2 id="getting-started-rzv2h">Getting Started (RZ/V2H)</h2>
+
+<h3 id="requirements">Requirements</h3>
+<p>Requirements are listed below.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: left"> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">OS</td>
+      <td style="text-align: left">Ubuntu 20.04</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Python</td>
+      <td style="text-align: left">3.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Package</td>
+      <td style="text-align: left">git</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Container Runtime</td>
+      <td style="text-align: left">Docker</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Evaluation Board</td>
+      <td style="text-align: left">RZ/V2H EVK</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Related Software Version</td>
+      <td style="text-align: left">● DRP-AI TVM v2.3 <br /> ● DRP-AI Translator i8 v1.01 : DRP-AI_Translator_i8-v1.01-Linux-x86_64-Install or later.<br /> ● RZ/V2H AI SDK v3.00 : RTK0EF0180F03000SJ.zip or later. <br /> ● DRP-AI Extension Pack (Pruning Tool) v1.00 or later <br /></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <span class="note-title">Note</span>
+    Make sure that you have installed <a href="https://docs.docker.com/">Docker</a> on your Linux PC.
+</div>
+
+<h2 id="work-flow">Work flow</h2>
+<p>From this point on, we will follow these steps.<br />
+<img src="./img/workflow.png" width="100%" /></p>
+
+<ol>
+  <li><a href="#1-setup-environment">Setup Environment</a></li>
+  <li><a href="#2-compile-AI-models">Compile AI models</a></li>
+  <li><a href="#3-Customize-&amp;-build-apps">Customize &amp; build apps</a></li>
+  <li><a href="#4-Run-inference">Run inference</a></li>
+</ol>
+
+<p><a id="1-setup-environment"></a></p>
+<h2 id="1-setup-environment">1. Setup Environment</h2>
+
+<h3 id="preparing-a-workspace">Preparing a workspace</h3>
+<p>Prepare a workspace for following steps.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">mkdir </span>tvm_work
+<span class="gp">$</span><span class="w"> </span><span class="nb">cd </span>tvm_work</code></pre></figure>
+
+<h3 id="1-1-download-the-required-installers">1-1. Download the required installers</h3>
+<p>Download DRP-AI Translator i8 v1.01 from below.<br />
+<a href="https://www.renesas.com/software-tool/drp-ai-translator-i8">https://www.renesas.com/software-tool/drp-ai-translator-i8</a></p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$HOME</span>/Download/r20ut5460ej0101-drp-ai-translator-i8.zip ./
+<span class="gp">$</span><span class="w"> </span>unzip r20ut5460ej0101-drp-ai-translator-i8.zip DRP<span class="k">*</span></code></pre></figure>
+
+<p>Download RZ/V2H AI SDK v3.00 (poky) from below.<br />
+<a href="https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit">https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit</a></p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$HOME</span>/Download/RTK0EF0180F03000SJ.zip ./
+<span class="gp">$</span><span class="w"> </span>unzip RTK0EF0180F03000SJ.zip <span class="k">*</span>/poky<span class="k">*</span>sh
+<span class="gp">$</span><span class="w"> </span><span class="nb">mv </span>ai_sdk_setup/<span class="k">*</span> .</code></pre></figure>
+
+<h3 id="1-2-download-a-dockerfile">1-2. Download a dockerfile</h3>
+<p>Download a Dockerfile from repository.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span>wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/DockerfileV2H</code></pre></figure>
+
+<h3 id="1-3-build-the-docker-image">1-3. Build the docker image</h3>
+<p>Build the docker image which is downloaded in the previous step.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>docker build <span class="nt">-t</span> drp-ai_tvm_v2h_image <span class="nt">--build-arg</span> <span class="nv">SDK</span><span class="o">=</span><span class="s2">"/opt/poky/3.1.26"</span> <span class="nt">--build-arg</span> <span class="nv">PRODUCT</span><span class="o">=</span><span class="s2">"V2H"</span> <span class="nt">-f</span> DockerfileV2H .</code></pre></figure>
+
+<h3 id="1-4-create-and-run-a-new-container-from-the-docker-image">1-4. Create and run a new container from the docker image</h3>
+<p>Create a container from the docker image built in the previous step. <br />
+You can enter the created container by executing the following command.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>docker run <span class="nt">-it</span> <span class="nt">--name</span> drp-ai_tvm_v2h_container <span class="nt">-v</span> <span class="si">$(</span><span class="nb">pwd</span><span class="si">)</span>/data:/drp-ai_tvm/data drp-ai_tvm_v2h_image</code></pre></figure>
+
+<p><a id="2-compile-AI-models"></a></p>
+<h2 id="2-compile-ai-models">2. Compile AI models</h2>
+<p>All subsequent operations will be performed within the container you have created in Chapter1.</p>
+
+<h3 id="2-1-download-a-onnx-model">2-1. Download a onnx model</h3>
+<p>In this case, RESNET50 is used as an example.<br />
+First, download the ONNX model file from the following URL with the following command.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">cd</span> <span class="nv">$TVM_ROOT</span>/tutorials/
+<span class="gp">root@docker_hostname:#</span><span class="w"> </span>wget https://github.com/onnx/models/raw/main/validated/vision/classification/resnet/model/resnet50-v1-7.onnx</code></pre></figure>
+
+<h3 id="2-2-compile-a-onnx-model">2-2. Compile a onnx model</h3>
+<p>Compile the ONNX format model you have just downloaded with the sample script already prepared.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span>python3 compile_onnx_model_quant.py ./resnet50-v1-7.onnx <span class="nt">-o</span> resnet50_v1_onnx <span class="nt">-t</span> <span class="nv">$SDK</span> <span class="nt">-d</span> <span class="nv">$TRANSLATOR</span> <span class="nt">-c</span> <span class="nv">$QUANTIZER</span> <span class="nt">--images</span> <span class="nv">$TRANSLATOR</span>/../GettingStarted/tutorials/calibrate_sample/ <span class="nt">-v</span> 100 </code></pre></figure>
+
+<p>Confirming the output</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@docker_hostname:#</span><span class="w"> </span><span class="nb">ls </span>resnet50_v1_onnx
+<span class="go">deploy.json  deploy.params  deploy.so  input_0.bin  interpreter_out  preprocess</span></code></pre></figure>
+
+<!--
+
+<div class="note">
+  <span class="note-title">Note</span>
+If you want to compile pytorch or tensorflow file, reference below.  
+<br>
+<a href="">pytorch</a> <a href="">tensorflow</a>  
+<br>
+If you want to inference only CPU, reference below.  
+<br>
+<a href="">cpu only</a>
+</div>
+
+-->
+
+<p><a id="3-Customize-&amp;-build-apps"></a></p>
+
+<h2 id="3-customize--build-apps">3. Customize &amp; build apps</h2>
+
+<h3 id="3-1-preparing-build-environment">3-1. Preparing build environment</h3>
+<p>Prepare an environment for building.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">cd</span> <span class="nv">$TVM_ROOT</span>/apps
+<span class="gp">$</span><span class="w"> </span><span class="nb">mkdir </span>build
+<span class="gp">$</span><span class="w"> </span><span class="nb">cd </span>build</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span>cmake <span class="nt">-DCMAKE_TOOLCHAIN_FILE</span><span class="o">=</span>./toolchain/runtime.cmake <span class="nt">-DV2H</span><span class="o">=</span>ON ..</code></pre></figure>
+
+<h3 id="3-2-build-a-sample-application">3-2. Build a sample application</h3>
+<p>Next, build an application to run the compiled model.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span>make <span class="nt">-j</span><span class="si">$(</span><span class="nb">nproc</span><span class="si">)</span></code></pre></figure>
+
+<p>Confirming the build artifact <em>tutorial_app</em>.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">ls</span> 
+<span class="go">CMakeCache.txt  CMakeFiles  Makefile  cmake_install.cmake  tutorial_app</span></code></pre></figure>
+
+<h3 id="3-3-preparing-the-necessary-files-to-run-on-the-board">3-3. Preparing the necessary files to run on the board</h3>
+<p>Prepare the necessary files to run on the board.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">cd</span> <span class="nv">$TVM_ROOT</span>/../
+<span class="gp">$</span><span class="w"> </span><span class="nb">mkdir </span>tvm</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$TVM_ROOT</span>/obj/build_runtime/<span class="nv">$PRODUCT</span>/libtvm_runtime.so tvm/
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$TVM_ROOT</span>/apps/exe/sample.bmp tvm/
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$TVM_ROOT</span>/apps/exe/ImageNetLabels.txt tvm/
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$TVM_ROOT</span>/apps/exe/synset_words_imagenet.txt tvm/
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nv">$TVM_ROOT</span>/apps/build/tutorial_app<span class="k">*</span> tvm/
+<span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> <span class="nt">-r</span> <span class="nv">$TVM_ROOT</span>/tutorials/resnet50_v1_onnx tvm/
+<span class="go">
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">tar </span>acvf tvm.tar.gz tvm/</code></pre></figure>
+
+<p>Confirming the <em>tvm.tar.gz</em></p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">ls</span>
+<span class="go">tvm tvm.tar.gz</span></code></pre></figure>
+
+<p><a id="4-Run-inference"></a></p>
+<h2 id="4-run-inference">4. Run inference</h2>
+
+<h3 id="4-1-setup-the-target-board">4-1. Setup the target board</h3>
+<p>Please refer to the following pages to set up your board.<br />
+First, follow the step on <a href="https://renesas-rz.github.io/rzv_ai_sdk/3.00/getting_started_v2h.html">this page</a>.<br />
+Next, follow only step11 for ip address setting on <a href="https://tool-support.renesas.com/tool-support/Zoo/boot_boad_guide/RZV2H_board_setup_e2studio.html">this page</a>.</p>
+
+<p><img src="./img/board_setting.png" width="50%" /></p>
+
+<h3 id="4-2-copy-to-the-board">4-2. Copy to the board</h3>
+<p>Copy the files you have just prepared to the board.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">cp</span> ./tvm.tar.gz <span class="nv">$TVM_ROOT</span>/data</code></pre></figure>
+
+<p>Exit from container using this command <code class="language-plaintext highlighter-rouge">ctrl + p q</code>.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span>scp ./data/tvm.tar.gz root@192.168.1.11:/home/root </code></pre></figure>
+
+<h2 id="--board-side-operation--">- Board-side operation -</h2>
+<p>From here, the board is operated.<br />
+Operate the board directly or connect to the board for operation.</p>
+
+<h3 id="3-6-unzip-the-files">3-6. Unzip the files</h3>
+<p>Unzip the files copied to the board.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">cd</span> /home/root/
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">tar </span>xvfz tvm.tar.gz
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">cd</span> ./tvm</code></pre></figure>
+
+<h3 id="3-7-run-the-application">3-7. Run the application</h3>
+<p>Execute the following command to start the application.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">export </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="nb">.</span>
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span><span class="nb">cp</span> <span class="nt">-r</span> resnet50_v1_onnx resnet18_onnx
+<span class="gp">root@rzv2h-evk...:#</span><span class="w"> </span>./tutorial_app</code></pre></figure>
+
+<p>The application runs the ResNet inference on sample.bmp.</p>
+
+<p>Following is the expected output for ResNet50 ONNX model compiled for DRP-AI on RZ/V2H Evaluation Board Kit.</p>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">[11:40:41] /drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:73: Loading json data...
+[11:40:41] /drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:91: Loading runtime module...
+[11:40:42] /drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:96: Loading parameters...
+[TIME] PreRuntime DRP-AI processing time : 1.11 msec
+[TIME] GetResult() Processing Time : 0.65 msec
+[TIME] Pre Processing Time: 2.38 msec.
+[11:40:42] /drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:112: Loading input...
+Running tvm runtime
+[TIME] AI Processing Time: 4.35 msec.
+Output data type : FP16.
+Result -----------------------
+  Top 1 [ 60.6%] : [beagle]
+  Top 2 [ 19.4%] : [English foxhound]
+  Top 3 [ 15.1%] : [Walker hound, Walker foxhound]
+  Top 4 [  2.0%] : [basset, basset hound]
+  Top 5 [  0.8%] : [bluetick]</span></code></pre></figure>
+
+<div class="note">
+        <span class="note-title">Note</span>
+        To shut down the board safely, please refer to <a href="https://renesas-rz.github.io/rzv_ai_sdk/latest/appendix.html#A4">A4. Shutdown RZ/V2H EVK</a>
+</div>
+
+<p><strong>Here is the end of the workflow.</strong></p>
+
+<h2 id="appendix">Appendix</h2>
+
+<h3 id="detailed-about-the-files-to-required-to-run-on-the-board">Detailed about the files to required to run on the board.</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Name</th>
+      <th style="text-align: left">Path</th>
+      <th style="text-align: left">Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Runtime Library</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">drp-ai_tvm/obj/build_runtime/${PRODUCT}/libtvm_runtime.so</code></td>
+      <td style="text-align: left">Binary provided under <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/obj/build">obj</a> directory.<br />You should use the <code class="language-plaintext highlighter-rouge">libtvm_runtime.so</code> in the directory with the corresponding product name.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Model Data</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">drp-ai_tvm/tutorials/resnet*</code></td>
+      <td style="text-align: left">Model compiled in the <a href="#2-compile-AI-models">Compile AI models</a>. DRP-AI Preprocessing Runtime Object files, (<code class="language-plaintext highlighter-rouge">preprocess</code> directory) are also included.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Input Data</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">drp-ai_tvm/apps/exe/sample.bmp</code></td>
+      <td style="text-align: left">Windows Bitmap file, which is input data for image classification.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Label List</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">drp-ai_tvm/apps/exe/synset_words_imagenet.txt</code><br /><code class="language-plaintext highlighter-rouge">drp-ai_tvm/apps/exe/ImageNetLabels.txt</code></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">synset_words_imagenet.txt</code>:Label list for ResNet18 post-processing.<br /><code class="language-plaintext highlighter-rouge">ImageNetLabels.txt</code>:Label list for ResNet50 post-processing when compiling Tensorflow Hub model.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Application</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">drp-ai_tvm/apps/build/tutorial_app</code></td>
+      <td style="text-align: left">Compiled in this <a href="#3-2-build-a-sample-application">page</a>.</td>
+    </tr>
+  </tbody>
+</table>
+
+      </section>
+
+   
+            
+      
+        <script>
+        $(function () {
+                var pagetop = $('.page-top-button');
+                pagetop.hide();
+                $(window).scroll(function () {
+                  if ($(this).scrollTop() > 100) {
+                    pagetop.fadeIn();
+                  } else {
+                    pagetop.fadeOut();
+                  }
+                });
+                pagetop.click(function () {
+                  $('body, html').animate({ scrollTop: 0 }, 500);
+                  return false;
+                });
+              });
+        </script>
+
+        <div class="row">
+              <div class="col-12" align="right">
+                <a class=" page-top-button btn " href="#page-top" role="button" onclick="scrollToTop()">
+                    Back to Top >
+                </a>
+            </div>
+        </div>
+
+ 
+
+      <footer>
+      </footer>
+    </div>
+    <script src="/rzv_drp-ai_tvm/assets/js/scale.fix.js"></script>
+  </body>
+</html>
