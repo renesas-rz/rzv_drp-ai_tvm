@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta content="DRP-AI TVM on RZ/V series" name="title">
+		<meta name="keywords" content="rzv,drp-ai,tvm,drp-ai tvm,edge ai,vision ai,aritificial intelligence">
+		<meta name="description" content="DRP-AI TVM is Machine Learning Compiler plugin for Apache TVM with AI accelerator DRP-AI provided by Renesas Electronics Corporation.">
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-JRL1VWTZC1"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'G-JRL1VWTZC1');
+		</script>
+		{% seo %}
+		<link rel="stylesheet" href="{{ "assets/css/style.css?v=" | append: site.github.build_revision }}">
+		<script src="assets/js/drm-ai_tvm.js"></script>
+		<!--[if lt IE 9]>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+		<![endif]-->
+		{% include head-custom.html %}
+		<!-- Place this tag in your head or just before your close body tag. -->
+		<script async defer src="https://buttons.github.io/buttons.js"></script>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css" rel="stylesheet">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<div class="wrapper">
+			<header>
+				<!-- <h1><a href="{{ "/" | absolute_url }}">{{ site.title | default: site.github.repository_name }}</a></h1> -->
+				<!-- <h1 class="web-title"><a href="{{ "/" | absolute_url }}">Renesas <br class="br-sp-web-title">RZ/V AI</a></h1> -->
+				<h1 class="web-title">DRP-AI TVM <br class="br-sp-web-title">on RZ/V series</h1>
+				<!-- <p class="version"><u><a class="version" href="{{ site.url }}{{ site.baseurl }}{% link version.md %}">{{ site.version }}</a></u></p> -->
+				{% if site.logo %}
+					<img src="{{site.logo | relative_url}}" alt="Logo" />
+				{% endif %}
+				{% comment %}
+					サイドバー：Get the board, get ex pack
+				{% endcomment %}
+				{% if site.github.is_user_page %}j
+					<p class="view"><a href="{{ site.github.owner_url }}">View My GitHub Profile</a></p>
+				{% endif %}
+				{% if site.show_downloads %}
+					{% comment %}
+						_config.yml の show_downloads フラグで可視切替できるみたい
+					{% endcomment %}
+					<div class="container">
+						<div class="row">
+							<div class="downloads col-6 col-md-12 col-xl-6" style="text-align: center">
+								<img src="img/board.png" alt="board" height="90px" />
+								<ul class="downloads">
+									<li><a href="https://www.renesas.com/products/microcontrollers-microprocessors/rz-mpus/rzv2l-evkit-rzv2l-evaluation-board-kit">Get<br>the Board</a></li>
+								</ul>
+							</div>
+							<div class="downloads col-6 col-md-12 col-xl-6" style="text-align: center">
+								<img src="img/drp-ai_tvm.svg" alt="ai_sdk" height="90px" />
+								<ul class="downloads">
+									<li><a href="https://www.renesas.com/software-tool/rzv2l-ai-software-development-kit">Get<br>AI SDK</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				{% endif %}
+				{% if site.github.is_project_page %}
+					<p class="view">
+						<h5 style="margin-bottom: 5px;">
+							To keep you updated, <br class="br-nsp"><b>Watch</b> our <a href="{{ site.github.repository_url }}">GitHub repository</a><br> 
+						</h5>
+						<a class="github-button" href="https://github.com/renesas-rz/rzv_drp-ai_tvm/subscription" data-size="large" aria-label="Watch renesas-rz/rzv_drp-ai_tvm on GitHub">Watch</a>
+					</p>
+				{% endif %}
+				<br> 
+				<div class="web_index">
+					<div class="menu-content">
+						<div class="web_index">
+							<div class="menu-content">
+								<div style="margin-bottom: 15px;"><a href="#new">What's new</a></div>
+								<div style="margin-bottom: 15px;"><a href="#Getting Started">Getting Started</a></div>
+								<div style="margin-bottom: 15px;"><a href="#Features">Features of DRP-AI development environments</a></div>
+								<div style="margin-bottom: 15px;"><a href="#Reference">Reference sample applications</a></div>
+								<div style="margin-bottom: 15px;"><a href="#Demo">Demo</a></div>
+								<div style="margin-bottom: 15px;"><a href="#Video">Video</a></div>
+								<div style="margin-bottom: 15px;"><a href="#hardware">Target hardware</a></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br>
+				<br>
+				<div>
+					{% if site.github.is_project_page %}
+						<p>This project is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>
+					{% endif %}
+					<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+				</div>
+			</header>
+			<section>
+				{{ content }}
+			</section>
+			{% comment %}
+				ページトップへ戻るボタン
+			{% endcomment %}      
+			<script>
+				$(function () {
+					var pagetop = $('.page-top-button');
+					pagetop.hide();
+					$(window).scroll(function () {
+						if ($(this).scrollTop() > 100) {
+							pagetop.fadeIn();
+						} else {
+							pagetop.fadeOut();
+						}
+					});
+					pagetop.click(function () {
+						$('body, html').animate({ scrollTop: 0 }, 500);
+						return false;
+					});
+				});
+			</script>
+			<div class="row">
+				<div class="col-12" align="right">
+					<a class=" page-top-button btn " href="#page-top" role="button" onclick="scrollToTop()">
+						Back to Top >
+					</a>
+				</div>
+			</div>
+			<footer>
+			</footer>
+		</div>
+		<script src="{{ "/assets/js/scale.fix.js" | relative_url }}"></script>
+	</body>
+</html>

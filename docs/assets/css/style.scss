@@ -1,0 +1,1010 @@
+---
+---
+
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,700|Source+Code+Pro:300,400,500,700");
+@import "variables";
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons";
+@import "jekyll-theme-minimal";
+
+header, section, footer {
+  font-size: 16px;
+}
+
+.wrapper {
+  width:100%;
+  margin:0 auto;
+}
+
+header, footer {
+  float:left;
+  position:relative;
+  width:20%;
+  -webkit-font-smoothing:subpixel-antialiased;
+}
+
+section {
+  width:65%;
+  float:left;
+  margin-left: 5%;
+  padding-bottom:50px;
+}
+.web-title {
+  margin-bottom: 3px;
+}
+p.version {
+  margin: 3px auto;
+  margin-bottom: 10px;
+  font-size: 18px;
+  
+}
+a.version {
+  font-weight: bold;
+  color: rgb(144, 143, 143);  
+}
+h3 {
+  padding: 0.5rem 0 0.8rem;
+  margin-bottom: 5px;
+  border-bottom:1px solid #c6c6c6;
+}
+.top {
+  font-size: 35px;
+  background-color: #2a289d;
+  color: white;
+  display:flex;
+  align-items: center;
+  font-family: "Arial";
+  font-style: italic;
+  padding: 20px 10px;
+}
+.download-button
+{
+  font-weight: bold;
+}
+
+.square-button
+{
+  font-weight: bold;
+  font-size: medium;
+  border-radius: 0px;
+  background-color: #2a289d;
+  border-color: #2a289d;
+}
+
+.skip{
+  color: red;
+  font-weight: bold;
+}
+
+img.procedure {
+  max-width: 400px;
+}
+
+img.procedure2 {
+  max-width: 500px;
+}
+ul.category {
+  list-style:none;
+  height:38px;
+  padding:0;
+  background: #ffffff;
+  border-radius:0px;
+  border:1px solid #e0e0e0;
+  text-align: center;
+}
+
+.comingsoon {
+  font-size: 0.8em;
+}
+
+.category a {
+  line-height:1.2em;
+  font-size:18px;
+  color:#675C5C;
+  display:block;
+  text-align:center;
+  padding-top:5px;
+}
+
+.category a:hover, .category a:focus {
+  color:#675C5C;
+  font-weight:bold;
+}
+
+.category ul a:active {
+  background-color:#f0f0f0;
+}
+
+p.applications {
+  padding:0 0 0 0;
+  margin: 0 0 0 0;
+  text-align: center;
+  line-height: 0;
+}
+.appdetails {
+  color: #675C5C;
+  list-style:none;
+  min-height:280px;
+  padding:3% 5%;
+  background: #ffffff;
+  border-radius:0px;
+  border:1px solid #e0e0e0;
+  border-top: none;
+  text-align: left;
+}
+
+img.appimage {
+  border:1px solid #e0e0e0;;
+  border-bottom:none;
+}
+
+.applabel{
+  margin: 0;
+  border:1px solid #2a289d;
+  background: #2a289d;
+  color: white;
+  font-weight: bold;
+  border-bottom:none;
+  border-top:none;
+  text-align: center;
+  padding: 0;
+  font-size: 1.2em;
+}
+.applabel li{
+  list-style:none;
+}
+
+.name{
+  font-size: 1.5em;
+  text-align: left;
+  font-weight:bold;
+  margin: 0px 0px 0px 0px;
+}
+.applications {
+  color: #675C5C;
+  font-weight: normal;
+  margin:10px 0px;
+}
+
+/*Change color of application details when cursor is on.
+  When hovering the image and application details.*/
+a.applications:hover, a.applications:focus{
+  color:#267cb9;
+}
+/*Avoid the normal text to be bold when hovered.*/
+a.applications:hover li, a.applications:focus li{
+  color:#267cb9;
+  font-weight:normal;
+}
+
+/*Does not change color of RZ/V2x label in application.*/
+a.applications:hover ul.applabel>li, a.applications:focus ul.applabel>li {
+  color:white;
+  font-weight:bold;
+}
+
+ul.index {
+  list-style:none;
+  margin: 0 0 0 0;
+}
+p.downloads {
+  padding:0;
+  margin: 0 0 0 0;
+  text-align: center;
+}
+
+ul.downloads {
+  list-style:none;
+  background: none;
+  border: none;
+  vertical-align: middle;
+  width: 100%;
+}
+
+.downloads li {
+  margin-top: 5px;
+  list-style:none;
+  padding:0;
+  color: #000;
+  background: #ffca2c;
+  border-radius:20px;
+  border:2px solid #ffc720;
+  text-align: center;
+  font-weight:bold;
+  width:100%;
+}
+
+
+.downloads a {
+  line-height:1;
+  font-size:14px;
+  color:#676767;
+  display:block;
+  text-align:center;
+  padding:auto auto;
+  padding-top:3px;
+}
+
+ul.downloads li:hover, ul.downloads li:focus {
+  color:#675C5C;
+  background: #ffffff;
+  border:2px solid #ffca2c;
+}
+.downloads a:hover, .downloads a:focus {
+  color:#675C5C;
+  font-weight:bold;
+}
+
+ul.downloads a:active {
+  background-color:white;
+  border-radius: 20px;
+}
+
+strong {
+  color:#222;
+  font-weight:700;
+}
+
+.downloads a strong {
+  font-size:16px;
+  display:block;
+  color:#222;
+}
+/*Use <br clas="br-sp"> for long line 
+ that requires break point on smartphone.*/
+.br-sp {
+  display: none;
+}
+.br-sp-web-title {
+  display: none;
+}
+.br-nsp {
+  display: block;
+}
+.appstatus {
+  margin-bottom: 0px;
+  color: red;
+}
+@media (max-width: 1250px) {
+  .br-sp {
+      display: block;
+  }
+  .br-sp-web-title {
+    display: block;
+  }
+  .br-nsp {
+    display: block;
+  }
+}
+@media (max-width: 960px) {
+  .br-sp {
+      display: none;
+  }
+  .br-sp-web-title {
+    display: none;
+  }
+  .br-nsp {
+    display: none;
+  }
+  .lg-table {
+    font-size: 12px;
+  }
+}
+@media (max-width: 560px) {
+  .br-sp {
+      display: block;
+  }
+  .br-sp-web-title {
+    display: none;
+  }
+  .br-nsp {
+    display: block;
+  }
+  .lg-table {
+    font-size: 10px;
+  }
+}
+
+@media print {
+  header, footer{
+    display:none;
+  }
+  #agriculture {
+    page-break-before:always;
+  }
+  div.col-lg-6 {
+    page-break-after:always;
+  }
+}
+@media print, screen and (max-width: 960px) {
+
+  div.wrapper {
+    width:auto;
+    margin:0;
+  }
+
+  header, section, footer {
+    float:none;
+    position:static;
+    width:auto;
+  }
+
+  header {
+    padding: 10px;
+  }
+  
+  section {
+    border:1px solid #e5e5e5;
+    border-width:1px 0;
+    padding:20px 0;
+    margin:0 0 20px;
+  }
+
+  header a small {
+    display:inline;
+  }
+
+  header ul {
+    position:static;
+  }
+  
+  /*.web_index {
+    display: none;
+  }*/
+  div.downloads img{
+    display: none;
+  }
+  ul.downloads {
+    position:static;
+    list-style:none;
+    background: none;
+    border: none;
+    vertical-align: middle;
+    width: 100%;
+  }
+}
+
+@media print, screen and (max-width: 720px) {
+  body {
+    word-wrap:break-word;
+  }
+
+  header {
+    padding:0;
+  }
+
+  header ul, header p.view {
+    position:static;
+  }
+
+  /*pre, code {
+    word-wrap:normal;
+  }*/
+  .top {
+    font-size: 24px;
+  }
+}
+
+@media print, screen and (max-width: 480px) {
+  body {
+    padding:15px;
+    word-wrap:break-word;
+  }
+
+  .downloads {
+    width:100%;
+  }
+
+  .downloads li, .downloads li + li + li {
+    width:100%;
+  }
+}
+
+/********** Additional Styles **********/
+
+h2{
+  padding: 1rem 1rem;
+  border-left: 8px solid #2a289d;
+  color: #2a289d;
+  background: hsl(0, 0%, 95%);
+}
+h3 {
+  position: relative;
+  margin: 15px 0px;
+  border-bottom: 2px solid #2a289d;
+}
+.container{
+  max-width: 100%;
+}
+.note {
+  display: block;
+  position: relative;
+  margin: 1em 0;
+  padding: 23px 10px 7px;
+  max-width: fit-content;
+  color: #000000;
+  background: hsl(241, 59%, 97%);
+}
+.note .note-title {
+  position: absolute;
+  max-width: fit-content;
+  top: -2px;
+  left: -2px;
+  padding: 0 6px;
+  height: 23px;
+  line-height: 23px;
+  font-size: 15px;
+  background: #2a289d;
+  color: #ffffff;
+  font-weight: bold;
+}
+.warning {
+  display: block;
+  position: relative;
+  margin: 1em 0;
+  padding: 23px 10px 7px;
+  max-width: fit-content;
+  color: #000000;
+  background: rgb(252, 243, 243);
+}
+.warning .warning-title {
+  position: absolute;
+  max-width: fit-content;
+  top: -2px;
+  left: -2px;
+  padding: 0 6px;
+  height: 23px;
+  line-height: 23px;
+  font-size: 15px;
+  background: rgb(183, 25, 53);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.box1 {
+  display: block;
+  max-width: fit-content;
+  padding: 0.5em 1em;
+  border: 2px solid #eee;	
+  position: relative;
+  z-index: 0;
+}
+.box1::before {
+  display: block;
+  border-top:2px solid #c6c6d4;
+  border-left:2px solid #c6c6d4;
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 20px;
+  height: 20px;
+  z-index: 1;
+}
+
+.box2{
+  display: block;
+  max-width: fit-content;
+  padding: 0.5em 1em;
+  position: relative;
+}
+.box2::after, .box2::before {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  position: absolute;
+  width: 0.75em;
+}
+.box2::before {
+  border-bottom: 1px solid #2a289d;
+  border-left: 1px solid #2a289d;
+  border-top: 1px solid #2a289d;
+  bottom: 0;
+  left: 0;
+}
+.box2::after {
+  border-bottom: 1px solid #2a289d;
+  border-right: 1px solid #2a289d;
+  border-top: 1px solid #2a289d;
+  bottom: 0;
+  right: 0;
+}
+
+quotedoc {
+  display: block;
+  position: relative;
+  max-width: fit-content;
+  padding: 15px 10px 10px 15px;
+  border-left: 3px double #2a289d;
+}
+
+.boxdetails {
+  display: block;
+  max-width: fit-content;
+  padding: 4px;
+  margin: 6px 0px;
+  border: 1px solid #2a289d;
+  border-radius: 5px;
+}
+.boxdetails > summary {
+  outline: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: #2a289d;
+}
+
+.mytable {
+  display: block;
+  max-width: fit-content;
+  table-layout: auto;
+  overflow: auto;
+  font-size: 80%;
+  text-align: center;
+  color: #000000;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.mytable th {
+  border: solid 0.5px #706f6f;
+  background: #2a289d;
+  color: #ffffff;
+}
+.mytable td {
+  border: solid 0.5px #706f6f;
+  background: hsl(241, 59%, 98%);
+}
+.mytable caption{
+  display: block;
+  font-size: 140%;
+  padding-bottom: 0;
+  color: #2a289d;
+  font-weight: bold;
+}
+
+code {
+  word-wrap:normal;
+  color: #444;
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+pre {
+  border-radius: 5px;
+  color: #444;
+  background: #f0f0f0;
+  border: solid 1px #dddddd;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+/********** Hamburger Menu **********/
+@media print, screen and (max-width: 960px) {
+  .menu-btn {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    height: 50px;
+    width: 50px;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    background-color: #2a289d;
+    border-radius: 5px;
+  }
+  .menu-btn span,
+  .menu-btn span:before,
+  .menu-btn span:after {
+      content: '';
+      display: block;
+      height: 2px;
+      width: 25px;
+      border-radius: 3px;
+      background-color: #ffffff;
+      position: absolute;
+  }
+  .menu-btn span:before {
+      bottom: 8px;
+  }
+  .menu-btn span:after {
+      top: 8px;
+  }
+  #menu-btn-check:checked ~ .menu-btn span {
+    background-color: rgba(255, 255, 255, 0);
+  }
+  #menu-btn-check:checked ~ .menu-btn span::before {
+      bottom: 0;
+      transform: rotate(45deg);
+  }
+  #menu-btn-check:checked ~ .menu-btn span::after {
+      top: 0;
+      transform: rotate(-45deg);
+  }
+  .menu-content {
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    padding: 40px 10px 5px;
+    top: 0;
+    left: 100%;
+    z-index: 9;
+    background-color: #706f6f;
+    transition: all 0.5s;
+  }
+  #menu-btn-check:checked ~ .menu-content {
+    left: 0;
+  }
+  .menu-content summary{
+    list-style: none;
+    font-size: 110%;
+    margin-left: 25px;
+    padding-top: 10px;
+    position: relative;
+  }
+  .menu-content a {
+    list-style: none;
+    display: block;
+    width: 100%;
+    font-size: 110%;
+    box-sizing: border-box;
+    color:#ffffff;
+    border-bottom: solid 1px #ffffff;
+    padding: 9px 15px 5px 0;
+    position: relative;
+  }
+  .menu-content a::before{
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-top: solid 2px #ffffff;
+    border-right: solid 2px #ffffff;
+    transform: rotate(45deg);
+    position: absolute;
+    right: 11px;
+    top: 20px;
+  }
+  .menu-content details:has(ul) > summary > a{
+    border-bottom: none;
+    pointer-events: none;
+  }
+  .menu-content details:has(ul) > summary > a::before{
+    content: none;
+  }
+  .menu-content details > summary::before{
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-top: solid 2px #ffffff;
+    border-right: solid 2px #ffffff;
+    transform: rotate(45deg);
+    position: absolute;
+    left: -25px;
+    top: 26px;
+    transition: all 0.3s;
+  }
+  .menu-content details[open] > summary::before{
+    top: 25px;
+    transform: rotate(135deg);
+    transition: all 0.3s;
+  }
+}
+#menu-btn-check {
+  display: none;
+}
+
+/********** eSD and eMMC switch **********/
+.contenteSD-bg {
+  display: block;
+  position: relative;
+  margin: 1em 0;
+  padding: 23px 10px 7px;
+  max-width: fit-content;
+  color: #000000;
+  background: #E0EDF8;
+  border:1px solid #4BA3D3;
+}
+.contenteSD-bg .ContenteSD-title {
+  position: absolute;
+  max-width: fit-content;
+  top: -2px;
+  left: -2px;
+  padding: 0 6px;
+  height: 23px;
+  line-height: 23px;
+  font-size: 15px;
+  background: #4BA3D3;
+  color: #ffffff;
+  font-weight: bold;
+}
+.contenteMMC-bg {
+  display: block;
+  position: relative;
+  margin: 1em 0;
+  padding: 23px 10px 7px;
+  max-width: fit-content;
+  color: #000000;
+  background: #E4E3ED;
+  border:1px solid #635D89;
+}
+.contenteMMC-bg .ContenteMMC-title {
+  position: absolute;
+  max-width: fit-content;
+  top: -2px;
+  left: -2px;
+  padding: 0 6px;
+  height: 23px;
+  line-height: 23px;
+  font-size: 15px;
+  background: #635D89;
+  color: #ffffff;
+  font-weight: bold;
+}
+.SelectButton{
+  max-width: fit-content;
+  vertical-align: middle;
+  padding: 5px;
+  margin: 5px;
+  border: solid 1.5px #000;
+  border-radius: 50px;
+  font-size: 100%;
+  font-weight: bold;
+  cursor: pointer;
+}
+.ButtoneSD{
+  display: table-cell;
+  vertical-align: middle;
+  min-width: max-content;
+  color: #4BA3D3;
+  border-radius: 30px;
+  padding: 5px 20px 3px;
+}
+.ButtoneMMC{
+  display: table-cell;
+  vertical-align: middle;
+  min-width: max-content;
+  color: #635D89;
+  border-radius: 30px;
+  padding: 5px 20px 3px;
+}
+.ButtoneSD-Active{
+  background: #4BA3D3;
+  color: #fff !important;
+  transition: all 0.3s;
+}
+.ButtoneMMC-Active{
+  background: #635D89;
+  color: #fff !important;
+  transition: all 0.3s;
+}
+
+/********** Table used in Getting Started **********/
+.gstable {
+  display: block;
+  max-width: fit-content;
+  table-layout: auto;
+  overflow: auto;
+  font-size: 100%;
+  text-align: center;
+  color: #000000;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.gstable th {
+  border: solid 0.5px #706f6f;
+  background: #2a289d;
+  color: #ffffff;
+}
+.gstable td {
+  border: solid 0.5px #706f6f;
+  background: hsl(241, 59%, 98%);
+}
+.gstable caption{
+  display: block;
+  font-size: 140%;
+  padding-bottom: 0;
+  color: #2a289d;
+  font-weight: bold;
+}
+.history-title{
+  margin-bottom: 3px;
+}
+.history-item{
+  margin-top: 5px;
+  margin-bottom: 0px;
+}
+
+/********** For Video **********/
+.videodetails {
+  color: #675C5C;
+  list-style:none;
+  min-height:140px;
+  padding:3% 5%;
+  background: #ffffff;
+  border-radius:0px;
+  border:1px solid #e0e0e0;
+  border-top: none;
+  text-align: left;
+}
+/** meistier **/
+.griditem{
+  background-color: #f5f5f5;
+  font-size: 18px;
+  padding: 20px;
+  border: 2px solid #ffffff;
+  margin: 0px
+}
+
+.griditem-add{
+  background-color: #f5f5f5;
+  color: #696969;
+  font-size: 15px;
+  text-align: left;
+}
+
+.appspec{
+  background-color:#f5f5f5;
+  font-size: 15px;
+  padding: 0px;
+  margin: 0px;
+  align-items: flex-end;
+}
+
+.devicelinkbutton_parent { 
+  text-align: center;
+}
+
+.devicelinkbutton {
+  margin:2px 6px 0px 0px;
+  background-color: #2a289d;
+  color: white;
+  padding: 5px 8px;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  border: none;
+  border-radius: 2px; 
+}
+
+.devicelinkbutton:hover {
+  background-color:rgb(67, 171, 226); 
+  transform: scale(1.1);
+  // transition-duration: 1s;
+  transition-duration: 0.3s; //Edited by Renesas
+  color: white;
+}
+
+//Added by meistier for no reason, but affects the Getting Started.
+// tabel tr,th,td{
+//   border-style: 1;
+//   border-collapse: collapse;
+//   border-spacing: 0;
+//   margin: 0;
+//   padding: 0;
+//   font-size: 12px;
+// }
+
+.Perf-Framerate{
+  margin:5px 6px 0px 0px;
+  font-size: 14px;
+  text-align: center;
+}
+
+dl {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+#toTopBtn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+ 
+.checkbox-group:hover{
+    color:dodgerblue;
+}
+
+.page-top-button {
+  font-weight: 400;
+  text-align: center;
+  margin: 0;
+  font-size: 0.9rem;
+  background: #2a289d;
+  color: white;
+  position: fixed;
+  bottom: 20px;
+  right: 10px;
+  line-height: 2;
+}
+
+.page-top-button :hover {
+  color:  #fff;
+  background-color: gray;
+}
+
+.page-top-button a {
+  background-color: gray;
+  text-decoration: none;
+  color: #fff;
+  text-align: center;
+  display: block;
+  border-radius: 90px;
+  opacity: 0.9;
+  transition: all .5s ease;
+}
+
+.page-top-button a:hover {
+  color:  #fff;
+  background: gray;
+  text-decoration: none;
+  opacity: .5;
+}
+
+.check li{
+  position: relative;
+  padding-left: 15px;
+  list-style:none;
+}
+
+.check li:before {
+  content: "";
+  position: absolute;
+  top: .3em;
+  left: 0;
+  -webkit-transform: rotate(50deg);
+  -ms-transform: rotate(50deg);
+  transform: rotate(50deg);
+  width: 6px;
+  height: 12px;
+  border-right: 3px solid #696969;
+  border-bottom: 3px solid #696969;
+}
+
+.Performance tr:nth-child(odd) td {
+	background: #fff;
+}
+
+.size img{
+  width: 100%;
+}
+
+.size div {
+  margin-bottom: 20px;
+}
+
+.features img{
+  display: flex;
+  align-items: center; 
+  width: 100%;
+  height: auto; 
+  padding: 10px;
+  color: #333333; 
+  background: #ffffff; 
+  border: 3px solid black; 
+  box-shadow: 4px 4px 8px gray;
+}
+
+.Target td{
+ background: transparent;
+}
+
+.Get{
+  width: 600px;
+  text-align: center; 
+}
+
+@media print, screen and (max-width: 960px) { 
+  .Get div{
+  flex-flow: column;
+  }
+}
