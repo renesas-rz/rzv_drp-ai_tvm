@@ -243,7 +243,7 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
 <ul style="margin-top: 2%;">
 	<li><a href="https://www.renesas.com/us/en/document/sws/rzv2haiperformancedemosdimagewicgz">Demo Binary</a> : SD card image file. </li>
 	<li><a href="https://www.renesas.com/us/en/document/sws/rzmpudemoapplicationsoftware-license-agreement-description">License</a>: OSS license list for software included in the SD card image file.</li>
-	<li><a href="How_to_Use_Guide.pdf">How to Use Guide</a>: A quick guide to using SD card image.</li>
+	<li><a href="./gui_demo.html">How to Use Guide</a>: A quick guide to using SD card image.</li>
 </ul>
 <p><br /><br /><br /></p>
 

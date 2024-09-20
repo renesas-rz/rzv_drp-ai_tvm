@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content="Renesas RZ/V AI | The best solution for starting your AI applications." name="title">
+    <meta name="keywords" content="rzv,ai application,ai app,edge ai,vision ai, aritificial intelligence">
+    <meta name="description" content="Renesas Electronics provides AI Applications for Pre-trained AI model on RZ/V and AI SDK for application development.">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JRL1VWTZC1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-JRL1VWTZC1');
+    </script>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How to Use Guide | DRP-AI TVM on RZ/V series</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="How to Use Guide" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The best solution for starting your AI applications." />
+<meta property="og:description" content="The best solution for starting your AI applications." />
+<link rel="canonical" href="http://localhost:4000/rzv_drp-ai_tvm/gui_demo.html" />
+<meta property="og:url" content="http://localhost:4000/rzv_drp-ai_tvm/gui_demo.html" />
+<meta property="og:site_name" content="DRP-AI TVM on RZ/V series" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to Use Guide" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2024-09-20T13:22:28+09:00","description":"The best solution for starting your AI applications.","headline":"How to Use Guide","url":"http://localhost:4000/rzv_drp-ai_tvm/gui_demo.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="assets/css/style.css?v=">
+    <script src="assets/js/drm-ai_tvm.js"></script>
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/rzv_drp-ai_tvm/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js" type="text/javascript"></script>
+
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="row">
+          <div class="top col-12">
+            How to Use Guide
+          </div>
+      </div>
+    </div>
+    <br>
+    <br>
+
+    <div class="wrapper">
+      <section>
+        <h1 id="1-overview">1. Overview</h1>
+
+<p>This package is a demo system which can confirm the performances of AI models on RZ/V2H Evaluation Board Kit.</p>
+
+<p>This package supports the following AI models.</p>
+
+<ul>
+  <li>YOLOX-S</li>
+  <li>DeepLabv3</li>
+  <li>HRNet</li>
+  <li>ResNet50</li>
+</ul>
+
+<p>Users can select the AI model applications on the GUI menu by using the USB mouse, without typing any command.</p>
+
+<h1 id="2-package-contents">2. Package Contents</h1>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">rzv2h_ai_performance_demo_sd_image.wic.gz	: SD Card Image file (WIC format)
+licenses.zip					: License files for the software   
+					          composing this SD Card Image. </code></pre></figure>
+
+<h1 id="3-required-hardware">3. Required Hardware</h1>
+
+<h2 id="31-target-board-and-peripheral-equipment">3.1 Target board and peripheral equipment</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>RZ/V2H Evaluation Board Kit</td>
+      <td>Hereinafter referred to as the “RZ/V2H EVK”</td>
+    </tr>
+    <tr>
+      <td>USB PD (100W) + USB Type-C cable</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>micro SD Card</td>
+      <td><strong>Required 8GB or more of the capacity.</strong><br />This package is tested by using SDHC microSD 16GB.</td>
+    </tr>
+    <tr>
+      <td>MIPI camera (e-con Systems e-CAM22_CURZH)</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>HDMI monitor + HDMI cable</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>USB mouse</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="32-pc-for-writing-sd-card-image">3.2 PC for writing SD Card image</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Linux PC</td>
+      <td>This package is tested on the Linux PC with Ubuntu OS 20.04.</td>
+    </tr>
+    <tr>
+      <td>micro SD card reader</td>
+      <td>Required if the Linux PC does NOT equips any micro SD card reader.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="4-how-to-use-this-package">4. How to use this package</h1>
+
+<h2 id="41-how-to-write-the-sd-card-image-into-the-sd-card">4.1. How to write the SD Card Image into the SD Card</h2>
+
+<ol>
+  <li>Copy the following files into any directory on the Linux PC.
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">rzv2h_ai_performance_demo_sd_image.wic.gz</code></li>
+    </ul>
+  </li>
+  <li>Execute the following command to install <code class="language-plaintext highlighter-rouge">bmap-tools</code> into the Linux PC. (If already installed, this step can be skipped.)</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>apt <span class="nb">install </span>bmap-tools</code></pre></figure>
+
+<ol>
+  <li>Insert the micro SD Card into the micro SD Card reader, and connect the micro SD Card reader to the Linux PC.</li>
+  <li>Execute <code class="language-plaintext highlighter-rouge">lsblk</code> command, and confirm the Confirm the device file name of the micro SD Card and the size of it.
+    <ul>
+      <li>In this example below, the device file name of the micro SD Card is <code class="language-plaintext highlighter-rouge">sda</code> listed on the  <code class="language-plaintext highlighter-rouge">NAME</code> column.</li>
+    </ul>
+  </li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span>lsblk
+<span class="go">NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+:
+sda           8:0    1  14.2G  0 disk 
+├─sda1        8:1    1  16.9M  0 part 
+└─sda2        8:2    1     4G  0 part /mnt/sd
+:</span></code></pre></figure>
+
+<ul>
+  <li>If any partition of the micro SD card is mounted on the Linux PC filesystem, please unmount all partition.
+    <ul>
+      <li>In the example above, the <code class="language-plaintext highlighter-rouge">sda2</code> partition of the micro SD card is mounted on <code class="language-plaintext highlighter-rouge">/mnt/sd</code> on the Linux PC file system. You can unmount the partition by executing the following command.</li>
+    </ul>
+  </li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>umount /dev/sda2
+<span class="go">or
+</span><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>umount /mnt/sd</code></pre></figure>
+
+<ol>
+  <li>Write the SD Card image files (<code class="language-plaintext highlighter-rouge">rzv2h_ai_performance_demo_sd_image.wic.gz</code>) into the micro SD card by the following command.
+    <ul>
+      <li>The command below write the SD Card image to the <code class="language-plaintext highlighter-rouge">sda</code> device file. 
+Please replace <code class="language-plaintext highlighter-rouge">sda</code> with a device file name displayed on your Linux PC by  <code class="language-plaintext highlighter-rouge">lsblk</code> command.</li>
+    </ul>
+  </li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>bmaptool copy <span class="nt">--nobmap</span> rzv2h_ai_performance_demo_sd_image.wic.gz /dev/sda</code></pre></figure>
+
+<blockquote>
+  <p><strong>Note: It will take approximately 5 minutes to write the image file to the SD card.</strong></p>
+</blockquote>
+
+<h2 id="42-how-to-configure-rzv2h-evk">4.2 How to configure RZ/V2H EVK</h2>
+
+<p>First, please prepare RZ/V2H EVK.</p>
+
+<ul>
+  <li>RZ/V2H EVK is composed of CPU Board and EXP Board. 
+Please assembly the RZ/V2H EVK according to the RZ/V2H EVK Hardware Manual in the link below.
+    <ul>
+      <li><a href="https://www.renesas.com/us/en/document/mah/rzv2h-evaluation-board-kit-secure-type-hardware-manual?r=25471796">RZ/V2H Evaluation Board Kit Hardware Manual</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p>Next, please configure the RZ/V2H EVK and connects the peripheral equipment to it in the order according to the figure below.</p>
+
+<p><img src="/rzv_drp-ai_tvm/img/image-20240426185111619.png" alt="image-20240426185111619" /></p>
+
+<ol>
+  <li>Insert the micro SD Card to the RZ/V2H EVK.</li>
+  <li>Configure the DSW1 and DSW2 according the figure above.</li>
+  <li>Connect the USB Mouse to the USB 2.0 terminal on RZ/V2H EVK.</li>
+  <li>Connect the HDMI monitor to the RZ/V2H EVK with HDMI cable.</li>
+  <li>Connect the MIPI camera to the RZ/V2H EVK.
+    <ul>
+      <li>Regarding how to connect the MIPI camera, please refer to the following link and the “Run the application” section in the link.
+        <ul>
+          <li><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_yolox_cam#1-connecting-camera-and-display">https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_yolox_cam#1-connecting-camera-and-display</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Connect the USB PD 100W to the RZ/V2H EVK with USB Type-C cable.</li>
+  <li>Turn the SW3 to ON.</li>
+  <li>Turn the SW2 to ON to power on the RZ/V2H EVK.</li>
+</ol>
+
+<p>Finally, after waiting for about 10 seconds, GUI menu will be displayed on the HDMI monitor.</p>
+
+<h2 id="43-how-to-start-the-ai-applications-on-the-gui-menu">4.3 How to start the AI applications on the GUI menu</h2>
+
+<p>Users can select and start the AI model applications on the GUI menu by using the USB mouse without typing command.</p>
+
+<ol>
+  <li>Click on the [Start] button of any AI model application to run it, then the AI model application result will be displayed.
+    <ul>
+      <li>The processing times of AI model the user selected will be displayed at the upper right corner.</li>
+    </ul>
+  </li>
+  <li>If user clicks to the blue (x) icon at the lower right corner, the application will finish.
+    <ul>
+      <li>The GUI menu will be displayed again, and user can will select the next AI model application on the GUI menu.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="44-how-to-shut-down-the-gui-menu-and-the-rzv2h-evk">4.4 How to shut down the GUI menu and the RZ/V2H EVK</h2>
+
+<ol>
+  <li>Clicks to the [x] icon at the upper right corner on the GUI menu, then the software will shut down and the following log will be displayed.</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>xxxxx.xxxxxx] reboot: Power down</code></pre></figure>
+
+<ol>
+  <li>
+    <p>Turn the SW2 to OFF.</p>
+  </li>
+  <li>
+    <p>Turn the SW3 to OFF.</p>
+  </li>
+</ol>
+
+<h1 id="5-version-history">5. Version History</h1>
+
+<ul>
+  <li>v0.50 issued on 10th May 2024.</li>
+  <li>v1.00 issued on 26th June 2024.</li>
+</ul>
+
+
+      </section>
+
+   
+            
+      
+        <script>
+        $(function () {
+                var pagetop = $('.page-top-button');
+                pagetop.hide();
+                $(window).scroll(function () {
+                  if ($(this).scrollTop() > 100) {
+                    pagetop.fadeIn();
+                  } else {
+                    pagetop.fadeOut();
+                  }
+                });
+                pagetop.click(function () {
+                  $('body, html').animate({ scrollTop: 0 }, 500);
+                  return false;
+                });
+              });
+        </script>
+
+        <div class="row">
+              <div class="col-12" align="right">
+                <a class=" page-top-button btn " href="#page-top" role="button" onclick="scrollToTop()">
+                    Back to Top >
+                </a>
+            </div>
+        </div>
+
+ 
+
+      <footer>
+      </footer>
+    </div>
+    <script src="/rzv_drp-ai_tvm/assets/js/scale.fix.js"></script>
+  </body>
+</html>
