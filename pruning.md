@@ -15,6 +15,17 @@ Applying pruning to a neural network leads to a slight deterioration in the accu
     In the use of pruning tool for DRP-AI, we recommend pruning by at least 70% to improve the processing performance of the DRP-AI.
 </div>
 
+# Video
+
+<div class="ratio ratio-16x9">
+    <iframe src="https://players.brightcove.net/5260471205001/default_default/index.html?videoId=6362851954112"
+    allowfullscreen
+    webkitallowfullscreen
+    mozallowfullscreen></iframe>
+</div>
+
+<br>
+
 ## Work flow
 DRP-AI for RZ/V2H supports the feature of efficiently calculating the pruned AI model. Therefore, power efficiency is improved by using the pruned AI model.  
 This document explains how to prune your own model by using DRP-AI Extension package, which provides a pruning function optimized for the DRP-AI.  
