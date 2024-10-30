@@ -1,0 +1,130 @@
+diff --git onnx_export.py torch2onnx.py
+index 7b951b6..afe74af 100644
+--- onnx_export.py
++++ torch2onnx.py
+@@ -1,3 +1,36 @@
++#######################################################################################################################
++# DISCLAIMER
++# This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
++# other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
++# applicable laws, including copyright laws.
++# THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING
++# THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
++# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED. TO THE MAXIMUM
++# EXTENT PERMITTED NOT PROHIBITED BY LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES
++# SHALL BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO
++# THIS SOFTWARE, EVEN IF RENESAS OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
++# Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability of
++# this software. By using this software, you agree to the additional terms and conditions found by accessing the
++# following link:
++# http://www.renesas.com/disclaimer
++#
++# Copyright (C) 2024 Renesas Electronics Corporation. All rights reserved.
++#######################################################################################################################
++#######################################################################################################################
++#    Copyright 2019 Ross Wightman
++#
++#    Licensed under the Apache License, Version 2.0 (the "License");
++#    you may not use this file except in compliance with the License.
++#    You may obtain a copy of the License at
++#
++#        http://www.apache.org/licenses/LICENSE-2.0
++#
++#    Unless required by applicable law or agreed to in writing, software
++#    distributed under the License is distributed on an "AS IS" BASIS,
++#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++#    See the License for the specific language governing permissions and
++#    limitations under the License.
++#######################################################################################################################
+ """ ONNX export script
+ 
+ Export PyTorch models as ONNX graphs.
+@@ -18,11 +51,23 @@ Please do your research and search ONNX and PyTorch issue tracker before asking
+ 
+ Copyright 2020 Ross Wightman
+ """
++# Description : Export pytorch model to onnx format.
++# Version history:
++#   - Support the DRP-AI Extension Pack
+ import argparse
++# Modified by Renesas
++import os
+ 
+ import timm
+ from timm.utils.model import reparameterize_model
+ from timm.utils.onnx import onnx_export
++# Modified by Renesas
++# Import the DRP-AI Extension Pack module
++from timm.models import load_checkpoint
++from drpai_compaction_tool.pytorch import make_pruning_layer_list, \
++                                          Pruner, \
++                                          get_model_info
++
+ 
+ parser = argparse.ArgumentParser(description='PyTorch ImageNet Validation')
+ parser.add_argument('output', metavar='ONNX_FILE',
+@@ -59,9 +104,15 @@ parser.add_argument('--verbose', default=False, action='store_true',
+                     help='Extra stdout output')
+ parser.add_argument('--dynamo', default=False, action='store_true',
+                     help='Use torch dynamo export.')
++# Modified by Renesas
++parser.add_argument('--is_pruned_weight', action='store_true',
++                    help='When converting the model with pruned weight, please specify this option')
++
+ 
+ def main():
+     args = parser.parse_args()
++    # Modified by Renesas
++    _validate_args(args)
+ 
+     args.pretrained = True
+     if args.checkpoint:
+@@ -75,13 +126,35 @@ def main():
+         num_classes=args.num_classes,
+         in_chans=3,
+         pretrained=args.pretrained,
+-        checkpoint_path=args.checkpoint,
++        # Modified by Renesas
++        checkpoint_path=args.checkpoint if args.is_pruned_weight is False else None,
+         exportable=True,
+     )
+ 
++    # Modified by Renesas
++    # Preparing for pruning the model with a pruning rate of 0.0
++    if args.is_pruned_weight:
++        input_size = [(5, 3, args.img_size, args.img_size)]
++        pruning_layer_list = make_pruning_layer_list(model, 
++                                                     input_size=input_size)
++        print(f"pruning_layer_list = \n\t{pruning_layer_list}")
++        _ = Pruner(model, 
++                   pruning_layer_list=pruning_layer_list,
++                   final_pr=0.0)
++        load_checkpoint(model, checkpoint_path=args.checkpoint)
++
++        # Confirming the result of loading weights correctly
++        print(get_model_info(model, input_size))
++
+     if args.reparam:
+         model = reparameterize_model(model)
+ 
++    # Modified by Renesas
++    # create the save directory
++    output_dir = os.path.dirname(os.path.abspath(args.output))
++    if not os.path.exists(output_dir):
++        os.makedirs(output_dir, exist_ok=True)
++
+     onnx_export(
+         model,
+         args.output,
+@@ -98,5 +171,11 @@ def main():
+     )
+ 
+ 
++# Modified by Renesas
++def _validate_args(args):
++    if args.model not in ["vit_base_patch16_224.orig_in21k"]:
++        raise NotImplementedError(f"This script does not support {args.model}.")
++
++
+ if __name__ == '__main__':
+     main()

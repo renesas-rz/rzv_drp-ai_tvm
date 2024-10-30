@@ -30,7 +30,7 @@ def get_args():
     """
     usage = "usage: %prog [options] model_file"
     parser = OptionParser(usage)
-    parser.set_defaults(drp_compiler_dir='./drp-ai_translator_release', toolchain_dir='/opt/poky/3.1.21', disable_concat = False, quantization_tool='./drpai_quant', qat=False, qat_type="pytorch", num_frame=1, cpu_data_type="float16")
+    parser.set_defaults(drp_compiler_dir='./drp-ai_translator_release', drp_compiler_version='100', toolchain_dir='/opt/poky/3.1.31', disable_concat = False, quantization_tool='./drpai_quant', qat=False, qat_type="pytorch", num_frame=1, cpu_data_type="float16")
     parser.add_option("-r", "--record_dir", dest="record_dir", help="Calibration data record directory", metavar="DIR")
     parser.add_option("-d", "--drp_compiler_dir", dest="drp_compiler_dir", help="DRP-AI Translator root directory", metavar="DIR")
     parser.add_option("-t", "--toolchain_dir", dest="toolchain_dir", help="Cross-compilation toolchain root directory", metavar="DIR")

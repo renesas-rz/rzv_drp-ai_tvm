@@ -1,0 +1,11 @@
+diff --git distributed_train.sh distributed_retrain_with_pruning.sh
+index fdd65d0..59bcc08 100755
+--- distributed_train.sh
++++ distributed_retrain_with_pruning.sh
+@@ -1,5 +1,4 @@
+ #!/bin/bash
+ NUM_PROC=$1
+ shift
+-torchrun --nproc_per_node=$NUM_PROC train.py "$@"
+-
++torchrun --nproc_per_node=$NUM_PROC retrain_with_pruning.py "$@"

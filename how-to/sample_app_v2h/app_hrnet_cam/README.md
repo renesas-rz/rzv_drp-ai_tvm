@@ -85,7 +85,7 @@ export LD_LIBRARY_PATH=.
 
 ### 3. Following window shows up on HDMI screen
 
-<img src=./img/application_result_on_hdmi_hrnet.png width=480>
+<img src=./img/application_result_image_hrnet.jpg width=480>
 
 On application window, following information is displayed.
 
