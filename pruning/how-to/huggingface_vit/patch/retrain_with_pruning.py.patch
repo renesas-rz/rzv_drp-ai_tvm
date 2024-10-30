@@ -1,0 +1,175 @@
+diff --git train.py retrain_with_pruning.py
+old mode 100755
+new mode 100644
+index 0996849..fd0c20f
+--- train.py
++++ retrain_with_pruning.py
+@@ -1,4 +1,40 @@
+ #!/usr/bin/env python3
++#######################################################################################################################
++# DISCLAIMER
++# This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
++# other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
++# applicable laws, including copyright laws.
++# THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING
++# THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
++# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED. TO THE MAXIMUM
++# EXTENT PERMITTED NOT PROHIBITED BY LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES
++# SHALL BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO
++# THIS SOFTWARE, EVEN IF RENESAS OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
++# Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability of
++# this software. By using this software, you agree to the additional terms and conditions found by accessing the
++# following link:
++# http://www.renesas.com/disclaimer
++#
++# Copyright (C) 2024 Renesas Electronics Corporation. All rights reserved.
++#######################################################################################################################
++#######################################################################################################################
++#    Copyright 2019 Ross Wightman
++#
++#    Licensed under the Apache License, Version 2.0 (the "License");
++#    you may not use this file except in compliance with the License.
++#    You may obtain a copy of the License at
++#
++#        http://www.apache.org/licenses/LICENSE-2.0
++#
++#    Unless required by applicable law or agreed to in writing, software
++#    distributed under the License is distributed on an "AS IS" BASIS,
++#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++#    See the License for the specific language governing permissions and
++#    limitations under the License.
++#######################################################################################################################
++# Description : Retrain vision transformer by using oneshot pruning.
++# Version history:
++#   - Support the DRP-AI Extension Pack
+ """ ImageNet Training Script
+ 
+ This is intended to be a lean and easily modifiable ImageNet training script that reproduces ImageNet
+@@ -40,6 +76,12 @@ from timm.optim import create_optimizer_v2, optimizer_kwargs
+ from timm.scheduler import create_scheduler_v2, scheduler_kwargs
+ from timm.utils import ApexScaler, NativeScaler
+ 
++# Modified by Renesas
++# Import the DRP-AI Extension Pack module
++from drpai_compaction_tool.pytorch import make_pruning_layer_list, \
++                                          Pruner, \
++                                          get_model_info
++
+ try:
+     from apex import amp
+     from apex.parallel import DistributedDataParallel as ApexDDP
+@@ -72,6 +114,9 @@ has_compile = hasattr(torch, 'compile')
+ 
+ _logger = logging.getLogger('train')
+ 
++# Modified by Renesas
++MODEL_INPUT_SIZE = (5, 3, 224, 224)
++
+ # The first arg parser parses out only the --config argument, this argument is used to
+ # load a yaml file containing key-values that override the defaults for the main parser below
+ config_parser = parser = argparse.ArgumentParser(description='Training Config', add_help=False)
+@@ -390,6 +435,13 @@ group.add_argument('--use-multi-epochs-loader', action='store_true', default=Fal
+ group.add_argument('--log-wandb', action='store_true', default=False,
+                    help='log training and validation metrics to wandb')
+ 
++# Modified by Renesas
++# Pruning parameters
++group = parser.add_argument_group('Pruning parameters')
++group.add_argument("--pruning_rate", default=0.7, type=float, help="pruning rate. this parameter can be in the range [0,1).")
++group.add_argument('--is_pruned_weight', action='store_true',
++                   help='When loading the model with pruned weight, please specify this option')
++
+ 
+ def _parse_args():
+     # Do we have a config file to parse?
+@@ -411,6 +463,8 @@ def _parse_args():
+ def main():
+     utils.setup_default_logging()
+     args, args_text = _parse_args()
++    # Modified by Renesas
++    _validate_args(args)
+ 
+     if args.device_modules:
+         for module in args.device_modules:
+@@ -588,6 +642,17 @@ def main():
+     # optionally resume from a checkpoint
+     resume_epoch = None
+     if args.resume:
++        # Modified by Renesas
++        if args.is_pruned_weight:
++            # Preparing for pruning the model with a pruning rate of 0.0
++            input_size = [MODEL_INPUT_SIZE]
++            pruning_layer_list = make_pruning_layer_list(model, 
++                                                         input_size=input_size)
++            print(f"pruning_layer_list = \n\t{pruning_layer_list}")
++            _ = Pruner(model, 
++                       pruning_layer_list=pruning_layer_list,
++                       final_pr=0.0)
++
+         resume_epoch = resume_checkpoint(
+             model,
+             args.resume,
+@@ -845,7 +910,22 @@ def main():
+         _logger.info(
+             f'Scheduled epochs: {num_epochs}. LR stepped per {"epoch" if lr_scheduler.t_in_epochs else "update"}.')
+ 
++    # Modified by Renesas
++    # Preparing for pruning the model
++    input_size = [MODEL_INPUT_SIZE]
++    pruning_layer_list = make_pruning_layer_list(model.module if args.distributed else model, 
++                                                 input_size=input_size)
++    print(f"pruning_layer_list = \n\t{pruning_layer_list}")
++    pruner = Pruner(model.module if args.distributed else model,
++                    pruning_layer_list=pruning_layer_list,
++                    final_pr=args.pruning_rate)
++
++    # Confirming the result of pruning.
++    print(get_model_info(model.module if args.distributed else model,
++                         input_size=input_size))
++
+     results = []
++
+     try:
+         for epoch in range(start_epoch, num_epochs):
+             if hasattr(dataset_train, 'set_epoch'):
+@@ -860,6 +940,7 @@ def main():
+                 optimizer,
+                 train_loss_fn,
+                 args,
++                pruner=pruner,
+                 lr_scheduler=lr_scheduler,
+                 saver=saver,
+                 output_dir=output_dir,
+@@ -951,6 +1032,7 @@ def train_one_epoch(
+         loss_fn,
+         args,
+         device=torch.device('cuda'),
++        pruner=None,
+         lr_scheduler=None,
+         saver=None,
+         output_dir=None,
+@@ -985,6 +1067,10 @@ def train_one_epoch(
+     optimizer.zero_grad()
+     update_sample_count = 0
+     for batch_idx, (input, target) in enumerate(loader):
++        # Modified by Renesas
++        # Update the pruning parameters
++        if pruner:
++            pruner.update()
+         last_batch = batch_idx == last_batch_idx
+         need_update = last_batch or (batch_idx + 1) % accum_steps == 0
+         update_idx = batch_idx // accum_steps
+@@ -1175,5 +1261,13 @@ def validate(
+     return metrics
+ 
+ 
++# Modified by Renesas
++def _validate_args(args):
++    if args.model_ema is True:
++        raise NotImplementedError("This scirpt does not support `model_ema` option.")
++    if args.model not in ["vit_base_patch16_224.orig_in21k"]:
++        raise NotImplementedError(f"This script does not support {args.model}.")
++
++
+ if __name__ == '__main__':
+     main()

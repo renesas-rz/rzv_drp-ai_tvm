@@ -14,7 +14,7 @@ Requirements are listed below.
 - Package : git
 - Evaluation Board: RZ/V2L EVK, RZ/V2M EVK, RZ/V2MA EVK
 - Related Software Version:
-  - [DRP-AI Translator V1.84](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
+  - [DRP-AI Translator V1.85 or lator](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
   - RZ/V2L
     - [RZ/V2L AI SDK v2.10](https://www.renesas.com/software-tool/rzv2l-ai-software-development-kit)
   - RZ/V2M, RZ/V2MA
@@ -32,7 +32,12 @@ Before installing DRP-AI TVM[^1], please follow the instruction below to install
 
 #### Install DRP-AI Translator
 
-Download the DRP-AI Translator from the Software section in [DRP-AI](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai#software) and install it by following the *User's Manual*.  
+Download the DRP-AI Translator from the Software section in [DRP-AI](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai#software) and install it by following the *User's Manual* as shown below.
+
+```sh
+./DRP-AI_Translator-v*-Linux-x86_64-Install
+export TRANSLATOR=${PWD}/drp-ai_translator_release/
+```
 
 #### Build and install RZ/V Software
 
@@ -42,14 +47,16 @@ Download the DRP-AI Translator from the Software section in [DRP-AI](https://www
 2. Unzip SDK.
 
   ```sh
-    unzip RTK0EF0160F02100SJ.zip */poky*sh
-    chmod a+x ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-smarc-rzv2l-toolchain-3.1.21.sh
+  apt update
+  apt install -y unzip
+  unzip RTK0EF0160F0*SJ.zip */poky*sh
+  chmod a+x ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-smarc-rzv2l-toolchain-*.sh
   ```
 
 3. Install SDK.
 
   ```sh
-    ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-smarc-rzv2l-toolchain-3.1.21.sh -y
+  ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-smarc-rzv2l-toolchain-*.sh -y
   ```
 
 ##### RZ/V2M, RZ/V2MA
@@ -73,19 +80,22 @@ To use the *DRP-AI Support Package*, *Linux Package* is required.
 ### 2. Clone the respository
 
 ```sh
+apt update
+apt install -y git
 git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git drp-ai_tvm
 ```
 
 ### 3. Set environment variables
+
 Run the following commands to set environment variables.
 Note that environment variables must be set every time when opening the terminal.
+
 ```sh
-export TVM_ROOT=<.../drp-ai_tvm>                    # Your own path to the cloned repository.
+export TVM_ROOT=$PWD/drp-ai_tvm                   # or path to your own cloned 
 export TVM_HOME=${TVM_ROOT}/tvm
 export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
-export SDK=</opt/poky/3.1.21>                       # Your own Linux SDK path.
-export TRANSLATOR=<.../drp-ai_translator_release/>  # Your own DRP-AI Translator path.
-export PRODUCT=<V2MA>                               # Product name (V2L, V2M, or V2MA)
+export SDK=/opt/poky/3.1.31/                      # Your own Linux SDK path.
+export PRODUCT=V2L                                # Product name (V2L, V2M, or V2MA)
 ```
 Please set the values in the table below to the PRODUCT variables according to Renesas Evaluation Board Kit you use.
 
@@ -96,6 +106,7 @@ Please set the values in the table below to the PRODUCT variables according to R
 | RZ/V2MA Evaluation Board Kit |   V2MA   |
 
 ### 4. Install the minimal pre-requisites
+
 ```sh
 # Install packagess
 apt update
@@ -106,17 +117,15 @@ DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake \
 libomp-dev libgtest-dev libgoogle-glog-dev libtinfo-dev zlib1g-dev libedit-dev \
 libxml2-dev llvm-8-dev g++-9 gcc-9 wget
 
-apt-get install -y python3-pip
-pip3 install --upgrade pip
-apt-get -y install unzip vim
 pip3 install decorator attrs scipy numpy==1.23.5 pytest
 pip3 install torch==1.8.0 torchvision==0.9.0 --index-url https://download.pytorch.org/whl/cpu
 pip3 install tensorflow tflite psutil typing-extensions==4.5.0
+pip3 install onnxruntime==1.18.1
 
 # Install onnx runtime
-wget https://github.com/microsoft/onnxruntime/releases/download/v1.16.1/onnxruntime-linux-x64-1.16.1.tgz -O /tmp/onnxruntime.tar.gz
+wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz -O /tmp/onnxruntime.tar.gz
 tar -xvzf /tmp/onnxruntime.tar.gz -C /tmp/
-mv /tmp/onnxruntime-linux-x64-1.16.1/ /opt/
+mv /tmp/onnxruntime-linux-x64-1.18.1/ /opt/
 ```
 
 ### 5. Setup DRP-AI TVM[^1] environment
@@ -153,7 +162,7 @@ wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/Dockerfile
 ### 3. Build docker image
 
 ```sh
-docker build -t drp-ai_tvm_v2ma_image --build-arg SDK="/opt/poky/3.1.21" --build-arg PRODUCT="V2MA" .
+docker build -t drp-ai_tvm_v2l_image_${USER} --build-arg PRODUCT="V2L" .
 ```
 
 Please set the values in the table below to the PRODUCT variables according to Renesas Evaluation Board Kit you use.
@@ -167,7 +176,7 @@ Please set the values in the table below to the PRODUCT variables according to R
 ### 4. Run docker image
 
 ```sh
-docker run -it --name drp-ai_tvm_v2ma_container -v $(pwd)/data:/drp-ai_tvm/data drp-ai_tvm_v2ma_image
+docker run -it --name drp-ai_tvm_v2l_container_${USER} -v $(pwd)/data:/drp-ai_tvm/data drp-ai_tvm_v2l_image_${USER}
 ```
 
 The local `$(pwd)/data` is mounted to `/drp-ai_tvm/data` on the Docker container by the above command option.  

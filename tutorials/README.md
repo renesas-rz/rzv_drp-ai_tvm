@@ -13,8 +13,10 @@ wget https://github.com/onnx/models/raw/main/validated/vision/classification/res
 ```
 
 ### Import libraries
+
 The compilation is done using python. The processing procedure in python is described below.   
 First, import libraries.
+
 ```py
 import os
 import onnx
@@ -30,14 +32,18 @@ from optparse import OptionParser
 ```
 
 ### Load pretraind model
+
 In this tutorial, downloaded onnx model is used to show sample compilation flow.
+
 ```py
 onnx_model = onnx.load_model("./resnet18-v1-7.onnx")
 ```
+
 If you want to know other sample case, please reference below tutorials.   
 [Compile Deep Learning Models](https://tvm.apache.org/docs/how_to/compile_models/index.html)
 
 ### Compile model with relay
+
 ```py
 input_node_name = "data"
 input_shape     =s[1,3,224,224]
@@ -57,11 +63,13 @@ drp_config_runtime = {
     "sdk_root": <SDK PATH>
 }
 ```
+
 The definition of "addr_map_start" is currently not working, so 0x0 is set.
 
 "toolchain_dir" and "sdk_root" is directories where DRP-AI Translator and SDK are installed, respectively.
 
 To make deploy files for runtime application, run build function.
+
 ```py
 # Define output directory name
 output_dir = "./resnet18_onnx"
@@ -74,7 +82,9 @@ drp.build(mod, \
           disable_concat = opts["disable_concat"]
 )
 ```
-After build operation, the following files will be generated.    
+
+After build operation, the following files will be generated.
+
 ```txt
 tutorials
  └── resnet18_onnx
@@ -82,7 +92,8 @@ tutorials
       ├─ deploy.params
       ├─ deploy.json
 ```
-These files are needed to run the run-time program on a evaluation board. See ["How to Run the Application"](../apps/README.md)  for how to deploy.   
+
+These files are needed to run the run-time program on a evaluation board. See ["How to Run the Application"](../apps/README.md)  for how to deploy.
 
 ----
 
@@ -90,8 +101,8 @@ These files are needed to run the run-time program on a evaluation board. See ["
 
 There are three types of sample scripts to compile an AI model.
 
-1. Compile script with onnx model [CPU and DRP-AI accelerator]   
-2. Compile script with pytorch model [CPU and DRP-AI accelerator]   
+1. Compile script with onnx model [CPU and DRP-AI accelerator]
+2. Compile script with pytorch model [CPU and DRP-AI accelerator]
 3. Compile script with onnx model [Only CPU]
 
 All scripts use the DRP-AI Pre-processing Runtime Compile Module to generate Object files for pre-processing, which is `preprocess` directory in the output directory.  
@@ -100,8 +111,9 @@ For more details on DRP-AI Pre-processing Runtime, please refer to its [Document
 ## 1. Compile onnx models
 
 ### 1.1. Example using Resnet from the official ONNX model zoo
+
 ```sh
-cd ./tutorials/
+cd $TVM_ROOT/tutorials/
 # Download onnx model from official ONNX model zoo
 wget https://github.com/onnx/models/raw/main/validated/vision/classification/resnet/model/resnet18-v1-7.onnx
 python3 compile_onnx_model.py \
@@ -110,6 +122,7 @@ python3 compile_onnx_model.py \
     -s 1,3,224,224 \
     -i data
 ```
+
 ----
 ## 2. Compile pytorch models
 ### 2.1. Example using Resnet from torchvision
@@ -126,7 +139,9 @@ python3 compile_pytorch_model.py \
 ```
 
 ----
+
 ## 3. Compile tensorflow models
+
 ### 3.1. Example using Resnet from TensorFlow Hub
 
 ```sh

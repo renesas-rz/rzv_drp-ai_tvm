@@ -2,7 +2,7 @@
 # How to use the DRP-AI Extension Pack
 This document explains the contents of pruning then retraining by using the DRP-AI Extension Pack with ResNet50 provided by [torchvision framework](https://pytorch.org/vision/stable/index.html).
 
-Please read [README.md](./../../installing/README.md) in advance and make docker image.
+Please read [README.md](./../../setup/README.md) in advance and make docker image.
 
 This tutorial will perform 5 steps like below.
 
@@ -130,6 +130,7 @@ Test[50000/50000] ValidAcc=72.670%    Test Finish
 ```
 
 (Option) If test the pruned model with pytorch format, please run the following command.
+
 ```bash
 python3 retrain_with_pruning.py --data-path data \
                                 --resume <path/to>model_89.pth \
@@ -137,14 +138,16 @@ python3 retrain_with_pruning.py --data-path data \
                                 --test-only
 ```
 
-
 # FAQ
+
 ### How to retrain with multi gpus
+
 The script does not support retraining with multi gpus.
 
-
 # Tips
+
 ### How to find difference between code for initial training and code for pruning then retraining
+
 Please execute the following command to find difference between code for initial training and code for pruning then retraining. 
 
 You can find how to add the DRP-AI Extension Pack APIs to code for initial training.
@@ -152,4 +155,7 @@ You can find how to add the DRP-AI Extension Pack APIs to code for initial train
 ```bash
 diff -u train.py retrain_with_pruning.py
 ```
-[Compiling model for DRP-AI TVM(RZ/V2H) ->](./../../../tutorials/tutorial_RZV2H.md)
+
+[Compiling model for DRP-AI TVM](./../../../tutorials/tutorial_RZV2H.md)[^1] [(RZ/V2H) ->](./../../../tutorials/tutorial_RZV2H.md)
+
+[^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.

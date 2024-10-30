@@ -1,0 +1,66 @@
+{
+    "res50_interhand3d": {
+        "config": "mmpose/configs/hand/3d_kpt_sview_rgb_img/internet/interhand3d/res50_interhand3d_all_256x256.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/hand3d/internet/res50_intehand3dv1.0_all_256x256-42b7f2ac_20210702.pth"
+    },
+    "hrnetv2": {
+        "config": "mmpose/configs/face/2d_kpt_sview_rgb_img/topdown_heatmap/300w/hrnetv2_w18_300w_256x256.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/face/hrnetv2/hrnetv2_w18_300w_256x256-eea53406_20211019.pth"
+    },
+    "hourglass52": {
+        "config": "mmpose/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/hourglass52_coco_256x256.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/top_down/hourglass/hourglass52_coco_256x256-4ec713ba_20200709.pth"
+    },
+    "vipnas_res50": {
+        "config": "mmpose/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/vipnas_res50_coco_256x192.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/top_down/vipnas/vipnas_res50_coco_256x192-cc43b466_20210624.pth"
+    },
+    "deeppose_res50_coco": {
+        "config": "mmpose/configs/body/2d_kpt_sview_rgb_img/deeppose/coco/res50_coco_256x192.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/top_down/deeppose/deeppose_res50_coco_256x192-f6de6c0e_20210205.pth"
+    },
+    "simplebaseline3d": {
+        "config": "mmpose/configs/body/3d_kpt_sview_rgb_img/pose_lift/h36m/simplebaseline3d_h36m.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/body3d/simple_baseline/simple3Dbaseline_h36m-f0ad73a4_20210419.pth"
+    },
+    "associative_mobilenetv2": {
+        "config": "mmpose/configs/body/2d_kpt_sview_rgb_img/associative_embedding/coco/mobilenetv2_coco_512x512.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/bottom_up/mobilenetv2_coco_512x512-4d96e309_20200816.pth"
+    },
+    "rsn18_coco": {
+        "config": "mmpose/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/rsn18_coco_256x192.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/top_down/rsn/rsn18_coco_256x192-72f4b4a7_20201127.pth"
+    },
+    "litehrnet": {
+        "config": "mmpose/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/litehrnet_18_coco_256x192.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/top_down/litehrnet/litehrnet18_coco_256x192-6bace359_20211230.pth"
+    },
+    "higherhrnet": {
+        "config": "mmpose/configs/body/2d_kpt_sview_rgb_img/associative_embedding/coco/higherhrnet_w32_coco_512x512.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/bottom_up/higher_hrnet32_coco_512x512-8ae85183_20200713.pth"
+    },
+    "voxelpose": {
+        "config": "mmpose/configs/body/3d_kpt_mview_rgb_img/voxelpose/panoptic/voxelpose_prn64x64x64_cpn80x80x20_panoptic_cam5.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/body3d/voxelpose/voxelpose_prn64x64x64_cpn80x80x20_panoptic_cam5-545c150e_20211103.pth"
+    },
+    "hmr_res50": {
+        "config": "mmpose/configs/body/3d_mesh_sview_rgb_img/hmr/mixed/res50_mixed_224x224.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/mesh/hmr/hmr_mesh_224x224-c21e8229_20201015.pth"
+    },
+    "simplebaseline2d": {
+        "config": "mmpose/configs/body/2d_kpt_sview_rgb_img/topdown_heatmap/coco/res50_coco_256x192.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/top_down/resnet/res50_coco_256x192-ec54d7f3_20200709.pth"
+    },
+    "yolox_s": {
+        "config": "mmdetection/configs/yolox/yolox_s_8x8_300e_coco.py",
+        "checkpoint": "https://download.openmmlab.com/mmdetection/v2.0/yolox/yolox_s_8x8_300e_coco/yolox_s_8x8_300e_coco_20211121_095711-4592a793.pth"
+    },
+    "centernet_resnet18": {
+        "config": "mmdetection/configs/centernet/centernet_resnet18_dcnv2_140e_coco.py",
+        "checkpoint": "https://download.openmmlab.com/mmdetection/v2.0/centernet/centernet_resnet18_dcnv2_140e_coco/centernet_resnet18_dcnv2_140e_coco_20210702_155131-c8cd631f.pth"
+    },
+    "pose_hrnet_w18_dark": {
+        "config": "mmpose/configs/face/2d_kpt_sview_rgb_img/topdown_heatmap/coco_wholebody_face/hrnetv2_w18_coco_wholebody_face_256x256_dark.py",
+        "checkpoint": "https://download.openmmlab.com/mmpose/face/darkpose/hrnetv2_w18_coco_wholebody_face_256x256_dark-3d9a334e_20210909.pth"
+    }
+}

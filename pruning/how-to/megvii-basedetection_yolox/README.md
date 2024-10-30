@@ -1,7 +1,7 @@
 # How to use the AI model with the DRP-AI Extension Pack
 This document explains the contents of pruning then retraining by using the DRP-AI Extension Pack with YOLOX-s provided by [Megvii-BaseDetection framework](https://github.com/Megvii-BaseDetection/YOLOX/tree/0.3.0).
 
-Please read [README.md](./../../installing/README.md) in advance and make docker image.
+Please read [README.md](./../../setup/README.md) in advance and make docker image.
 
 
 This tutorial will perform 5 steps like below.

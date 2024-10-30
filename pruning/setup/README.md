@@ -8,7 +8,7 @@ If you install the DRP-AI Extension Pack to host machine directly, please refer 
 > If you only want to validate RZ/V2H operation, please skip the `pruning then retraining` step.
 
 > **Note2:**  
-> If you have set up your development environment using docker such as DRP-AI TVM installation with Docker, exit the container once and create a docker image for this installation.
+> If you have set up your development environment using docker such as DRP-AI TVM[^1] installation with Docker, exit the container once and create a docker image for this installation.
 
 #### 1. Preparation
 Please prepare the following file from this [Renesas Web Site](https://www.renesas.com/us/en/software-tool/drp-ai-extension-pack-pruning-tool).
@@ -44,3 +44,5 @@ docker images | grep drpai_ext_pt_img
 
 ---
 [Pruning and retraining by DRP-AI Extension Package ->](./../how-to/torchvision_resnet50/README.md)
+
+[^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
