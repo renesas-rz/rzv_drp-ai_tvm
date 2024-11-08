@@ -86,7 +86,7 @@ for file in "${expected_result_files[@]}"; do
 done
 
 cd ${TOOL_DIR}
-python3 DRP-AI_Translator/run.py ${CNAME} --onnx ${work_dir}/${ONNX_FILE} --prepost ${work_dir}/${PREPOST_FILE} --s_addr ${START_ADDR} ${SPARSE_OPT}
+python3 DRP-AI_Translator/run.py ${CNAME} --onnx ${work_dir}/${ONNX_FILE} --prepost ${work_dir}/${PREPOST_FILE} --s_addr ${START_ADDR} ${SPARSE_OPT} --disable_onnxsim
 
 cd ${work_dir}
 mv ${TOOL_DIR}/output/${CNAME}/* ${OUT}/
