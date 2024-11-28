@@ -143,39 +143,22 @@ cp synset_words_imagenet.txt.bak synset_words_imagenet.txt
 
 The application runs the ResNet inference on [sample.bmp](exe/sample.bmp).
 
+### 3. Tips for Faster Running
+
+**Note**: You can specify the number of threads to be used in runtime CPU processing with the `TVM_NUM_THREADS` variable. Use this if you want to control the CPU load. Specify it as follows before running the application (below is an example of using 1 thread):
+
+```bash
+export TVM_NUM_THREADS=1
+```
+
+This is particularly effective in cases where there are very few operators being inferred on the CPU.
+
 <!-- <img src="./exe/sample.bmp" width=350>   -->
 <!-- GitLabだとBMP画像が表示されない。GitHubならOK -->
 
 ## Application Specification
 
-### Model Information
-
-ResNet18: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/classification/resnet)
-
-### Pre-processing
-
-The application uses DRP-AI Pre-processing Runtime as pre-processing.  
-For more details on DRP-AI Pre-processing Runtime, please refer to [DRP-AI Pre-processing Runtime Documentation](../docs/PreRuntime.md).  
-
-Processing details are originally defined in the compile script provided in [Compile AI models](../tutorials).  
-In this example, `tutorial_app.cpp` changes its parameter to run following preprocessing.  
-(**Bold** is changed parameter.)
-
-- Input data  
-  - Shape: **640**x**480**x3  
-  - Format: **BGR**  
-  - Order: HWC  
-  - Type: uint8  
-- Output data  
-  - Shape: 224x224x3  
-  - Format: **RGB**  
-  - Order: CHW  
-  - Type: float  
-- Preprocessing operations:  
-  - Resize  
-  - Normalize  
-    - cof_add =[-123.6875, -116.2500, -103.5000]  
-    - cof_mul =[0.0171, 0.0175, 0.0174]  
+Same as for V2M. See [here](README.md#application-specification).
 
 ---  
 
@@ -183,7 +166,7 @@ In this example, `tutorial_app.cpp` changes its parameter to run following prepr
 
 ## DRP-AI TVM[^1] Runtime Library API
 
-Regarding the list of DRP-AI TVM[^1] Runtime API used in the application, please see [MERA Wrapper API References](../docs/Runtime_API.md)
+Regarding the list of DRP-AI TVM[^1] Runtime API used in the application, please see [MERA Wrapper API References](../docs/Runtime_Wrap.md)
 
 ## How to install OpenCV to Linux Package
 

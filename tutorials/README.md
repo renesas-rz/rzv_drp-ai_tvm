@@ -124,7 +124,9 @@ python3 compile_onnx_model.py \
 ```
 
 ----
+
 ## 2. Compile pytorch models
+
 ### 2.1. Example using Resnet from torchvision
 
 ```sh
@@ -137,6 +139,8 @@ python3 compile_pytorch_model.py \
     -o resnet18_torch \
     -s 1,3,224,224
 ```
+
+**Note**: Only TorchScripted model is supported. See [here for reference](https://tvm.apache.org/docs/how_to/compile_models/from_pytorch.html).
 
 ----
 

@@ -45,7 +45,7 @@ RUN git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git  ${TV
 
 # Set environment variables
 ENV TVM_HOME="${TVM_ROOT}/tvm"
-ENV PYTHONPATH="$TVM_HOME/python:${PYTHONPATH}"
+ENV PYTHONPATH="$TVM_HOME/python"
 RUN echo 'export SDK="/opt/poky/`ls /opt/poky/`"' >> ~/.bashrc
 ENV TRANSLATOR="/opt/DRP-AI_Translator_i8/translator/"
 ENV QUANTIZER="/opt/DRP-AI_Translator_i8/drpAI_Quantizer/"

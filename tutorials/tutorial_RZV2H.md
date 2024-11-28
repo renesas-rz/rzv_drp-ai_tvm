@@ -5,10 +5,10 @@ The DRP-AI Extension Pack is pruning tools for accelerating the AI model. For mo
 # Compile with Sample Scripts (RZ/V2H)
 There are three types of sample scripts to compile an AI model.
 
-1. Compile script with onnx model [CPU and DRP-AI accelerator]
-2. Compile script with pytorch model [CPU and DRP-AI accelerator]
-3. Compile script with tensorflow model [CPU and DRP-AI accelerator]
-4. Compile script with onnx model [Only CPU]
+1. Compile script with onnx model \[CPU and DRP-AI accelerator\]
+2. Compile script with pytorch model \[CPU and DRP-AI accelerator\]
+3. Compile script with tensorflow model \[CPU and DRP-AI accelerator\]
+4. Compile script with onnx model \[Only CPU\]
 
 All scripts use the DRP-AI Pre-processing Runtime Compile Module to generate Object files for pre-processing, which is `preprocess` directory in the output directory.  
 For more details on DRP-AI Pre-processing Runtime, please refer to its [Documentation](../docs/PreRuntime.md).
@@ -48,6 +48,7 @@ python3 compile_onnx_model_quant.py \
 -->
 
 ## 2. Compile pytorch models
+
 ### 2.1. Example using Resnet from torchvision
 
 ```sh
@@ -60,7 +61,8 @@ pip3 install torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cp
 python3 compile_pytorch_model_quant.py ./resnet18.pt -o resnet18_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,3,224,224
 ```
 
-----
+**Note**: Only TorchScripted model is supported. See [here for reference](https://tvm.apache.org/docs/how_to/compile_models/from_pytorch.html).
+
 ## 3. Compile tensorflow models
 
 ### 3.1. Example using Resnet from TensorFlow Hub
@@ -180,8 +182,9 @@ Interpreter mode is inference-simulation function supported by DRP-AI TVM[^1].
 You can refer inference results from quantized models on PC.  
 
 A pair of input and inferenced outputs is saved in `./"OUTPUT"/interpreter_out` when you run a sample compile script.  
-You can verify the compiled model to make sure there are no failures in the compilation process.   
-[Note] The interpreter mode results may include small errors compared to the outputs from RZ/V.  
+You can verify the compiled model to make sure there are no failures in the compilation process.
+
+**Note**: The interpreter mode results may include small errors compared to the outputs from RZ/V.  
 
 Interpreter mode saves input and inference results as below.  
 ``` bash

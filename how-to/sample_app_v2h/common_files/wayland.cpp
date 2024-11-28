@@ -344,7 +344,7 @@ uint8_t Wayland::init(uint32_t idx, uint32_t w, uint32_t h, uint32_t c, bool ove
     // enable Alpha Blending
     if (img_overlay == true){
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     glUniform1i(glGetUniformLocation(sShader.unProgram, "texture"), 0);

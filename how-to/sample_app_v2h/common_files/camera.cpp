@@ -50,10 +50,10 @@ std::string format(const std::string& fmt, Args ... args)
 int8_t Camera::start_camera()
 {
     int8_t ret = 0;
-    int32_t i = 0;
     int32_t n = 0;
     
 #if INPUT_CAM_TYPE == 1
+    int32_t i = 0;
     std::string sw_cmd1 = format("media-ctl -d /dev/media0 -V \"\'rzg2l_csi2 16000400.csi20\':1 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
     std::string sw_cmd2 = format("media-ctl -d /dev/media0 -V \"\'imx462 0-001f\':0 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
     const char* commands[6] =

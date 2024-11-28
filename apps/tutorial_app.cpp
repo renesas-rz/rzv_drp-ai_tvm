@@ -89,40 +89,6 @@ float float16_to_float32(uint16_t a)
 }
 
 /*****************************************
-* Function Name     : LoadBinary
-* Description       : Function by Edgecortex. Load bin file into std::vector.
-* Arguments         : bin_file = *.bin filename to be read
-* Return value      : std::vector<T> = file content
-******************************************/
-template <typename T>
-static std::vector<T> LoadBinary(const std::string &bin_file)
-{
-    std::ifstream file(bin_file.c_str(), std::ios::in | std::ios::binary);
-    if (!file.is_open())
-    {
-        LOG(FATAL) << "unable to open file " + bin_file;
-    }
-
-    file.seekg(0, file.end);
-    const uint32_t file_size = static_cast<uint32_t>(file.tellg());
-    file.seekg(0, file.beg);
-
-    const auto file_buffer = std::unique_ptr<char>(new char[file_size]);
-    file.read(file_buffer.get(), file_size);
-
-    if (file.bad() || file.fail())
-    {
-        LOG(FATAL) << "error occured while reading the file";
-    }
-
-    file.close();
-
-    auto ptr = reinterpret_cast<T *>(file_buffer.get());
-    const auto num_elements = file_size / sizeof(T);
-    return std::vector<T>(ptr, ptr + num_elements);
-}
-
-/*****************************************
 * Function Name     : load_label_file
 * Description       : Load label list text file and return the label list that contains the label.
 * Arguments         : label_file_name = filename of label list. must be in txt format
@@ -246,7 +212,7 @@ int8_t read_bmp(std::string filename, uint32_t width, uint32_t height, uint32_t 
 * Function Name : get_drpai_start_addr
 * Description   : Function to get the start address of DRPAImem.
 * Arguments     : -
-* Return value  : uint32_t = DRPAImem start address in 32-bit.
+* Return value  : uint64_t = DRPAImem start address in 64-bit.
 ******************************************/
 uint64_t get_drpai_start_addr()
 {
@@ -289,7 +255,6 @@ static double timedifference_msec(struct timespec t0, struct timespec t1)
 
 int main(int argc, char **argv)
 {
-    uint8_t ret = 0;
     /* Label list file for ImageNet*/
     std::string labels = "synset_words_imagenet.txt";
     /* Map to store label list */
@@ -319,15 +284,15 @@ int main(int argc, char **argv)
     if (label_file_map.empty())
     {
         std::cerr << "[ERROR] Label file : failed to load " << labels << std::endl;
-        return 0;
+        return -1;
     }
 
     /*Load pre_dir object to DRP-AI */
-    ret = preruntime.Load(pre_dir);
-    if (0 < ret)
+    uint8_t ret_preld = preruntime.Load(pre_dir);
+    if (ret_preld != 0)
     {
         std::cerr << "[ERROR] Failed to run Pre-processing Runtime Load()." << std::endl;
-        return 0;
+        return -1;
     }
 
     /*Load model_dir structure and its weight to runtime object */
@@ -350,11 +315,11 @@ int main(int argc, char **argv)
     {
         /* Pre-processing */
         /* Read image data from file */
-        ret = read_bmp(filename, INPUT_IMAGE_W, INPUT_IMAGE_H, INPUT_IMAGE_C, img_buffer);
-        if (ret > 0)
+        uint8_t ret_bmp = read_bmp(filename, INPUT_IMAGE_W, INPUT_IMAGE_H, INPUT_IMAGE_C, img_buffer);
+        if (ret_bmp != 0)
         {
             std::cerr << "[ERROR] Failed to read image :" << filename << std::endl;
-            return 0;
+            return -1;
         }
         s_preproc_param_t in_param;
         in_param.pre_in_addr    = (uint64_t)img_buffer;
@@ -366,12 +331,11 @@ int main(int argc, char **argv)
         timespec_get(&start_time, TIME_UTC);
 
         /*Run pre-processing*/
-        //ret = preruntime.Pre(&output_ptr, &out_size, img_buffer);
-	    ret = preruntime.Pre(&in_param, &output_ptr, &out_size);
-        if (0 < ret)
+	    uint8_t ret_prepre = preruntime.Pre(&in_param, &output_ptr, &out_size);
+        if (ret_prepre != 0)
         {
             std::cerr << "[ERROR] Failed to run Pre-processing Runtime Pre()." << std::endl;
-            return 0;
+            return -1;
         }
 
         timespec_get(&end_time, TIME_UTC);
@@ -386,12 +350,12 @@ int main(int argc, char **argv)
     {
         std::cerr << "[ERROR] Input data type : FP16." << std::endl;
         /*If your model input data type is FP16, use std::vector<uint16_t> for reading input data. */
-        return 0;
+        return -1;
     }
     else
     {
         std::cerr << "[ERROR] Input data type : neither FP32 nor FP16." << std::endl;
-        return 0;
+        return -1;
     }
 
     timespec_get(&start_time, TIME_UTC);

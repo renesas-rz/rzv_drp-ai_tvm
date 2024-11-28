@@ -7,19 +7,24 @@
 [DRP-AI TVM](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai/ai-tool-drp-ai-tvm) [^1] is Machine Learning Compiler plugin for [Apache TVM](https://github.com/apache/tvm/) with AI accelerator [DRP-AI](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai) provided by Renesas Electronics Corporation.  
 
 ## License
-(C) Copyright EdgeCortix, Inc. 2022   
-(C) Copyright Renesas Electronics Corporation 2022   
-Contributors Licensed under an Apache-2.0 license.   
+
+(C) Copyright EdgeCortix, Inc. 2022
+(C) Copyright Renesas Electronics Corporation 2022
+Contributors Licensed under an Apache-2.0 license.
 
 ## Supported Embedded Platforms
+
 - Renesas RZ/V2L Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2l-contents-guide))
 - Renesas RZ/V2M Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2m-contents-guide))
 - Renesas RZ/V2MA Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2ma-contents-guide))
 - Renesas RZ/V2H Evaluation Board Kit
 
 ## Introduction
-### Overview   
-This compiler stack is an extension of the DRP-AI Translator to the TVM backend. CPU and DRP-AI can work together for the inference processing of the AI models.  
+
+### Overview
+
+This compiler stack is an extension of the DRP-AI Translator to the TVM backend. CPU and DRP-AI can work together for the inference processing of the AI models.
+For more information on the features of DRP-AI TVM and various content (documents, demo videos, training videos, GUI demos, etc.), please refer to the [DRP-AI TVM on RZ/V Series (GitHub.IO) page](https://renesas-rz.github.io/rzv_drp-ai_tvm/).
 
 <img src=./img/tool_stack.png width=350>
 
@@ -31,7 +36,7 @@ This compiler stack is an extension of the DRP-AI Translator to the TVM backend.
 |apps |Sample inference application on the target board|
 |setup | Setup scripts for building a TVM environment |
 |obj |Pre-build runtime binaries|
-|docs |Documents, i.e., Model list and API list|
+|docs |"Model List", "Error List", documentation of TVM API wrapper for sample codes, and etc.|
 |img |Image files used in this document|
 |tvm | TVM repository from GitHub |
 |3rdparty | 3rd party tools |
@@ -64,7 +69,6 @@ You also need to copy the C++ inference application and DRP-AI TVM[^1] Runtime L
 | RZ/V2H |
 |:---|
 |<img src=./img/deploy_flow_V2H.png width=500>|
-
 
 Following pages show the example to compile the ResNet18 model and run it on the target board.  
 

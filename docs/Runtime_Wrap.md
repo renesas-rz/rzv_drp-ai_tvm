@@ -1,5 +1,5 @@
 
-# MERA Wrapper API References
+# How to use MERA Runtime Wrapper
 
 ## List of functions
 
@@ -94,35 +94,55 @@ bool MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir,
  - Run AI model graph with profile 
 
 ### Format
+
 ```c++
 #include "MeraDrpRuntimeWrapper.h"
 
 void MeraDrpRuntimeWrapper::ProfileRun(const std::string& profile_table, 
                                        const std::string& profile_csv);
+void MeraDrpRuntimeWrapper::ProfileRun(const std::string& profile_table,
+                                       const std::string& profile_csv, 
+                                       int freq_index); // Works only on the RZ/V2H.
 ```
+
 ### Note
+
 - **ProfileRun()** method runs the runtime and saves the runtime profiling results as a file. The profile result is information summarizing the execution time for each subgraph generated when the AI model is automatically divided into CPU and DRP-AI. The subgraph assigned to DRP-AI uses the name "tvmgen_default_tvmgen_default_mera_drp_*".
-### Return   
+  - In the case of RZ/V2H, you can specify the `freq_index` argument to lower the operating frequency of the DRP-AI hardware. For example, setting `freq_index` to **5** will operate the DRP-AI at 315MHz.
+
+### Return
+
 - None
 
 ----
+
 ## Run
- - Run AI model graph.
+
+- Run AI model graph.
 
 ### Format
+
 ```c++
 #include "MeraDrpRuntimeWrapper.h"
 
 void MeraDrpRuntimeWrapper::Run(void);
+void MeraDrpRuntimeWrapper::Run(int freq_index); // Works only on the RZ/V2H.
 ```
+
 ### Note
- - **Run()** method performs inference. 
-### Return   
- - None
+
+- **Run()** method performs inference.
+  - In the case of RZ/V2H, you can specify the `freq_index` argument to lower the operating frequency of the DRP-AI hardware. For example, setting `freq_index` to **5** will operate the DRP-AI at 315MHz.
+
+### Return
+
+- None
 
 ----
+
 ## SetInput
- - Copy data to the input layer.
+
+- Copy data to the input layer.
 
 ### Format
 ```c++

@@ -131,12 +131,32 @@ For reference, processing times are shown below.
 | RZ/V2M  Evaluation Board Kit |       3.99 msec     |     17.76 msec     |
 | RZ/V2MA Evaluation Board Kit |       3.83 msec     |     17.69 msec     |
 
+For reference, processing times are shown below.  
+  
+| Renesas Evaluation Board Kit | Pre Processing Time | AI Processing Time |
+|------------------------------|:-------------------:|:------------------:|
+| RZ/V2L  Evaluation Board Kit |       4.25 msec     |     27.99 msec     |
+| RZ/V2M  Evaluation Board Kit |       3.99 msec     |     17.76 msec     |
+| RZ/V2MA Evaluation Board Kit |       3.83 msec     |     17.69 msec     |
+
+### 3. Tips for Faster Running
+
+**Note**: You can specify the number of threads to be used in runtime CPU processing with the `TVM_NUM_THREADS` variable. Use this if you want to control the CPU load. Specify it as follows before running the application (below is an example of using 1 thread):
+
+```bash
+export TVM_NUM_THREADS=1
+```
+
+This is particularly effective in cases where there are very few operators being inferred on the CPU.
+
 ## Application Specification
 
 ### Model Information
+
 ResNet18: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/classification/resnet)
 
 ### Pre-processing
+
 The application uses DRP-AI Pre-processing Runtime as pre-processing.  
 For more details on DRP-AI Pre-processing Runtime, please refer to [DRP-AI Pre-processing Runtime Documentation](../docs/PreRuntime.md).  
 
@@ -145,25 +165,25 @@ In this example, `tutorial_app.cpp` changes its parameter to run following prepr
 (**Bold** is changed parameter.)
 
 - Input data  
-    - Shape: **640**x**480**x3  
-    - Format: **BGR**  
-    - Order: HWC  
-    - Type: uint8  
+  - Shape: **640**x**480**x3  
+  - Format: **BGR**  
+  - Order: HWC  
+  - Type: uint8  
 - Output data  
-    - Shape: 224x224x3  
-    - Format: **RGB**  
-    - Order: CHW  
-    - Type: float  
+  - Shape: 224x224x3  
+  - Format: **RGB**  
+  - Order: CHW  
+  - Type: float  
 - Preprocessing operations:  
-    - Resize  
-    - Normalize  
-        - cof_add =[-123.6875, -116.2500, -103.5000]  
-        - cof_mul =[0.0171, 0.0175, 0.0174]  
+  - Resize  
+  - Normalize  
+    - cof_add =[-123.6875, -116.2500, -103.5000]  
+    - cof_mul =[0.0171, 0.0175, 0.0174]  
 
 ---  
 # Appendix
 ## DRP-AI TVM[^1] Runtime Library API
-Regarding the list of DRP-AI TVM[^1] Runtime API used in the application, please see [MERA Wrapper API References](../docs/Runtime_API.md)
+Regarding the list of DRP-AI TVM[^1] Runtime API used in the application, please see [MERA Wrapper API References](../docs/Runtime_Wrap.md)
 
 ## How to install OpenCV to Linux Package
 As a preparation, it is required to setup the Build Environment with Linux Package and DRP-AI Support Package.  
