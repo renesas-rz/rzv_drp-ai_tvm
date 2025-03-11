@@ -14,7 +14,7 @@ This page explains about Classification in the [sample application](../../../../
 <img src=./img/googlenet.jpg width=500>  
 
 ## Model Information
-- GoogleNet: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/classification/inception_and_googlenet/googlenet) googlenet-9.onnx  
+- GoogleNet: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/classification/inception_and_googlenet/googlenet) googlenet-9.onnx  
 Dataset:  [ILSVRC2014](https://image-net.org/challenges/LSVRC/2014/)  
 Input size: 1x3x224x224  
 Output size: 1x1000  
@@ -24,7 +24,7 @@ To run the Classification, `googlenet_onnx` Model Object is required.
 Follow the instuction below to prepare the Model Object.  
 
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
-2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/classification/inception_and_googlenet/googlenet).  
+2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/classification/inception_and_googlenet/googlenet).  
 3. Place the onnx file in `$TVM_HOME/../tutorials`.
 4. Change the pre-processing details as shown below.  
 Before

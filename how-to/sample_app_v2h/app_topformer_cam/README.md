@@ -2,7 +2,7 @@
 
 ## Build the application
 
-1. Please refer to [Application Example for V2H](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
+1. Please refer to [Application Example for V2H and V2N](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
 
     ```bash
     cd $TVM_ROOT/how-to/sample_app_v2h/app_topformer_cam/src
@@ -19,10 +19,6 @@
 ## AI models
 
 This sample only uses [topformer](https://github.com/hustvl/TopFormer?tab=readme-ov-file).
-<!---
-[The ready-to-use onnx file is here.](./deeplabv3_513x513.onnx)
-githubにはリポジトリ総量制限(1G/5G)や単体ファイルサイズ制限(100M)があり、余裕がないのでユーザ自身で生成できるonnxは置かないのが望ましい
---->
 
 ```bash
 cd $TVM_ROOT/tutorials
@@ -63,10 +59,14 @@ tar cvfz sample_topformer.tar.gz sample_topformer_cam/
 
 ### 1. Connecting Camera and Display
 
-- Camera : Use a MIPI camera
-  - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
-  - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
+- Camera
+  - Use a MIPI camera:
+    - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
+    - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
     <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
+  - Use a USB camera:
+    - Please connect USB camera as shown below on the EVK board
+      <img src=./img/hw_conf_v2h.png width=700>
 - Display : Please connect to the HDMI port on the EVK board
 
 ### 2. **(On RZ/V Board)** Copy and Try it  
@@ -124,21 +124,24 @@ The `<timestamp>_app_topformer_cam.log` file is to be generated under the `logs`
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 2
 ```
 
-## Note   
+## Note
 
 ### Limit the number of CPU thread for AI model inference
+
 In this topformer sample application, the number of CPU threads used for AI model inference is set to 2 to maximize the performance of the demo application including camera input and image output. You can change the maximum number of CPU threads from 1 to 4. A below command is a sample to set the number of thread to 2.
 
-```
+```bash
 export TVM_NUM_THREADS=2
 ```
 
-### Pseudo error message in compliation   
-```
+### Pseudo error message in compliation
+
+```text
 ...
 Error: drpai_quantize.py failed
 However, the output file exists! The quantization process continued.
 ...
 ```
+
 Above error message is shown during compile process at several time.
 However, above error does not affect the result of compilation for topformer model. Please ignore it.

@@ -7,7 +7,7 @@ This directory contains the solution to specific problems related to DRP-AI TVM[
   - [Index](#index)
   - [AI Sample Application](#ai-sample-application)
   - [Tips](#tips)
-- To use the sample application for **RZ/V2H**, [see here.](./sample_app_v2h/README.md)
+- To use the sample application for **RZ/V2H and RZ/V2N**, [see here.](./sample_app_v2h/README.md)
 
 
 ## AI Sample Application

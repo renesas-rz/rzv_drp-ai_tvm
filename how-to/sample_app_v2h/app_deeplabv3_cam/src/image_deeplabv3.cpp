@@ -278,15 +278,15 @@ void Image::draw_line2(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t 
 ******************************************/
 void Image::draw_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color)
 {
-    int32_t x_min = x;
-    int32_t y_min = y;
-    int32_t x_max = x + w;
-    int32_t y_max = y + h;
+    int32_t x_min = x - round(w / 2.);
+    int32_t y_min = y - round(h / 2.);
+    int32_t x_max = x + round(w / 2.) - 1;
+    int32_t y_max = y + round(h / 2.) - 1;
     /* Check the bounding box is in the image range */
     x_min = x_min < 1 ? 1 : x_min;
-    x_max = ((img_w - 2) < x_max) ? (img_w - 2) : x_max;
+    x_max = (((int32_t)img_w - 2) < x_max) ? ((int32_t)img_w - 2) : x_max;
     y_min = y_min < 1 ? 1 : y_min;
-    y_max = ((img_h - 2) < y_max) ? (img_h - 2) : y_max;
+    y_max = (((int32_t)img_h - 2) < y_max) ? ((int32_t)img_h - 2) : y_max;
 
     /* Draw the bounding box */
     draw_line(x_min, y_min, x_max, y_min, color);
@@ -319,7 +319,7 @@ void Image::convert_format()
     uint8_t* pd = img_buffer[buf_id];
     uint8_t buffer[img_w * img_h * out_c];
     int pix_count = 0;
-    for (int i = 0; i < img_h * img_w / 2; i++)
+    for (uint32_t i = 0; i < img_h * img_w / 2; i++)
     {
         int y0 = (int)pd[0] - 16;
         int u0 = (int)pd[1] - 128;
@@ -360,16 +360,21 @@ uint8_t Image::Clip(int value)
     return value;
 }
 
-
 /*****************************************
 * Function Name : convert_size
 * Description   : Scale down the input data (1920x1080) to the output data (1280x720) using OpenCV.
 * Arguments     : -
+*                 in_w = width of current buffered image, which is mainly camera captured image.
+*                 resize_w = width of resized image, which is mainly displayed on HDMI.
+*                 in_h = height of current buffered image, which is mainly camera captured image.
+*                 resize_h = height of resized image, which is mainly displayed on HDMI.
+*                 is_padding = whether padding or not between resized image resolution and HDMI resolution.
 * Return value  : -
 ******************************************/
-void Image::convert_size(int in_w, int resize_w, bool is_padding)
+void Image::convert_size(int in_w, int resize_w, int in_h, int resize_h, bool is_padding)
 {
-    if (in_w == resize_w)
+    // Return if resizing and padding is unnecessary
+    if ( in_w == resize_w && in_h == resize_h && !is_padding )
     {
         return;
     }
@@ -381,20 +386,34 @@ void Image::convert_size(int in_w, int resize_w, bool is_padding)
 #endif // DEBUG_TIME_FLG
 
     cv::Mat org_image(img_h, img_w, CV_8UC4, img_buffer[buf_id]);
+    cv::Mat dst_image = org_image;  // shallow copy
     cv::Mat resize_image;
-    /* Resize */
-    cv::resize(org_image, resize_image, cv::Size(), 1.0 * resize_w / in_w, 1.0 * resize_w / in_w);
+    cv::Mat padding_image;
+
+    if ( in_w != resize_w && in_h != resize_h )
+    {
+        /* Use "INTER_NEAREST" because the output data will be resized to twice the original size in both horizontal and vertical directions */
+        cv::resize(dst_image, resize_image, cv::Size(resize_w, resize_h), 0, 0, cv::INTER_NEAREST);
+
+        // Update reference (shallow copy)
+        dst_image = resize_image;
+    }
 	
-    if (is_padding)
+    if ( is_padding )
     {
-        cv::Mat dst_image;
-        copyMakeBorder(resize_image, dst_image, 0, 0, (out_w - resize_w) / 2, (out_w - resize_w) / 2, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
-        memcpy(img_buffer[buf_id], dst_image.data, out_w * out_h * out_c);
+        uint32_t pad_top = (out_h - resize_h) / 2;
+        uint32_t pad_bottom = out_h - resize_h - pad_top;
+        uint32_t pad_left = (out_w - resize_w) / 2;
+        uint32_t pad_right = out_w - resize_w - pad_left;
+        
+        // Pad with as black border
+        copyMakeBorder(dst_image, padding_image, pad_top, pad_bottom, pad_left, pad_right, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
+
+        // Update reference (shallow copy)
+        dst_image = padding_image;
     }
-    else
-    {
-        memcpy(img_buffer[buf_id], resize_image.data, out_w * out_h * out_c);
-    }
+
+    memcpy(img_buffer[buf_id], dst_image.data, out_w * out_h * out_c);
 
 #ifdef DEBUG_TIME_FLG
     end = chrono::system_clock::now();
@@ -414,7 +433,7 @@ void Image::convert_size(int in_w, int resize_w, bool is_padding)
 void Image::camera_to_image(const uint8_t* buffer, int32_t size)
 {
     /* Update buffer id */
-    buf_id = ++buf_id % WL_BUF_NUM;
+    buf_id = (buf_id + 1) % WL_BUF_NUM;
     memcpy(img_buffer[buf_id], buffer, sizeof(uint8_t)*size);
 }
 
@@ -554,16 +573,19 @@ uint8_t Image::draw_sem_seg(uint8_t* buffer, Camera *capture)
         detected_id[i] = 0;
     }
 
-    uint32_t padding_size = (out_w - DRPAI_OUT_WIDTH) / 2;
+    uint32_t pad_top = (out_h - CAM_RESIZED_HEIGHT) / 2;
+    uint32_t pad_left = (out_w - CAM_RESIZED_WIDTH) / 2;
+
     uint8_t* pd = overlay_buffer[buf_id];
-    for (int y = 0; y < out_h; y++) {
-        for (int x = 0; x < out_w; x++, pd += 4) {
+    for (uint32_t y = 0; y < out_h; y++) {
+        for (uint32_t x = 0; x < out_w; x++, pd += 4) {
 
             int red = 0x00;
             int green = 0x00;
             int blue = 0x00;
             int alpha = 0x40;
-            if (x >= padding_size && padding_size + DRPAI_OUT_WIDTH > x)
+
+            if (x >= pad_left && pad_left + CAM_RESIZED_WIDTH > x && y >= pad_top && pad_top + CAM_RESIZED_HEIGHT > y )
             {
                 if (0 < buffer[0] && buffer[0] <= NUM_CLASS - 1)
                 {

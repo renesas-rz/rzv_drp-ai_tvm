@@ -37,7 +37,7 @@ class Image
         void draw_rect(int32_t x, int32_t y, int32_t w, int32_t h, const char* str,uint32_t color);
         void reset_overlay_img();
         void convert_format();
-        void convert_size(int in_w, int resize_w, bool is_padding);
+        void convert_size(int in_w, int resize_w, int in_h, int resize_h, bool is_padding);
         void camera_to_image(const uint8_t* buffer, int32_t size);
     private:
         uint8_t buf_id = 0;

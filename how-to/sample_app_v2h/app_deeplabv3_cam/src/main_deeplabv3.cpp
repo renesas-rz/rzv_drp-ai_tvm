@@ -49,9 +49,8 @@ static atomic<uint8_t> hdmi_obj_ready   (0);
 /*Global Variables*/
 static float  drpai_output_buf[TVM_MODEL_IN_W * TVM_MODEL_IN_H*TVM_MODEL_OUT_NUM*(NUM_CLASS-1)];
 static uint8_t postproc_data[TVM_MODEL_IN_W * TVM_MODEL_IN_H];
-static uint8_t postproc_data1[DRPAI_OUT_WIDTH * DRPAI_OUT_HEIGHT];
-static uint8_t output_mask[DRPAI_OUT_WIDTH * DRPAI_OUT_HEIGHT];
-static uint32_t lbl_color[256];
+static uint8_t postproc_data1[CAM_RESIZED_WIDTH * CAM_RESIZED_HEIGHT];
+static uint8_t output_mask[CAM_RESIZED_WIDTH * CAM_RESIZED_HEIGHT];
 static uint64_t capture_address;
 static uint8_t buf_id;
 static Image img;
@@ -64,16 +63,17 @@ PreRuntime preruntime;
 #ifdef DISP_AI_FRAME_RATE
 static double ai_fps = 0;
 static double cap_fps = 0;
-static double proc_time_capture = 0;
 static uint32_t array_cap_time[30] = {1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000};
 #endif /* DISP_AI_FRAME_RATE */
-static double proc_time = 0;
 static uint32_t disp_time = 0;
 static uint32_t array_drp_time[30] = {1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000};
 static uint32_t array_disp_time[30] = {1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000};
 static float lowest_kpt_score = 0;
 static int32_t drp_max_freq;
 static int32_t drpai_freq;
+#if END_DET_TYPE
+static int8_t display_state=0;
+#endif
 
 static Wayland wayland;
 static Camera* capture = NULL;
@@ -217,14 +217,14 @@ void R_Post_Proc_DeepLabV3(float* floatarr)
     /*Resize postproc_data to 1920*1080*/
     cv::Mat input = cv::Mat(TVM_MODEL_IN_W, TVM_MODEL_IN_H, CV_8UC1, postproc_data);
     cv::Mat output;
-    cv::resize(input, output, cv::Size(DRPAI_OUT_WIDTH,DRPAI_OUT_HEIGHT), 0, 0, cv::INTER_NEAREST);
-    memcpy(postproc_data1, output.reshape(1,1).data, DRPAI_OUT_WIDTH*DRPAI_OUT_HEIGHT);
+    cv::resize(input, output, cv::Size(CAM_RESIZED_WIDTH, CAM_RESIZED_HEIGHT), 0, 0, cv::INTER_NEAREST);
+    memcpy(postproc_data1, output.reshape(1,1).data, CAM_RESIZED_WIDTH*CAM_RESIZED_HEIGHT);
 
     for(i=0;i<NUM_CLASS;i++){
        iBitArray[i]=0;
     }
     
-    memcpy(output_mask, postproc_data1, DRPAI_OUT_WIDTH * DRPAI_OUT_HEIGHT * sizeof(uint8_t));
+    memcpy(output_mask, postproc_data1, CAM_RESIZED_WIDTH*CAM_RESIZED_HEIGHT * sizeof(uint8_t));
     make_hit=100;  // OK
 
    /* log out */
@@ -243,7 +243,7 @@ void R_Post_Proc_DeepLabV3(float* floatarr)
         CLASS_NAME_15, CLASS_NAME_16, CLASS_NAME_17, CLASS_NAME_18, CLASS_NAME_19, 
         CLASS_NAME_20, CLASS_NAME_21
     };
-    for(i=0;i< DRPAI_OUT_WIDTH * DRPAI_OUT_HEIGHT;i++){
+    for(i=0;i< CAM_RESIZED_WIDTH*CAM_RESIZED_HEIGHT;i++){
         iOut = output_mask[i];
         if (iOut > 0 && iOut < NUM_CLASS){
             iBitArray[iOut]=1;
@@ -266,13 +266,6 @@ void R_Post_Proc_DeepLabV3(float* floatarr)
     }
     /* Update the score for display thread. */
     lowest_kpt_score = score;
-    goto end;
-
-not_detect:
-    lowest_kpt_score = 0;
-    goto end;
-
-end:
     mtx.unlock();
     return;
 }
@@ -295,9 +288,7 @@ int8_t print_result(Image* img)
     mtx.lock();
     std::stringstream stream;
     std::string str = "";
-    uint32_t total_time = ai_time + pre_time + post_time;
-    int arraySum = 0;
-    double arrayAvg = 0.0;
+    double total_time = ai_time + pre_time + post_time;
 
     /* Draw Segmentation on RGB image.*/
     int ret = img->draw_sem_seg(&output_mask[0], capture);
@@ -486,8 +477,7 @@ void *R_Inf_Thread(void *threadid)
 
         /*Display Processing Time On Log File*/
         int idx = inf_cnt % SIZE_OF_ARRAY(array_drp_time);
-        ai_time = (uint32_t)((timedifference_msec(start_time, inf_end_time) * TIME_COEF));
-        uint32_t total_time = ai_time + pre_time + post_time;
+        double total_time = ai_time + pre_time + post_time;
         array_drp_time[idx] = ai_time;
         drp_prev_time = inf_end_time;
         spdlog::info("Total AI Time: {} [ms]", std::round(total_time * 10) / 10);
@@ -651,7 +641,6 @@ void *R_Img_Thread(void *threadid)
     int32_t hdmi_sem_check = 0;
     /*Variable for checking return value*/
     int8_t ret = 0;
-    double img_proc_time = 0;
     bool padding = true;
 #ifdef CAM_INPUT_VGA
     padding = true;
@@ -690,7 +679,7 @@ void *R_Img_Thread(void *threadid)
             img.convert_format();
 
             /* Convert output image size. */
-            img.convert_size(CAM_IMAGE_WIDTH, DRPAI_OUT_WIDTH, padding);
+            img.convert_size(CAM_IMAGE_WIDTH, CAM_RESIZED_WIDTH, CAM_IMAGE_HEIGHT, CAM_RESIZED_HEIGHT, padding);
 
             /*displays AI Inference Results on display.*/
             ret = print_result(&img);
@@ -713,9 +702,9 @@ void *R_Img_Thread(void *threadid)
                 fprintf(stderr, "[ERROR] Failed to Get Display End Time\n");
                 goto err;
             }
-            img_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             
 #ifdef DEBUG_TIME_FLG
+            double img_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             printf("Img Proc Time             : %lf[ms]\n", img_proc_time);
 #endif
         }
@@ -746,7 +735,6 @@ void *R_Display_Thread(void *threadid)
     int32_t hdmi_sem_check = 0;
     /*Variable for checking return value*/
     int8_t ret = 0;
-    double disp_proc_time = 0;
     int32_t disp_cnt = 0;
 
     timespec start_time;
@@ -793,6 +781,13 @@ void *R_Display_Thread(void *threadid)
             /*Reset Overlay image*/
             img.reset_overlay_img(buf_id);
 
+#if END_DET_TYPE // To display the app_pointer_det in front of this application.
+            if (display_state == 0) 
+            {
+                display_state = 1;
+            }
+#endif
+
             hdmi_obj_ready.store(0);
             ret = timespec_get(&end_time, TIME_UTC);
             if (0 == ret)
@@ -800,12 +795,12 @@ void *R_Display_Thread(void *threadid)
                 fprintf(stderr, "[ERROR] Failed to Get Display End Time\n");
                 goto err;
             }
-            disp_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             disp_time = (uint32_t)((timedifference_msec(disp_prev_time, end_time) * TIME_COEF));
             int idx = disp_cnt++ % SIZE_OF_ARRAY(array_disp_time);
             array_disp_time[idx] = disp_time;
             disp_prev_time = end_time;
 #ifdef DEBUG_TIME_FLG
+            double disp_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             /* Draw Disp Frame Rate on RGB image.*/
             int arraySum = std::accumulate(array_disp_time, array_disp_time + SIZE_OF_ARRAY(array_disp_time), 0);
             double arrayAvg = 1.0 * arraySum / SIZE_OF_ARRAY(array_disp_time);
@@ -879,6 +874,33 @@ void *R_Kbhit_Thread(void *threadid)
             goto key_hit_end;
         }
 
+#if END_DET_TYPE 
+        // 1. Receive the end command via named pipe /tmp/appdetect from app_pointer_det.
+        // 2. Send the end command via named pipe /tmp/gui to app_rzv2h_demo
+        int fd;
+        char str[BUF_SIZE];
+        char str_end[BUF_SIZE] = "end";
+        ssize_t size;
+        mkfifo("/tmp/appdetect", 0666);
+        fd = open("/tmp/appdetect", O_RDWR);
+        size = read(fd, str, BUF_SIZE);
+        if (size > 0)
+        {
+            /* When mouse clicked. */
+            printf("mouse clicked. : %s\n", str);
+            str[size] = '\n';
+
+            if (strcmp(str, str_end) == 0)
+            {
+                if (system("echo \"end\" > /tmp/gui") == -1)
+                {
+                    printf("[ERROR] Failed to send command\n");
+                }
+                goto err;
+            }
+        }
+        close(fd);
+#else
         c = getchar();
         if (EOF != c)
         {
@@ -886,11 +908,10 @@ void *R_Kbhit_Thread(void *threadid)
             printf("key Detected.\n");
             goto err;
         }
-        else
-        {
-            /* When nothing is pressed. */
-            usleep(WAIT_TIME);
-        }
+#endif // END_DET_TYPE
+
+        /* When nothing is detected. */
+        usleep(WAIT_TIME);
     }
 
 /*Error Processing*/
@@ -936,6 +957,18 @@ int8_t R_Main_Process()
         {
             goto main_proc_end;
         }
+        
+#if END_DET_TYPE // To launch app_pointer_det.
+        if (display_state == 1)
+        {
+            if (system("./../app_pointer_det & ") == -1)
+            {
+                printf("Command Error\n");
+                goto main_proc_end;
+            }
+            display_state = 2;
+        }
+#endif
         /*Wait for 1 TICK.*/
         usleep(WAIT_TIME);
     }
@@ -1063,6 +1096,18 @@ int32_t main(int32_t argc, char * argv[])
     auto logger = spdlog::basic_logger_mt("logger", time_buf);
     spdlog::set_default_logger(logger);
 
+    /*
+    The following three lines disable the OpenCV accelerator feature. 
+    This code is intended to prepare for possible DRP-AI resource contention 
+    in the RZ/V2N. 
+    Note: If using OpenCV Accelerator v1.10 or later, the OpenCV functionality
+          used in this Deeplabv3 sample application does not use DRP-AI 
+          resources, so this workaround can be removed in the RZ/V2N. 
+          Furthermore, this workaround is not necessary for the RZ/V2H, 
+          as it runs on a different functional unit(DRP) than DRP-AI.
+          For more information,see 
+           https://github.com/renesas-rz/rzv2h_opencv_accelerator .
+    */
     unsigned long OCA_list[16];
     for (int i=0; i < 16; i++) OCA_list[i] = 0;
     OCA_Activate( &OCA_list[0] );
@@ -1109,7 +1154,7 @@ int32_t main(int32_t argc, char * argv[])
     printf("Argument : <DRP0_max_freq_factor> = %d\n", drp_max_freq);
     printf("Argument : <AI-MAC_freq_factor> = %d\n", drpai_freq);
 
-     uint64_t drpaimem_addr_start = 0;
+    uint64_t drpaimem_addr_start = 0;
     
     errno = 0;
     int drpai_fd = open("/dev/drpai0", O_RDWR);
@@ -1337,4 +1382,3 @@ end_main:
     printf("Application End\n");
     return ret_main;
 }
-

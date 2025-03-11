@@ -8,7 +8,11 @@ Check the [Quantize Tensorflow QAT Models](#3-quantize-tensorflow-qat-models) pa
 Check the [Quantize PyTorch QAT Models](#4-quantize-pytorch-qat-models) part to view the sample of QAT a model with PyTorch.  
 Check the [Compile QAT models and generate INT8 deployment network](#5-compile-qat-models-and-generate-int8-deployment-network) part to view the sample command of compile and quantize the QAT models with DRP-AI TVM[^1].  
 
-**Note: We recommend to use post-training quantization (PTQ) , and try to use QAT if a large loss of accuracy is still remained after adjusting the PTQ and quantization parameters**
+> **Note:**  
+> We recommend using post-training quantization (PTQ), and consider QAT if a large loss of accuracy remains after adjusting the PTQ and quantization parameters.
+
+> **Note:**  
+> QAT is currently not available with the DRP-AI extension package. If the model is pruned using the DRP-AI extension package, please use post-training quantization for quantization. To utilize QAT functions, make sure that the model is not pruned.
 
 ## 1. Introduction
 

@@ -40,7 +40,7 @@ class Image
         void reset_overlay_img(uint8_t id);
         void draw_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color);
         void convert_format();
-        void convert_size(int in_w, int resize_w, bool is_padding);
+        void convert_size(int in_w, int resize_w, int in_h, int resize_h, bool is_padding);
         void camera_to_image(const uint8_t* buffer, int32_t size);
         void draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color);
         void draw_line2(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color);

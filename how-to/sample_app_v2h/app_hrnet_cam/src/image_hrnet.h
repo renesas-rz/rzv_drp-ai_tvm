@@ -11,7 +11,12 @@
 #define IMAGE_H
 
 #include "define.h"
-
+#include <opencv2/opencv.hpp>
+struct Point 
+{
+    int x;
+    int y;
+};
 class Image
 {
     public:
@@ -37,10 +42,11 @@ class Image
         void draw_rect_box(int32_t x, int32_t y, int32_t w, int32_t h, const char* str,uint32_t color);
         void reset_overlay_img();
         void convert_format();
-        void convert_size(int in_w, int resize_w, bool is_padding);
+        void convert_size(int in_w, int in_h, int resize_w, int resize_h, bool is_padding);
         void camera_to_image(const uint8_t* buffer, int32_t size);
         void draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color);
         void draw_line2(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint32_t color);
+        Point convertPoint(int originalX, int originalY);
         
     private:
         uint8_t buf_id = 0;

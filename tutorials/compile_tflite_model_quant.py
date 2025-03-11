@@ -47,8 +47,8 @@ from arg_parser import get_args
 import sys
 
 PRODUCT= os.getenv("PRODUCT")
-if(PRODUCT != 'V2H'):
-    print("[Error] Environment variable (PRODUCT) is not V2H")
+if(PRODUCT != 'V2H' and PRODUCT != 'V2N'):
+    print("[Error] Environment variable (PRODUCT) is not V2H or V2N")
     print("        Please set environment variable(PRODUCT)")
     print("        to your product name.")
     print("        e.g. $export PRODUCT=V2H")

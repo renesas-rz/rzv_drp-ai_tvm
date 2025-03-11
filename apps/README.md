@@ -4,11 +4,13 @@ This page explains how to use the application provided in this directory, which 
 If you would like to build an application for **RZ/V2H** [see here](./build_appV2H.md).
 
 ## Overview
+
 To run the inference with the AI model data compiled by DRP-AI TVM[^1], inference application is necessary.  
 This application must use the DRP-AI TVM[^1] Runtime Library API and must be written in C++.  
 Here, we explain how to compile and deploy the application example for ResNet 18, which is already compiled in [Compile AI models](../tutorials).
 
 ## File Configuration
+
 | File/Directory | Details |  
 |:---|:---|  
 |exe | Execution environment required for running the application on the board |
@@ -20,9 +22,11 @@ Here, we explain how to compile and deploy the application example for ResNet 18
 |README.md |This file. Instructions to use the application.|  
 
 ## Necessary Environment
+
 Please refer to [Installation](../README.md#installation) to prepare the necessary environment.  
 
-This page assumes that the above environment has already prepared and following environment variables has registered.  
+This page assumes that the above environment has already prepared and following environment variables has registered.
+
 ```sh
 export TVM_ROOT=<.../drp-ai_tvm>                    # Your own path to the cloned repository.
 export TVM_HOME=${TVM_ROOT}/tvm
@@ -33,30 +37,41 @@ export PRODUCT=<V2MA>                               # Product name (V2L, V2M, or
 ```
 
 ## How to Build the Application
+
 ### 1. Prepare the environment
+
 Move to the application directory and create `build` directory.
+
 ```sh
 cd $TVM_ROOT/apps
 mkdir build
 cd build
 ```
+
 Run `cmake` command.
+
 ```sh
 cmake -DCMAKE_TOOLCHAIN_FILE=./toolchain/runtime.cmake ..
 ```
 
 ### 2. Build
+
 In the `build` directory, run the `make` command.
+
 ```sh
 make -j$(nproc)
 ```
+
 After runinng the make command, following file would be generated in the `build` directory.
-- tutorial_app
+
+- tutorial_app_v2ml
 
 ## How to Run the Application
+
 This section assumes that the user has prepared the Boot Environment on the target board.
 
 ### 1. Copy to the Board
+
 Copy the following files to the rootfs of Boot Environment.  
 
 | Name | Path | Details |  
@@ -65,7 +80,7 @@ Copy the following files to the rootfs of Boot Environment.
 |Model Data | `drp-ai_tvm/tutorials/resnet18_onnx`|Model compiled in the [Compile AI models](../tutorials). DRP-AI Preprocessing Runtime Object files, (`preprocess` directory) are also included.|  
 |Input Data |`drp-ai_tvm/apps/exe/sample.bmp`| Windows Bitmap file, which is input data for image classification. |  
 |Label List |`drp-ai_tvm/apps/exe/synset_words_imagenet.txt`<br>`drp-ai_tvm/apps/exe/ImageNetLabels.txt`| `synset_words_imagenet.txt`:Label list for ResNet18 post-processing.<br>`ImageNetLabels.txt`:Label list for ResNet50 post-processing when compiling Tensorflow Hub model. |  
-|Application |`drp-ai_tvm/apps/build/tutorial_app` | Compiled in this [page](#how-to-compile-the-application). |  
+|Application |`drp-ai_tvm/apps/build/tutorial_app` | Compiled in this [page](../tutorials/README.md#how-to-compile-the-application) . |  
 
 The rootfs should look like below.  
 This example is for V2MA.  
@@ -73,9 +88,6 @@ This example is for V2MA.
 **Note that if you compiled the model in Tensorflow Hub, rename the label list `ImageNetLabels.txt` to `synset_words_imagenet.txt` and use it.**  
 ```sh
 /
-├── usr
-│   └── lib64
-│       └── libtvm_runtime.so
 └── home
     └── root
         └── tvm
@@ -89,22 +101,67 @@ This example is for V2MA.
             │       └── pp_weight.dat
             ├── sample.bmp
             ├── synset_words_imagenet.txt
-            └── tutorial_app
+            ├── libtvm_runtime.so
+            └── tutorial_app_v2ml
 
 ```
+<!-- 
+cd $TVM_ROOT/../
+mkdir tvm
+cp $TVM_ROOT/obj/build_runtime/$PRODUCT/libtvm_runtime.so tvm/
+cp $TVM_ROOT/apps/exe/sample.bmp tvm/
+cp $TVM_ROOT/apps/exe/ImageNetLabels.txt tvm/
+cp $TVM_ROOT/apps/exe/synset_words_imagenet.txt tvm/
+cp $TVM_ROOT/apps/build/tutorial_app* tvm/
+cp -r $TVM_ROOT/tutorials/resnet18_onnx tvm/
+cp -r $TVM_ROOT/tutorials/resnet18_torch/  tvm/
+cp -r $TVM_ROOT/tutorials/resnet50_tflite/  tvm/
+cp -r $TVM_ROOT/tutorials/resnet18_onnx_cpu  tvm/
+
+tar cvfz tvm.tar.gz tvm/
+-->
 
 ### 2. Run
-After boot-up the board, move to the directory you stored the application and run the `tutorial_app` file.  
+
+After boot-up the board, move to the directory you stored the application and run the `tutorial_app_v2ml` file.  
+
 ```sh
 cd ~/tvm
-./tutorial_app
+export LD_LIBRARY_PATH=.
+./tutorial_app_v2ml
 ```
-The application runs the ResNet inference on [sample.bmp](exe/sample.bmp).   
+
+The application runs the ResNet inference on [sample.bmp](exe/sample.bmp).
 
 <!-- <img src="./exe/sample.bmp" width=350>   -->
 <!-- GitLabだとBMP画像が表示されない。GitHubならOK -->
 
+<!-- 
+cd ~
+tar xvfz tvm.tar.gz
+cd ~/tvm
+export LD_LIBRARY_PATH=.
+./tutorial_app_v2ml
+
+rm -r resnet18_onnx
+cp -r resnet18_torch resnet18_onnx
+./tutorial_app_v2ml
+
+rm -r resnet18_onnx
+cp -r resnet18_onnx_cpu resnet18_onnx
+./tutorial_app_v2ml
+
+rm -r resnet18_onnx
+cp synset_words_imagenet.txt synset_words_imagenet.txt.bak
+cp ImageNetLabels.txt synset_words_imagenet.txt
+cp -r resnet50_tflite resnet18_onnx
+./tutorial_app_v2ml
+cp synset_words_imagenet.txt.bak synset_words_imagenet.txt
+
+-->
+
 Following is the expected output for ResNet18 ONNX model compiled for DRP-AI on RZ/V2MA Evaluation Board Kit.  
+
 ```sh
 root@rzv2ma:~# ./tutorial_app
 [16:54:37] /mnt/nvme1n1/drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:66: Loading json data...
@@ -122,14 +179,6 @@ Result -----------------------
   Top 4 [  5.9%] : [basset, basset hound]
   Top 5 [  0.7%] : [bloodhound, sleuthhound]
 ```
-For reference, processing times are shown below.  
-  
-
-| Renesas Evaluation Board Kit | Pre Processing Time | AI Processing Time |
-|------------------------------|:-------------------:|:------------------:|
-| RZ/V2L  Evaluation Board Kit |       4.25 msec     |     27.99 msec     |
-| RZ/V2M  Evaluation Board Kit |       3.99 msec     |     17.76 msec     |
-| RZ/V2MA Evaluation Board Kit |       3.83 msec     |     17.69 msec     |
 
 For reference, processing times are shown below.  
   
@@ -153,7 +202,7 @@ This is particularly effective in cases where there are very few operators being
 
 ### Model Information
 
-ResNet18: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/classification/resnet)
+ResNet18: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/classification/resnet)
 
 ### Pre-processing
 
@@ -181,21 +230,28 @@ In this example, `tutorial_app.cpp` changes its parameter to run following prepr
     - cof_mul =[0.0171, 0.0175, 0.0174]  
 
 ---  
-# Appendix
-## DRP-AI TVM[^1] Runtime Library API
+
+## Appendix
+
+### DRP-AI TVM[^1] Runtime Library API
+
 Regarding the list of DRP-AI TVM[^1] Runtime API used in the application, please see [MERA Wrapper API References](../docs/Runtime_Wrap.md)
 
-## How to install OpenCV to Linux Package
+### How to install OpenCV to Linux Package
+
 As a preparation, it is required to setup the Build Environment with Linux Package and DRP-AI Support Package.  
 Follow the instruction in the DRP-AI Support Package Release Note and before running the `bitbake` command, carry out the following instructions.  
 
-### 1. Add OpenCV to local.conf
+#### 1. Add OpenCV to local.conf
+
 Add the following statement at the end of the `build/conf/local.conf` file.
+
 ```sh
 IMAGE_INSTALL_append =" opencv "
 ```
 
-### 2. Bitbake
+#### 2. Bitbake
+
 Run the `bitbake` command as explained in the DRP-AI Support Package.  
 
 [^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.

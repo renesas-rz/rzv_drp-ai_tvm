@@ -20,6 +20,8 @@
 
 This sample only uses [hrnet](https://github.com/open-mmlab/mmpose/tree/v1.1.0).
 
+### Edit the script to compile HRNet
+
 ```bash
 cd $TVM_ROOT/tutorials
 git checkout compile_onnx_model_quant.py
@@ -32,10 +34,23 @@ sed -i -e '/os.path.join(ref_result_output_dir, "input_"/d' compile_onnx_model_q
 sed -i -e 's/ref_result_output_dir/output_dir/g' compile_onnx_model_quant.py
 sed -i -e 's/_fp32//g' compile_onnx_model_quant.py 
 sed -i -e 's/_fp16//g' compile_onnx_model_quant.py
-sed -i -e 's/480, 640, 3/1080, 1920, 2/g' compile_onnx_model_quant.py
 sed -i -e 's/FORMAT.BGR/FORMAT.YUYV_422/g' compile_onnx_model_quant.py
+sed -i -e 's/480, 640, 3/1080, 1920, 2/g' compile_onnx_model_quant.py
 sed -i -e'/config.ops = \[/a\ \t    op.Crop(555, 0, 810, 1080),' compile_onnx_model_quant.py
+```
 
+### Additional edit for USB Camera
+
+If you are using a USB camera, execute the following additional commands.
+
+```bash
+sed -i -e 's/1080, 1920, 2/480, 640, 2/g' compile_onnx_model_quant.py
+sed -i -e 's/555, 0, 810, 1080/140, 0, 360, 480/g' compile_onnx_model_quant.py
+```
+
+### Run compile_onnx_model_quant.py
+
+```bash
 python3 compile_onnx_model_quant.py \
 $TRANSLATOR/../onnx_models/hrnet_w32_coco_256x192_sparse90.onnx \
  -o hrnet_cam \
@@ -65,11 +80,15 @@ tar cvfz sample_hrnet.tar.gz sample_hrnet_cam/
 
 ### 1. Connecting Camera and Display
 
-- Camera : Use a MIPI camera
-  - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
-  - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
-    <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
-- Display : Please connect to the HDMI port on the EVK board
+- Camera:
+  - Use a MIPI camera:
+    - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
+    - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
+      <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
+  - Use a USB camera:
+    - Please connect USB camera as shown below on the EVK board
+      <img src=./img/hw_conf_v2h.png width=700>
+- Display: Please connect to the HDMI port on the EVK board
 
 ### 2. **(On RZ/V Board)** Copy and Try it
 
@@ -92,11 +111,11 @@ On application window, following information is displayed.
 - Camera capture
 - Pose Estimation results (stick figure and pose-landmark.)  
 - Processing times
-  - AI/Camera Frame Rate: The number of AI inferences per second and the number of Camera captures per second. [fps]
-  - HRNet
-    - HRNet x *: Number of people detected.
-    - Total Pre-Proc + Inference Time (DRP-AI): Total processing time taken for AI inference and its pre/post-processes on DRP-AI. [msec]
-    - Total Post-Proc Time (CPU): Total processing time taken for post-processes of AI inference on CPU. [msec]
+  - HRNet x *: Number of people detected.
+  - Total AI Time: Processing time taken for AI inference and its pre/post-processes. [msec]
+  - Inference: Processing time taken for AI inference. \[msec\]
+  - PreProcess: Processing time taken for AI pre-processes. \[msec\]
+  - PostProcess: Processing time taken for AI post-processes. \[msec\]
 
 ### 4. How Terminate Application
 
@@ -110,7 +129,7 @@ The `<timestamp>_app_hrnet_cam.log` file is to be generated under the `logs` fol
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] ************************************************
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   RZ/V2H DRP-AI Sample Application
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Model : MMPose HRNet | hrnet_cam
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Input : MIPI Camera
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Input : XXXX Camera
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] ************************************************
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI inference...
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 1
@@ -124,10 +143,10 @@ The `<timestamp>_app_hrnet_cam.log` file is to be generated under the `logs` fol
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   ID 14: (53.84, 357.12): 84.08%
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   ID 15: (70.72, 447.12): 85.94%
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   ID 16: (25.72, 454.62): 81.45%b
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] HRNet
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Total Pre-Proc + Inference Time (DRP-AI): xx [ms]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Total Post-Proc Time (CPU): X.X [ms]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] AI Frame Rate: XX [fps]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Total AI Time: xx.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference: xx.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] PreProcess: x.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] PostProcess: x.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI Inference...
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 2
 ```

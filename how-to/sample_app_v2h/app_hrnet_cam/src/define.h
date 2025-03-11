@@ -38,14 +38,20 @@
 /* Input Camera support */
 /* n = 0: USB Camera, n = 1: eCAM22 */
 #define INPUT_CAM_TYPE 0
-
+#if INPUT_CAM_TYPE == 0
+    #define CAM_INPUT_VGA
+#else
+    #define CAM_INPUT_FHD
+#endif
 /* Output Camera Size */
-#define CAM_INPUT_FHD
 #define IMAGE_OUTPUT_FHD
 #define MIPI_CAM_RES "1920x1080"
 
 /*Time Measurement Flag*/
 //#define DEBUG_TIME_FLG
+
+/* Enable demonstration mode for combination with GUI Demo system */
+#define END_DET_TYPE                (0)
 
 /*Display AI frame rate*/
 #undef DISP_AI_FRAME_RATE
@@ -119,7 +125,7 @@ const static std::string pre_dir = model_dir + "/preprocess";
 
 /*Cropping Image Related*/
 #ifdef CAM_INPUT_VGA
-#define CROPPED_IMAGE_WIDTH         (270)
+#define CROPPED_IMAGE_WIDTH         (360)
 #else /* CAM_INPUT_FHD */
 #define CROPPED_IMAGE_WIDTH         (810)
 #endif
@@ -130,7 +136,7 @@ const static std::string pre_dir = model_dir + "/preprocess";
 #define NUM_OUTPUT_C                (17)
 #define INF_OUT_SIZE                (NUM_OUTPUT_W*NUM_OUTPUT_H*NUM_OUTPUT_C)
 #ifdef CAM_INPUT_VGA
-#define OUTPUT_LEFT                 (185)
+#define OUTPUT_LEFT                 (140)
 #define OUTPUT_TOP                  (0)
 #else /* CAM_INPUT_FHD */
 #define OUTPUT_LEFT                 (555)
@@ -139,13 +145,6 @@ const static std::string pre_dir = model_dir + "/preprocess";
 /*Graphic Drawing Settings Related*/
 #define KEY_POINT_SIZE              (2)
 #define NUM_LIMB                    (19)
-
-/*Index to access drpai_file_path[]*/
-#define INDEX_D                   (0)
-#define INDEX_C                   (1)
-#define INDEX_P                   (2)
-#define INDEX_A                   (3)
-#define INDEX_W                   (4)
 
 /*CAMERA & ISP Settings Related*/
 #ifdef CAM_INPUT_VGA
@@ -268,13 +267,13 @@ const static uint32_t num_inf_out =  (NUM_CLASS + 5) * NUM_BB * num_grids[0] * n
 #define IMAGE_OUTPUT_HEIGHT         (1080)
 #endif
 
-/*DRP-AI Input image information*/
+/*Camera image size displayed on HDMI image.*/
 #ifdef CAM_INPUT_VGA
-#define DRPAI_OUT_WIDTH             (960)
-#define DRPAI_OUT_HEIGHT            (720)
-#else
-#define DRPAI_OUT_WIDTH             (IMAGE_OUTPUT_WIDTH)
-#define DRPAI_OUT_HEIGHT            (IMAGE_OUTPUT_HEIGHT)
+#define CAM_RESIZED_WIDTH        (CAM_IMAGE_WIDTH*2)
+#define CAM_RESIZED_HEIGHT       (CAM_IMAGE_HEIGHT*2)
+#else /* CAM_INPUT_FHD */
+#define CAM_RESIZED_WIDTH        (IMAGE_OUTPUT_WIDTH)
+#define CAM_RESIZED_HEIGHT       (IMAGE_OUTPUT_HEIGHT)
 #endif
 
 #define IMAGE_CHANNEL_BGRA          (4)

@@ -2,7 +2,7 @@
 
 ## Build the application
 
-1. Please refer to [Application Example for V2H](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
+1. Please refer to [Application Example for V2H and V2H](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
 
     ```bash
     cd $TVM_ROOT/how-to/sample_app_v2h/app_yolov2_cam/src
@@ -35,9 +35,21 @@ sed -i -e '/os.path.join(ref_result_output_dir, "input_"/d' compile_onnx_model_q
 sed -i -e 's/ref_result_output_dir/output_dir/g' compile_onnx_model_quant.py
 sed -i -e 's/_fp32//g' compile_onnx_model_quant.py 
 sed -i -e 's/_fp16//g' compile_onnx_model_quant.py
-sed -i -e 's/480, 640, 3/1080, 1920, 2/g' compile_onnx_model_quant.py
 sed -i -e 's/FORMAT.BGR/FORMAT.YUYV_422/g' compile_onnx_model_quant.py
+sed -i -e 's/480, 640, 3/1080, 1920, 2/g' compile_onnx_model_quant.py
+```
 
+### Additional edit for USB Camera
+
+If you are using a USB camera, execute the following additional commands.
+
+```bash
+sed -i -e 's/1080, 1920, 2/480, 640, 2/g' compile_onnx_model_quant.py
+```
+
+### Run compile_onnx_model_quant.py
+
+```bash
 python3 compile_onnx_model_quant.py \
 $TRANSLATOR/../onnx_models/YoloV2_sparse90.onnx \
  -o yolov2_cam \
@@ -67,11 +79,15 @@ tar cvfz sample_yolov2.tar.gz sample_yolov2_cam/
 
 ### 1. Connecting Camera and Display
 
-- Camera : Use a MIPI camera
-	- Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
-	- Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
-    <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
-- Display : Please connect to the HDMI port on the EVK board
+- Camera:
+  - Use a MIPI camera:
+    - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
+    - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
+      <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
+  - Use a USB camera:
+    - Please connect USB camera as shown below on the EVK board
+      <img src=./img/hw_conf_v2h.png width=700>
+- Display: Please connect to the HDMI port on the EVK board
 
 ### 2. **(On RZ/V Board)** Copy and Try it  
 
@@ -94,9 +110,10 @@ On application window, following information is displayed.
 - Camera capture
 - Object Detection result (Bounding boxes, class name and score.)  
 - Processing times
-  - Pre-Proc + Inference (DRP-AI): Processing time taken for AI inference and its pre/post-processes on DRP-AI. [msec]
-  - Post-Proc (CPU): Processing time taken for post-processes of AI inference on CPU. [msec]
-  - AI/Camera Frame Rate: The number of AI inferences per second and the number of Camera captures per second. [fps]
+  - Total AI Time: Processing time taken for AI inference and its pre/post-processes. [msec]
+  - Inference: Processing time taken for AI inference. [msec]
+  - PreProcess: Processing time taken for AI pre-processes. [msec]
+  - PostProcess: Processing time taken for AI post-processes. [msec]
 
 ### 4. How Terminate Application
 
@@ -104,32 +121,32 @@ To terminate the application, press `Enter` key on the Linux console terminal of
 
 ### 5. Logs
 
-The `<timestamp>_app_yolov2_cam.log` file is to be generated under the `logs` folder and is to be recorded the text logs of AI inference results and AI processing time and rate. 
+The `<timestamp>_app_yolov2_cam.log` file is to be generated under the `logs` folder and is to be recorded the text logs of AI inference results and AI processing time and rate.
 
 ```txt
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] ************************************************
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   RZ/V2H DRP-AI Sample Application
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Model : Lightnet YOLOv2 | yolov2_cam
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Input : MIPI Camera
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Input : XXXX Camera
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] ************************************************
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI inference...
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 1
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 1
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (344, 1021, 233, 120)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : bottle (Class 4)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 55.8 %
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 2
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (825, 277, 673, 398)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (524, 64, 247, 60)
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : car (Class 6)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 52.7 %
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 3
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (1242, 517, 472, 333)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 70.8 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 2
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (172, 272, 249, 299)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : dog (Class 11)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 60.2 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 4
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (308, 206, 553, 318)
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : bicycle (Class 1)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 77.5 %
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  bounding box Count  : 3
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Pre-Proc + Inference (DRP-AI): X.X [ms]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Post-Proc (CPU): X.X [ms]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] AI Frame Rate XX [fps]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI inference...
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 85.5 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Count  : 3
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Total AI Time: xx.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference: x.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] PreProcess: x.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] PostProcess: x.x [ms]
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 2
 ```

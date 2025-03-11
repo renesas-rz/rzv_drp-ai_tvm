@@ -4,10 +4,10 @@ The AI models in the table below should be converted according to the following 
 
 | AI model                                                                                                                                     | Download model name   |Input shape    | Task              |
 |----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|---------------|-------------------|
-| [YOLOX_s](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth)                                              |yolox-s                |(640, 640)     | Classification    |
-| [YOLOX_m](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth)                                              |yolox-m                |(640, 640)     | Classification    |
-| [YOLOX_l](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_l.pth)                                              |yolox-l                |(320, 320)     | Classification    |
-| [YOLOX_x](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_x.pth)                                              |yolox-x                |(320, 320)     | Classification    |
+| [YOLOX_s](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth)                                              |yolox-s                |(640, 640)     | Object Detection  |
+| [YOLOX_m](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth)                                              |yolox-m                |(640, 640)     | Object Detection  |
+| [YOLOX_l](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_l.pth)                                              |yolox-l                |(320, 320)     | Object Detection  |
+| [YOLOX_x](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_x.pth)                                              |yolox-x                |(320, 320)     | Object Detection  |
 ---
 
 ## 1. Set environment variables.

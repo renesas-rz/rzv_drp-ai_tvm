@@ -51,7 +51,9 @@ static atomic<uint8_t> img_obj_ready   (0);
 static atomic<uint8_t> hdmi_obj_ready   (0);
 
 /*Global Variables*/
+#if (0) == INF_YOLOX_SKIP
 static float drpai_output_buf0[num_inf_out];
+#endif
 static float drpai_output_buf[INF_OUT_SIZE];
 static uint64_t capture_address;
 static uint8_t buf_id;
@@ -64,6 +66,7 @@ MeraDrpRuntimeWrapper runtime;
 PreRuntime preruntime;
 
 
+#if (0) == INF_YOLOX_SKIP
 static int drpai_fd0 = -1;
 static int drpai_fd1 = -1;
 static drpai_handle_t *drpai_hdl0 = NULL;
@@ -72,15 +75,14 @@ static drpai_handle_t *drpai_hdl1 = NULL;
 static drpai_data_t drpai_data1;
 
 static double yolox_drpai_time = 0;
-static double hrnet_drpai_time = 0;
+static double yolox_proc_time = 0;
+#endif
 #ifdef DISP_AI_FRAME_RATE
 static double ai_fps = 0;
 static double cap_fps = 0;
 static double proc_time_capture = 0;
 static uint32_t array_cap_time[30] = {1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000};
 #endif /* DISP_AI_FRAME_RATE */
-static double yolox_proc_time = 0;
-static double hrnet_proc_time = 0;
 static uint32_t disp_time = 0;
 static uint32_t array_drp_time[30] = {1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000};
 static uint32_t array_disp_time[30] = {1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000};
@@ -103,11 +105,17 @@ static float lowest_kpt_score[NUM_MAX_PERSON];
 static float lowest_kpt_score_local[NUM_MAX_PERSON]; /*To be used only in Inference Threads*/
 
 /*YOLOX*/
+#if (0) == INF_YOLOX_SKIP
 static uint32_t bcount = 0;
+#endif
 static uint32_t ppl_count_local = 0; /*To be used only in Inference Threads*/
 static uint32_t ppl_count = 0;
 static vector<detection> det_res;
 static vector<detection> det_ppl;
+
+#if END_DET_TYPE
+static int8_t display_state=0;
+#endif
 
 static Wayland wayland;
 static vector<detection> det;
@@ -224,10 +232,12 @@ int8_t get_result()
 * Arguments     : x = input argument for the calculation
 * Return value  : sigmoid result of input x
 ******************************************/
+#if (0) == INF_YOLOX_SKIP
 static double sigmoid(double x)
 {
     return 1.0/(1.0 + exp(-x));
 }
+#endif
 
 /*****************************************
 * Function Name : softmax
@@ -235,6 +245,7 @@ static double sigmoid(double x)
 * Arguments     : val[] = array to be computed softmax
 * Return value  : -
 ******************************************/
+#if (0) == INF_YOLOX_SKIP
 static void softmax(float val[NUM_CLASS])
 {
     float max_num = -FLT_MAX;
@@ -257,6 +268,7 @@ static void softmax(float val[NUM_CLASS])
     }
     return;
 }
+#endif
 
 /*****************************************
 * Function Name : index
@@ -303,6 +315,7 @@ int32_t offset(uint8_t n, int32_t b, int32_t y, int32_t x)
 *                 box_count = total number of boxes
 * Return value  : -
 ******************************************/
+#if (0) == INF_YOLOX_SKIP
 static void R_Post_Proc(float* floatarr, vector<detection>& det, uint32_t* box_count)
 {
     uint32_t count = 0;
@@ -342,7 +355,6 @@ static void R_Post_Proc(float* floatarr, vector<detection>& det, uint32_t* box_c
     float box_h = 0;
     float objectness = 0;
     uint8_t num_grid = 0;
-    uint8_t anchor_offset = 0;
     float classes[NUM_CLASS];
     float max_pred = 0;
     int32_t pred_class = -1;
@@ -358,7 +370,6 @@ static void R_Post_Proc(float* floatarr, vector<detection>& det, uint32_t* box_c
     for (n = 0; n<NUM_INF_OUT_LAYER; n++)
     {
         num_grid = num_grids[n];
-        anchor_offset = 2 * NUM_BB * (NUM_INF_OUT_LAYER - (n + 1));
 
         for (b = 0;b<NUM_BB;b++)
         {
@@ -443,7 +454,7 @@ static void R_Post_Proc(float* floatarr, vector<detection>& det, uint32_t* box_c
     /* Log Output */
     spdlog::info("YOLOX Result-------------------------------------");
     int iBoxCount=0;
-    for(i = 0; i < det_buff.size(); i++)
+    for(size_t i = 0; i < det_buff.size(); i++)
     {
         /* Skip the overlapped bounding boxes */
         if (det_buff[i].prob == 0) continue;
@@ -463,6 +474,7 @@ static void R_Post_Proc(float* floatarr, vector<detection>& det, uint32_t* box_c
     mtx.unlock();
     return ;
 }
+#endif
 
 /*****************************************
 * Function Name : people_counter
@@ -473,6 +485,7 @@ static void R_Post_Proc(float* floatarr, vector<detection>& det, uint32_t* box_c
 *                 ppl_count = actual number of people
 * Return value  : -
 ******************************************/
+#if (0) == INF_YOLOX_SKIP
 static void people_counter(vector<detection>& det, vector<detection>& ppl, uint32_t box_count, uint32_t* ppl_count)
 {
     mtx.lock();
@@ -497,6 +510,7 @@ static void people_counter(vector<detection>& det, vector<detection>& ppl, uint3
     *ppl_count = count;
     mtx.unlock();
 }
+#endif
 
 /*****************************************
 * Function Name : offset_hrnet
@@ -714,13 +728,18 @@ static void draw_skeleton(void)
 #endif
 
     mtx.lock();
-
+    uint8_t buf_id = img.get_buf_id();
+    cv::Mat bgra_image(IMAGE_OUTPUT_HEIGHT, IMAGE_OUTPUT_WIDTH, CV_8UC4, img.get_img(buf_id));
 #if (1) == INF_YOLOX_SKIP
     i=0;
-    img.draw_rect(cropx[i], cropy[i], cropw[i], croph[i]-1, YELLOW_DATA);
-    img.draw_rect(cropx[i]+1, cropy[i]+1, cropw[i]-2, croph[i]-3, YELLOW_DATA);
+    /* img.draw_rect(cropx[i], cropy[i], cropw[i], croph[i]-1, YELLOW_DATA);
+    img.draw_rect(cropx[i]+1, cropy[i]+1, cropw[i]-2, croph[i]-3, YELLOW_DATA); */
+    Point cpos1 = img.convertPoint(cropx[0], cropy[0]);
+    Point cpos2 = img.convertPoint(cropx[0]+cropw[0], cropy[0]+croph[0]);
+    cv::Point point1(cpos1.x, cpos1.y+2); 
+    cv::Point point2(cpos2.x, cpos2.y-3);
+    cv::rectangle(bgra_image, point1, point2, cv::Scalar(0, 255, 255, 255), 4);
 #endif
-
     if(ppl_count > 0)
     {
         for(i=0; i < ppl_count; i++)
@@ -741,7 +760,12 @@ static void draw_skeleton(void)
                         if ((0 < pos2[0]) && (MIPI_WIDTH > pos2[0])
                             && (0 < pos2[1]) && (MIPI_WIDTH > pos2[1]))
                         {
-                            img.draw_line2(pos1[0], pos1[1], pos2[0],pos2[1], YELLOW_DATA);
+                            /* img.draw_line2(pos1[0], pos1[1], pos2[0],pos2[1], YELLOW_DATA); */
+                            Point cpos1 = img.convertPoint( pos1[0], pos1[1]);
+                            Point cpos2 = img.convertPoint( pos2[0], pos2[1]);
+                            cv::Point point1(cpos1.x, cpos1.y);  // Example coordinates
+                            cv::Point point2(cpos2.x, cpos2.y);
+                            cv::line(bgra_image, point1, point2, cv::Scalar(0, 255, 255, 255), 4);
                         }
                     }
                 }
@@ -750,8 +774,12 @@ static void draw_skeleton(void)
                 for(v = 0; v < NUM_OUTPUT_C; v++)
                 {
                     /*Draw Rectangles On Each Skeleton Key Points*/
-                    img.draw_rect(id_x[v][i], id_y[v][i], KEY_POINT_SIZE, KEY_POINT_SIZE, RED_DATA);
-                    img.draw_rect(id_x[v][i], id_y[v][i], KEY_POINT_SIZE+1, KEY_POINT_SIZE+1, RED_DATA);
+                    /* img.draw_rect(id_x[v][i], id_y[v][i], KEY_POINT_SIZE, KEY_POINT_SIZE, RED_DATA);
+                    img.draw_rect(id_x[v][i], id_y[v][i], KEY_POINT_SIZE+1, KEY_POINT_SIZE+1, RED_DATA); */
+                    Point cdraw_p = img.convertPoint(id_x[v][i],id_y[v][i]);
+                    cv::Point point_node_bl(cdraw_p.x-4, cdraw_p.y-4);
+                    cv::Point point_node_tr(cdraw_p.x +4, cdraw_p.y+4);
+                    cv::rectangle(bgra_image, point_node_bl, point_node_tr, cv::Scalar(0, 0, 255, 255), cv::FILLED);
                 }
             }
         }
@@ -772,7 +800,6 @@ void draw_bounding_box(void)
     vector<detection> det_buff;
     stringstream stream;
     string result_str;
-    int32_t i = 0;
     uint32_t color=0;
  
     mtx.lock();
@@ -780,7 +807,7 @@ void draw_bounding_box(void)
     mtx.unlock();
 
     /* Draw bounding box on RGB image. */
-    for (i = 0; i < det_buff.size(); i++)
+    for (uint32_t i = 0; i < det_buff.size(); i++)
     {
         /* Skip the overlapped bounding boxes */
         if (det_buff[i].prob == 0) continue;
@@ -815,7 +842,7 @@ int8_t print_result(Image* img)
     stringstream stream;
     string str = "";
     string DispStr = "";
-    uint32_t total_time = ai_time + pre_time + post_time;
+    double total_time = ai_time + pre_time + post_time;
     
 #if (0) == INF_YOLOX_SKIP
     /* Draw Inference YOLOX Time Result on RGB image.*/
@@ -898,7 +925,21 @@ int8_t print_result(Image* img)
     str = stream.str();
     img->write_string_rgb(str, 1, TEXT_WIDTH_OFFSET_L, LINE_HEIGHT_OFFSET + (LINE_HEIGHT * 1), CHAR_SCALE_LARGE, WHITE_DATA);
 #endif /* DISP_AI_FRAME_RATE */
-
+#ifdef CAM_INPUT_VGA
+    if (TH_KPT_YOLOX_SKIP < lowest_kpt_score[0])
+    {
+        for (int i = 0, num = 1; i < NUM_OUTPUT_C; i++)
+        {
+            /* Clear string stream */
+            stream.str("");
+            /* Create DRP-AI result  */
+            stream << "  ID " << i << ": (" << static_cast<int>(std::round(hrnet_preds[i][0])) << ", " << static_cast<int>(std::round(hrnet_preds[i][1])) << "): " <<  static_cast<int>(std::round(hrnet_preds[i][2] * 100)) << "%";
+            str = stream.str();
+            img->write_string_rgb(str, 1, TEXT_WIDTH_OFFSET*2, LINE_HEIGHT_OFFSET + (LINE_HEIGHT * num), CHAR_SCALE_SMALL, WHITE_DATA);
+            num++;
+        }
+    }
+#endif
 #ifdef DEBUG_TIME_FLG
     end = chrono::system_clock::now();
     double time = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
@@ -927,26 +968,20 @@ void *R_Inf_Thread(void *threadid)
     /*Variable for checking return value*/
     int8_t ret = 0;
     /*Variable for Performance Measurement*/
-    double total_hrnet_drpai_time = 0;
-    double total_hrnet_proc_time = 0;
-    timespec yolox_sta_time;
-    timespec yolox_end_time;
+    static struct timespec start_time;
+    static struct timespec inf_end_time;
+#if (0) == INF_YOLOX_SKIP
     static struct timespec yolox_drp_start_time;
     static struct timespec yolox_drp_end_time;
-    timespec hrnet_sta_time;
-    timespec hrnet_end_time;
-	static struct timespec hrnet_drp_start_time;
-    static struct timespec hrnet_drp_end_time;
-     static struct timespec start_time;
-	static struct timespec inf_start_time;
-    static struct timespec inf_end_time;
+    timespec yolox_sta_time;
+    timespec yolox_end_time;
+#endif
     //static struct timespec inf_end_time;
     static struct timespec pre_start_time;
     static struct timespec pre_end_time;
     static struct timespec post_start_time;
     static struct timespec post_end_time;
     static struct timespec drp_prev_time = { .tv_sec = 0, .tv_nsec = 0, };
-    int i = 0; 
     /*HRNet Modify Parameters*/
 
     printf("Inference Thread Starting\n");
@@ -1082,7 +1117,7 @@ void *R_Inf_Thread(void *threadid)
 #endif
                     if(ppl_count_local > 0)
                     {
-                        for(i = 0; i < ppl_count_local; i++)
+                        for(uint32_t i = 0; i < ppl_count_local; i++)
                         {
 #if (0) == INF_YOLOX_SKIP
                             croph[i] = det_ppl[i].bbox.h + CROP_ADJ_X;
@@ -1247,7 +1282,7 @@ void *R_Inf_Thread(void *threadid)
         //drpai_time = timedifference_msec(start_time, inf_end_time) * TIME_COEF;
         int idx = inf_cnt % SIZE_OF_ARRAY(array_drp_time);
        // ai_time = (uint32_t)((timedifference_msec(start_time, inf_end_time) * TIME_COEF));
-        uint32_t total_time = ai_time + pre_time + post_time;
+        double total_time = ai_time + pre_time + post_time;
         array_drp_time[idx] = ai_time;
         drp_prev_time = inf_end_time;
         spdlog::info("Total AI Time: {} [ms]", std::round(total_time * 10) / 10);
@@ -1300,16 +1335,12 @@ void *R_Capture_Thread(void *threadid)
     uint8_t * img_buffer;
     uint8_t * img_buffer0;
     uint8_t capture_stabe_cnt = 8;  // Counter to wait for the camera to stabilize
-    int32_t cap_cnt = -1;
 #ifdef DISP_AI_FRAME_RATE
+    int32_t cap_cnt = -1;
     static struct timespec capture_time;
     static struct timespec capture_time_prev = { .tv_sec = 0, .tv_nsec = 0, };
 #endif /* DISP_AI_FRAME_RATE */
 
-#if (0) == INPUT_CAM_TYPE
-    double elapsed_time_last_disp = 0;
-    double target_disp_fps = 15.0;
-#endif
 
     printf("Capture Thread Starting\n");
 
@@ -1442,7 +1473,6 @@ void *R_Img_Thread(void *threadid)
     int32_t hdmi_sem_check = 0;
     /*Variable for checking return value*/
     int8_t ret = 0;
-    double img_proc_time = 0;
     bool padding = false;
 #ifdef CAM_INPUT_VGA
     padding = true;
@@ -1477,14 +1507,14 @@ void *R_Img_Thread(void *threadid)
                 goto err;
             }
             
-            /* Draw Complete Skeleton. */
-            draw_skeleton();
-
             /* Convert YUYV image to BGRA format. */
             img.convert_format();
 
             /* Convert output image size. */
-            img.convert_size(CAM_IMAGE_WIDTH, DRPAI_OUT_WIDTH, padding);
+            img.convert_size(CAM_IMAGE_WIDTH, CAM_RESIZED_WIDTH, CAM_IMAGE_HEIGHT, CAM_RESIZED_HEIGHT, padding);
+            
+            /* Draw Complete Skeleton. */
+            draw_skeleton();
 
 #if (0) == INF_YOLOX_SKIP
             /* Draw bounding box on image. */
@@ -1507,9 +1537,9 @@ void *R_Img_Thread(void *threadid)
                 fprintf(stderr, "[ERROR] Failed to Get Display End Time\n");
                 goto err;
             }
-            img_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             
 #ifdef DEBUG_TIME_FLG
+            double img_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             printf("Img Proc Time             : %lf[ms]\n", img_proc_time);
 #endif
         }
@@ -1540,7 +1570,6 @@ void *R_Display_Thread(void *threadid)
     int32_t hdmi_sem_check = 0;
     /*Variable for checking return value*/
     int8_t ret = 0;
-    double disp_proc_time = 0;
     int32_t disp_cnt = 0;
 
     timespec start_time;
@@ -1584,6 +1613,13 @@ void *R_Display_Thread(void *threadid)
             /*Update Wayland*/
             wayland.commit(img.get_img(buf_id), NULL);
 
+#if END_DET_TYPE // To display the app_pointer_det in front of this application.
+            if (display_state == 0) 
+            {
+                display_state = 1;
+            }
+#endif
+
             hdmi_obj_ready.store(0);
             ret = timespec_get(&end_time, TIME_UTC);
             if (0 == ret)
@@ -1591,7 +1627,6 @@ void *R_Display_Thread(void *threadid)
                 fprintf(stderr, "[ERROR] Failed to Get Display End Time\n");
                 goto err;
             }
-            disp_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             disp_time = (uint32_t)((timedifference_msec(disp_prev_time, end_time) * TIME_COEF));
             int idx = disp_cnt++ % SIZE_OF_ARRAY(array_disp_time);
             array_disp_time[idx] = disp_time;
@@ -1601,6 +1636,7 @@ void *R_Display_Thread(void *threadid)
             int arraySum = std::accumulate(array_disp_time, array_disp_time + SIZE_OF_ARRAY(array_disp_time), 0);
             double arrayAvg = 1.0 * arraySum / SIZE_OF_ARRAY(array_disp_time);
             double disp_fps = 1.0 / arrayAvg * 1000.0;
+            double disp_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
 
             printf("Disp Proc Time            : %lf[ms]\n", disp_proc_time);
             printf("Disp Frame Rate           : %lf[fps]\n", disp_fps);
@@ -1670,6 +1706,34 @@ void *R_Kbhit_Thread(void *threadid)
             goto key_hit_end;
         }
 
+#if END_DET_TYPE 
+        // 1. Receive the end command via named pipe /tmp/appdetect from app_pointer_det.
+        // 2. Send the end command via named pipe /tmp/gui to app_rzv2h_demo
+        int fd;
+        char str[BUF_SIZE];
+        char str_end[BUF_SIZE] = "end";
+        ssize_t size;
+        mkfifo("/tmp/appdetect", 0666);
+        fd = open("/tmp/appdetect", O_RDWR);
+        size = read(fd, str, BUF_SIZE);
+        if (size > 0)
+        {
+            /* When mouse clicked. */
+            printf("mouse clicked. : %s\n", str);
+            str[size] = '\n';
+
+            if (strcmp(str, str_end) == 0)
+            {
+                if (system("echo \"end\" > /tmp/gui") == -1)
+                {
+                    printf("[ERROR] Failed to send command\n");
+                }
+                goto err;
+            }
+        }
+        close(fd);
+#else
+
         c = getchar();
         if (EOF != c)
         {
@@ -1677,11 +1741,10 @@ void *R_Kbhit_Thread(void *threadid)
             printf("key Detected.\n");
             goto err;
         }
-        else
-        {
-            /* When nothing is pressed. */
-            usleep(WAIT_TIME);
-        }
+#endif // END_DET_TYPE
+
+        /* When nothing is detected. */
+        usleep(WAIT_TIME);
     }
 
 /*Error Processing*/
@@ -1727,6 +1790,18 @@ int8_t R_Main_Process()
         {
             goto main_proc_end;
         }
+        
+#if END_DET_TYPE // To launch app_pointer_det.
+        if (display_state == 1)
+        {
+            if (system("./../app_pointer_det & ") == -1)
+            {
+                printf("Command Error\n");
+                goto main_proc_end;
+            }
+            display_state = 2;
+        }
+#endif
         /*Wait for 1 TICK.*/
         usleep(WAIT_TIME);
     }

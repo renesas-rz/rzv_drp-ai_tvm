@@ -1,7 +1,8 @@
-# AI Sample Applications for RZ/V2H
+# AI Sample Applications for RZ/V2H and RZ/V2N
 
 - [Semantic Image Segmentation: DeepLabv3](./app_deeplabv3_cam/)
 - [Object Detection: HRNet](./app_hrnet_cam/)
+- [Depth Estimation: MiDaS](./app_midas_cam/)
 - [Classification: Resnet50](./app_resnet50_cam/)
 - [Semantic Image Segmentation: TopFormer](./app_topformer_cam/)
 - [Object Detection: YOLOv2](./app_yolov2_cam/)

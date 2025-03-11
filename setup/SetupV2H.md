@@ -7,17 +7,20 @@ Requirements are listed below.
 - OS : Ubuntu 20.04  
 - Python : 3.8.10
 - Package : git
-- Evaluation Board: RZ/V2H EVK
+- Evaluation Board: RZ/V2H EVK or RZ/V2L EVK
 - Related Software Version:
-  - [DRP-AI Translator i8 v1.03][def2]
-    - DRP-AI_Translator_i8-v1.03-Linux-x86_64-Install or later.
-  - [RZ/V2H AI SDK v5.00][def]
-    - RTK0EF0180F05000SJ.zip or later.
+  - [DRP-AI Translator i8 v1.04][def2]
+    - DRP-AI_Translator_i8-v1.04-Linux-x86_64-Install or later.
+  - SDK
+    - [RZ/V2H AI SDK v5.00](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
+      - RTK0EF0180F05000SJ.zip or later.
+    - [RZ/V2N AI SDK v5.00](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
+      - RTK0EF0189F05000SJ.zip or lator.
 
 To install DRP-AI TVM[^1] without Dockerfile, see [Installing DRP-AI TVM](#installing-drp-ai-tvm1-rzv2h)[^1].  
-To install DRP-AI TVM[^1] with Dockerfile, see [Installing DRP-AI TVM](#installing-drp-ai-tvm1-with-docker-rzv2h)[^1] [with Docker for RZ/V2H](#installing-drp-ai-tvm1-with-docker-rzv2h).
+To install DRP-AI TVM[^1] with Dockerfile, see [Installing DRP-AI TVM](#installing-drp-ai-tvm1-with-docker-rzv2h)[^1] [with Docker for RZ/V2H and RZ/V2N](#installing-drp-ai-tvm1-with-docker-rzv2h).
 
-## Installing DRP-AI TVM[^1] (RZ/V2H)
+## Installing DRP-AI TVM[^1]
 
 ### 1. Preparation
 
@@ -31,24 +34,24 @@ The following example shows a case where downloaded software is stored under /tm
 ```bash
 cd /opt
 apt update && DEBIAN_FRONTEND=noninteractive apt install -y git wget unzip curl libboost-all-dev libeigen3-dev build-essential python3-pip libgl1-mesa-dev
-chmod +x /tmp/DRP-AI_Translator_i8-v1.03-Linux-x86_64-Install
-/tmp/DRP-AI_Translator_i8-v1.03-Linux-x86_64-Install
+chmod +x /tmp/DRP-AI_Translator_i8-v*-Linux-x86_64-Install
+/tmp/DRP-AI_Translator_i8-v*-Linux-x86_64-Install
 
 export PYTHONPATH=${PWD}/DRP-AI_Translator_i8/drpAI_Quantizer:${PYTHONPATH}
 ```
 
 #### Install RZ/V Software
 
-1. Download the *RZ/V2H AI SDK* from [Renesas Web Page](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit).  
+1. Download the *RZ/V2H AI SDK or RZ/V2N* from [Renesas Web Page for RZ/V2H](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit) or [Renesas Web Page for RZ/V2N](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit).  
 
 2. Install SDK .  
 The following example shows a case where downloaded software is stored under /tmp/ .
 
 ```bash
 cd /tmp
-unzip RTK0EF0180F0*000SJ.zip */poky*sh 
-chmod a+x ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-rzv2h-evk-ver1-toolchain-3.1.*.sh
-./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-rzv2h-evk-ver1-toolchain-3.1.*.sh -y
+unzip RTK0EF018?F0*000SJ.zip */poky*sh 
+chmod a+x ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-*-toolchain-3.1.*.sh 
+./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-*-toolchain-3.1.*.sh -y
 ```
 
 ### 2. Install the minimal pre-requisites
@@ -101,7 +104,7 @@ export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
 export SDK=/opt/poky/3.1.31                                 # or path to your own Linux SDK.
 export TRANSLATOR=/opt/DRP-AI_Translator_i8/translator/     # or path to your own DRP-AI Translator.
 export QUANTIZER=/opt/DRP-AI_Translator_i8/drpAI_Quantizer/ # or path to your own DRP-AI Quantizer.
-export PRODUCT=V2H                                          # Product name (The case of V2L, V2M, and V2MA is not described in this document.)
+export PRODUCT=V2H #or V2N
 ```
 
 ### 5. Setup DRP-AI TVM[^1] environment
@@ -125,17 +128,20 @@ wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/Dockerfile
 
 ### 3. Build docker image
 
-```sh
-unzip RTK0EF0180F0*000SJ.zip */poky*sh
+```bash
+export PRODUCT=V2H
+#export PRODUCT=V2N
+unzip RTK0EF018?F*SJ.zip */poky*sh
 mv ai_sdk_setup/* .
-docker build -t drp-ai_tvm_v2h_image_${USER} -f DockerfileV2H .
+docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} -f DockerfileV2HN --build-arg PRODUCT=${PRODUCT} .
 ```
+
+**Tip:** If you encounter an error like "404 Not Found," try adding the `--no-cache` option with "`docker build`".
 
 ### 4. Run docker image
 
 ```sh
-mkdir data
-docker run -it --name drp-ai_tvm_v2h_container_${USER} -v $(pwd)/data:/drp-ai_tvm/data drp-ai_tvm_v2h_image_${USER}
+docker run -it --name drp-ai_tvm_${PRODUCT,,}_container_${USER} drp-ai_tvm_${PRODUCT,,}_image_${USER}
 ```
 
 The local `$(pwd)/data` is mounted to `/drp-ai_tvm/data` on the Docker container by the above command option.  

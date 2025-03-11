@@ -2,7 +2,7 @@
 
 ## Build the application
 
-1. Please refer to [Application Example for V2H](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
+1. Please refer to [Application Example for V2H and V2N](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
 
     ```bash
     cd $TVM_ROOT/how-to/sample_app_v2h/app_yolox_cam/src
@@ -29,11 +29,23 @@ sed -i -e 's/ 224/ 640/g' compile_onnx_model_quant.py
 sed -i -e 's/to_tensor/pil_to_tensor/g' compile_onnx_model_quant.py
 sed -i -e '/std = stdev/d' compile_onnx_model_quant.py
 sed -i -e '/F.normalize/d' compile_onnx_model_quant.py
-sed -i -e 's/480, 640, 3/1920, 1920, 2/g' compile_onnx_model_quant.py
 sed -i -e 's/FORMAT.BGR/FORMAT.YUYV_422/g' compile_onnx_model_quant.py
 sed -i -e '/cof_add/d' compile_onnx_model_quant.py
 sed -i -e '/cof_mul/d' compile_onnx_model_quant.py
+sed -i -e 's/480, 640, 3/1920, 1920, 2/g' compile_onnx_model_quant.py
+```
 
+### Additional edit for USB Camera
+
+If you are using a USB camera, execute the following additional commands.
+
+```bash
+sed -i -e 's/1920, 1920, 2/640, 640, 2/g' compile_onnx_model_quant.py
+```
+
+### Run compile_onnx_model_quant.py
+
+```bash
 python3 compile_onnx_model_quant.py \
 $TRANSLATOR/../onnx_models/YoloX-S_VOC_sparse70.onnx \
  -o yolox_cam \
@@ -62,11 +74,15 @@ tar cvfz sample_yolox.tar.gz sample_yolox_cam/
 
 ### 1. Connecting Camera and Display
 
-- Camera : Use a MIPI camera
-  - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
-  - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
+- Camera:
+  - Use a MIPI camera:
+    - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
+    - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
     <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
-- Display : Please connect to the HDMI port on the EVK board
+  - Use a USB camera:
+    - Please connect USB camera as shown below on the EVK board
+    <img src=./img/hw_conf_v2h.png width=700>
+- Display: Please connect to the HDMI port on the EVK board
 
 ### 2. **(On RZ/V Board)** Copy and Try it  
 
@@ -90,9 +106,10 @@ On application window, following information is displayed.
 - Camera capture
 - Object Detection result (Bounding boxes, class name and score.)  
 - Processing times
-  - Pre-Proc + Inference (DRP-AI): Processing time taken for AI inference and its pre/post-processes on DRP-AI. [msec]
-  - Post-Proc (CPU): Processing time taken for post-processes of AI inference on CPU. [msec]
-  - AI/Camera Frame Rate: The number of AI inferences per second and the number of Camera captures per second. [fps]
+  - Total AI Time: Processing time taken for AI inference and its pre/post-processes. \[msec]\
+  - Inference: Processing time taken for AI inference. \[msec\]
+  - PreProcess: Processing time taken for AI pre-processes. \[msec\]
+  - PostProcess: Processing time taken for AI post-processes. \[msec\]
 
 ### 4. How Terminate Application
 
@@ -106,26 +123,27 @@ The `<timestamp>_app_yolox_cam.log` file is to be generated under the `logs` fol
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] ************************************************
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   RZ/V2H DRP-AI Sample Application
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Model : Megvii-Base Detection YOLOX | yolox_cam
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Input : MIPI Camera
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]   Input : XXXX Camera
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] ************************************************
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI inference...
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 1
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 4
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (457, 245, 208, 427)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : person (Class 14)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 89.1 %
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 7
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (457, 354, 297, 250)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 1
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (525, 51, 203, 59)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : car (Class 6)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 57.7 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 3
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (330, 185, 497, 268)
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : bicycle (Class 1)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 90.9 %
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 10
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (181, 214, 388, 441)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : bus (Class 5)
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 50.5 %
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  bounding box Count  : 3
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Pre-Proc + Inference (DRP-AI): XX.X [ms]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Post-Proc (CPU): X.X [ms]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] AI Frame Rate XX [fps]
-[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI inference...
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 89.6 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Number : 13
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box        : (X, Y, W, H) = (149, 283, 255, 384)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Detected Class      : dog (Class 11)
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Probability         : 51.2 %
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info]  Bounding Box Count  : 3
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Total AI Time  : xx.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] PreProcess     : xx.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference      : xx.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] PostProcess: x.x [ms]
+[XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] [START] Start DRP-AI Inference...
 [XXXX-XX-XX XX:XX:XX.XXX] [logger] [info] Inference ----------- No. 2
 ```

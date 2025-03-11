@@ -26,7 +26,7 @@ apt install -y python3-venv
 
 python3 -m venv ${TVM_ROOT}/convert/venvs/ViT
 . ${TVM_ROOT}/convert/venvs/ViT/bin/activate
-pip install torch==2.1.2 torchvision==0.16.2 onnx==1.9.0 onnxruntime==1.16.1 numpy==1.23.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.* timm==1.0.9 onnxsim
+pip install torch==2.1.2 torchvision==0.16.2 onnx==1.9.0 onnxruntime==1.18.1 numpy==1.23.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.* timm==1.0.9 onnxsim
 ```
 
 ## 3. Download and save as ONNX (.onnx) files.

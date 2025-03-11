@@ -34,7 +34,7 @@ class Image
         uint8_t init(uint32_t w, uint32_t h, uint32_t c, uint32_t ow, uint32_t oh, uint32_t oc, void *mem);
         void reset_overlay_img();
         void convert_format();
-        void convert_size(int in_w, int resize_w, bool is_padding);
+        void convert_size(int in_w, int resize_w, int in_h, int resize_h, bool is_padding);
         void camera_to_image(const uint8_t* buffer, int32_t size);
     private:
         uint8_t buf_id = 0;

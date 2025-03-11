@@ -23,7 +23,7 @@ apt update
 apt install -y python3-venv
 
 python3 -m venv ${TVM_ROOT}/convert/venvs/ultralytics_onnx
-git clone -b v9.5.0 --recursive https://github.com/ultralytics/yolov3.git ${TVM_ROOT}/convert/repos/ultralytics_yolov3
+git clone -b v9.6.0 --recursive https://github.com/ultralytics/yolov3.git ${TVM_ROOT}/convert/repos/ultralytics_yolov3
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov3
 . ${TVM_ROOT}/convert/venvs/ultralytics_onnx/bin/activate 
 pip install torch==1.8.0 torchvision==0.9.0 onnx==1.9.0 numpy==1.19.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.*
@@ -44,7 +44,7 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov3
-python models/export.py --weights yolov3.pt --img 416 --batch 1
+python export.py --weights yolov3.pt --img 416 --batch 1
 
 mkdir -p ${TVM_ROOT}/convert/output/yolov3_ultralytics_onnx
 mv yolov3.onnx ${TVM_ROOT}/convert/output/yolov3_ultralytics_onnx/

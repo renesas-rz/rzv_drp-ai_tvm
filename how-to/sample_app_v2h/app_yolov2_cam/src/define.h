@@ -38,14 +38,20 @@
 /* Input Camera support */
 /* n = 0: USB Camera, n = 1: eCAM22 */
 #define INPUT_CAM_TYPE 0
-
+#if INPUT_CAM_TYPE == 0
+    #define CAM_INPUT_VGA
+#else
+    #define CAM_INPUT_FHD
+#endif
 /* Output Camera Size */
-#define CAM_INPUT_FHD
 #define IMAGE_OUTPUT_FHD
 #define MIPI_CAM_RES "1920x1080"
 
 /*Time Measurement Flag*/
 //#define DEBUG_TIME_FLG
+
+/* Enable demonstration mode for combination with GUI Demo system */
+#define END_DET_TYPE                (0)
 
 /*Display AI frame rate*/
 #undef DISP_AI_FRAME_RATE
@@ -155,13 +161,13 @@ const static double anchors[] =
 #define IMAGE_OUTPUT_HEIGHT         (1080)
 #endif
 
-/*DRP-AI Input image information*/
+/*Camera image size displayed on HDMI image.*/
 #ifdef CAM_INPUT_VGA
-#define DRPAI_OUT_WIDTH             (960)
-#define DRPAI_OUT_HEIGHT            (720)
-#else
-#define DRPAI_OUT_WIDTH             (IMAGE_OUTPUT_WIDTH)
-#define DRPAI_OUT_HEIGHT            (IMAGE_OUTPUT_HEIGHT)
+#define CAM_RESIZED_WIDTH        (CAM_IMAGE_WIDTH*2)
+#define CAM_RESIZED_HEIGHT       (CAM_IMAGE_HEIGHT*2)
+#else /* CAM_INPUT_FHD */
+#define CAM_RESIZED_WIDTH        (IMAGE_OUTPUT_WIDTH)
+#define CAM_RESIZED_HEIGHT       (IMAGE_OUTPUT_HEIGHT)
 #endif
 
 #define IMAGE_CHANNEL_BGRA          (4)
@@ -179,10 +185,19 @@ const static double anchors[] =
 #define LINE_HEIGHT                 (30) /*in pixel*/
 #define LINE_HEIGHT_OFFSET          (20) /*in pixel*/
 #define TEXT_WIDTH_OFFSET           (10) /*in pixel*/
+#ifdef CAM_INPUT_VGA
+#define CHAR_THICKNESS_BOX          (1)  /*in pixel*/
+#define BOX_LINE_SIZE               (2)  /*in pixel*/
+#define BOX_HEIGHT_OFFSET           (15) /*in pixel*/
+#define BOX_TEXT_HEIGHT_OFFSET      (6)  /*in pixel*/
+#define CHAR_SCALE_FONT             (0.6)
+#else
+#define CHAR_THICKNESS_BOX          (2)  /*in pixel*/
 #define BOX_LINE_SIZE               (3)  /*in pixel*/
 #define BOX_HEIGHT_OFFSET           (30) /*in pixel*/
 #define BOX_TEXT_HEIGHT_OFFSET      (8)  /*in pixel*/
 #define CHAR_SCALE_FONT             (0.8)
+#endif
 #define WHITE_DATA                  (0xFFFFFFu) /* in RGB */
 #define BLACK_DATA                  (0x000000u)
 

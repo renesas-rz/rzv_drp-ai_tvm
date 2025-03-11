@@ -37,14 +37,21 @@
 /* Input Camera support */
 /* n = 0: USB Camera, n = 1: eCAM22 */
 #define INPUT_CAM_TYPE 0
+#if INPUT_CAM_TYPE == 0 /* USB Camera */
+#define CAM_INPUT_VGA
+#else   /* eCAM22 */
+#define CAM_INPUT_FHD
+#endif
 
 /* Output Camera Size */
-#define CAM_INPUT_FHD
 #define IMAGE_OUTPUT_FHD
 #define MIPI_CAM_RES "1920x1080"
 
 /*Time Measurement Flag*/
 //#define DEBUG_TIME_FLG
+
+/* Enable demonstration mode for combination with GUI Demo system */
+#define END_DET_TYPE                (0)
 
 /*Display AI frame rate*/
 #undef DISP_AI_FRAME_RATE
@@ -131,13 +138,13 @@ const static std::string pre_dir = model_dir + "/preprocess";
 #define IMAGE_OUTPUT_HEIGHT         (1080)
 #endif
 
-/*DRP-AI Input image information*/
+/*Camera image size displayed on HDMI image.*/
 #ifdef CAM_INPUT_VGA
-#define DRPAI_OUT_WIDTH             (960)
-#define DRPAI_OUT_HEIGHT            (720)
-#else
-#define DRPAI_OUT_WIDTH             (IMAGE_OUTPUT_WIDTH)
-#define DRPAI_OUT_HEIGHT            (IMAGE_OUTPUT_HEIGHT)
+#define CAM_RESIZED_WIDTH        (CAM_IMAGE_WIDTH*2)
+#define CAM_RESIZED_HEIGHT       (CAM_IMAGE_HEIGHT*2)
+#else /* CAM_INPUT_FHD */
+#define CAM_RESIZED_WIDTH        (IMAGE_OUTPUT_WIDTH)
+#define CAM_RESIZED_HEIGHT       (IMAGE_OUTPUT_HEIGHT)
 #endif
 
 #define IMAGE_CHANNEL_BGRA          (4)
@@ -156,7 +163,6 @@ const static std::string pre_dir = model_dir + "/preprocess";
 #define LINE_HEIGHT_OFFSET          (20) /*in pixel*/
 #define TEXT_WIDTH_OFFSET           (10) /*in pixel*/
 #define WHITE_DATA                  (0xFFFFFF) /* in RGB */
-
 
 /*Waiting Time*/
 #define WAIT_TIME                   (1000) /* microseconds */

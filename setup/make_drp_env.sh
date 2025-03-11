@@ -37,7 +37,7 @@ if [ -z "${PRODUCT}" ]; then
   echo "Error: PRODUCT variable is not set"
   exit 1
 fi
-if [ ${PRODUCT} != "V2H" ] && [ ${PRODUCT} != "V2MA" ] && [ ${PRODUCT} != "V2M" ] && [ ${PRODUCT} != "V2L" ]; then
+if [ ${PRODUCT} != "V2H" ] && [ ${PRODUCT} != "V2MA" ] && [ ${PRODUCT} != "V2M" ] && [ ${PRODUCT} != "V2L" ] && [ ${PRODUCT} != "V2N" ]; then
   echo "Error: Unsupported value ${PRODUCT} is set in PRODUCT variable"
   exit 1
 fi

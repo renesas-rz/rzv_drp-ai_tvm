@@ -145,7 +145,7 @@ def initialize_resnet50(num_classes, use_pretrained=True, pretrained_path=None):
     # - 'qscheme' must be set as 'per_tensor_affine' for scale and zero_point settings per tensor.
     # - 'reduce_range' must be set as True to reduce the quantization range by 1 bit.
     qact = torch.quantization.FakeQuantize.with_args(observer=torch.quantization.MovingAverageMinMaxObserver, \
-                                                    quant_min=0, quant_max=255, dtype=torch.quint8, qscheme=torch.per_channel_symmetric, reduce_range=True)
+                                                    quant_min=0, quant_max=255, dtype=torch.quint8, qscheme=torch.per_tensor_affine, reduce_range=True)
 
     # Weight Quantization Configuration must be set as follows so that it can aligning with drp-ai_quantizer specifications:
     # - Also uses Fake Quantization for weight quantization simulation.

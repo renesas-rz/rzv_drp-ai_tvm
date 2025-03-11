@@ -1146,6 +1146,19 @@ int32_t main(int32_t argc, char * argv[])
     auto logger = spdlog::basic_logger_mt("logger", time_buf);
     spdlog::set_default_logger(logger);
 
+    /*
+    The following three lines disable the OpenCV accelerator feature. 
+    This code is intended to prepare for possible DRP-AI resource contention
+    in the RZ/V2N. 
+    Furthermore, this workaround is not necessary for the RZ/V2H, as it runs
+    on a different functional unit (DRP) than DRP-AI.
+    For more information,see 
+     https://github.com/renesas-rz/rzv2h_opencv_accelerator .
+    */
+    unsigned long OCA_list[16];
+    for (int i=0; i < 16; i++) OCA_list[i] = 0;
+    OCA_Activate( &OCA_list[0] );
+    
     /* DRP-AI Frequency Setting */
     if (2 <= argc)
     {

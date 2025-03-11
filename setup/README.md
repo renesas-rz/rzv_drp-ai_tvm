@@ -4,7 +4,7 @@
 
 - [Installing DRP-AI TVM](#installing-drp-ai-tvm1-rzv2l-rzv2m-rzv2ma)[^1] [(RZ/V2L, RZ/V2M, RZ/V2MA)](#installing-drp-ai-tvm1-rzv2l-rzv2m-rzv2ma)
 - [Installing DRP-AI TVM](#installing-drp-ai-tvm1-with-docker-rzv2l-rzv2m-rzv2ma)[^1] [with Docker (RZ/V2L, RZ/V2M, RZ/V2MA)](#installing-drp-ai-tvm1-with-docker-rzv2l-rzv2m-rzv2ma)
-- [About RZ/V2H, see here.](./SetupV2H.md)
+- [About RZ/V2H and RZ/V2N, see here.](./SetupV2H.md)
 
 ## Requirements
 
@@ -51,13 +51,14 @@ export TRANSLATOR=${PWD}/drp-ai_translator_release/
   apt update
   apt install -y unzip
   unzip RTK0EF0160F0*SJ.zip */poky*sh
-  chmod a+x ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-smarc-rzv2l-toolchain-*.sh
+  mv */poky*sh .
+  chmod a+x poky*sh
   ```
 
 3. Install SDK.
 
   ```sh
-  ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-smarc-rzv2l-toolchain-*.sh -y
+  ./poky*sh -y
   ```
 
 ##### RZ/V2M, RZ/V2MA
@@ -163,7 +164,10 @@ wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/Dockerfile
 ### 3. Build docker image
 
 ```sh
-docker build -t drp-ai_tvm_v2l_image_${USER} --build-arg PRODUCT="V2L" .
+export PRODUCT=V2L
+#V2M/MA
+# PRODUCT=V2M or PRODUCT=V2MA
+docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} --build-arg PRODUCT=${PRODUCT} .
 #V2M/MA
 #docker build -t drp-ai_tvm_v2m_image_${USER} --build-arg PRODUCT="V2M" .
 #docker build -t drp-ai_tvm_v2ma_image_${USER} --build-arg PRODUCT="V2MA" .
@@ -177,14 +181,12 @@ Please set the values in the table below to the PRODUCT variables according to R
 | RZ/V2M  Evaluation Board Kit |   V2M    |
 | RZ/V2MA Evaluation Board Kit |   V2MA   |
 
+**Tip:** If you encounter an error like "404 Not Found," try adding the `--no-cache` option with "`docker build`".
+
 ### 4. Run docker image
 
 ```sh
-mkdir data
-docker run -it --name drp-ai_tvm_v2l_container_${USER} -v $(pwd)/data:/drp-ai_tvm/data drp-ai_tvm_v2l_image_${USER}
+docker run -it --name drp-ai_tvm_${PRODUCT,,}_container_${USER} drp-ai_tvm_${PRODUCT,,}_image_${USER}
 ```
-
-The local `$(pwd)/data` is mounted to `/drp-ai_tvm/data` on the Docker container by the above command option.  
-For example, you can use this directory to copy files created on the Docker container to your local environment.
 
 [^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.

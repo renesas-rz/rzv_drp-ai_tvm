@@ -14,8 +14,8 @@ This page explains about Face Detection in the [sample application](../../../../
 <img src=./img/ultraface.jpg width=500>  
 
 ## Model Information
-UltraFace: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/body_analysis/ultraface)  
-Dataset: See [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/body_analysis/ultraface#dataset)  
+UltraFace: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/ultraface)  
+Dataset: See [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/ultraface#dataset)  
 Input size: 1x3x240x320  
 Output size: 1x4420x2, 1x4420x4
 
@@ -25,7 +25,7 @@ To run the Face Detection, `ultraface_onnx` Model Object is required.
 Follow the instuction below to prepare the `ultraface_onnx` Model Object.  
 
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
-2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/body_analysis/ultraface).  
+2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/ultraface).  
 3. Place the onnx file in `$TVM_HOME/../tutorials`.
 4. Change the pre-processing details as shown below.  
 Before

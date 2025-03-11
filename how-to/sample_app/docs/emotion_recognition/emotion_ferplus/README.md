@@ -14,8 +14,8 @@ This page explains about Emotion Recognition in the [sample application](../../.
 <img src=./img/emotionfp.jpg width=500>  
 
 ## Model Information
-- Emotion FERPlus: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/body_analysis/emotion_ferplus) emotion-ferplus-8.onnx  
-Dataset:  See [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/body_analysis/emotion_ferplus#dataset).  
+- Emotion FERPlus: [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/emotion_ferplus) emotion-ferplus-8.onnx  
+Dataset:  See [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/emotion_ferplus#dataset).  
 Input size: 1x1x64x64  
 Output size: 1x8  
 
@@ -31,7 +31,7 @@ For `ultraface_onnx` Model Object, please refer to [Face Detection](../../../doc
 
 
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
-2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/body_analysis/emotion_ferplus).  
+2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/emotion_ferplus).  
 3. Place the onnx file in `$TVM_HOME/../tutorials`.
 
 4. Change the pre-processing details as shown below.  

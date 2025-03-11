@@ -77,7 +77,9 @@ static uint32_t array_disp_time[30] = {1000,1000,1000,1000,1000,1000,1000,1000,1
 
 static int32_t drp_max_freq;
 static int32_t drpai_freq;
-
+#if END_DET_TYPE
+static int8_t display_state=0;
+#endif
 static Wayland wayland;
 static vector<detection> det;
 
@@ -297,7 +299,7 @@ void R_Post_Proc(float* floatarr)
     int32_t y = 0;
     int32_t x = 0;
     int32_t offs = 0;
-    int32_t i = 0;
+    size_t i = 0;
     float tx = 0;
     float ty = 0;
     float tw = 0;
@@ -309,7 +311,6 @@ void R_Post_Proc(float* floatarr)
     float box_h = 0;
     float objectness = 0;
     uint8_t num_grid = 0;
-    uint8_t anchor_offset = 0;
     float classes[NUM_CLASS];
     float max_pred = 0;
     int32_t pred_class = -1;
@@ -322,7 +323,6 @@ void R_Post_Proc(float* floatarr)
     for (n = 0; n<NUM_INF_OUT_LAYER; n++)
     {
         num_grid = num_grids[n];
-        anchor_offset = 2 * NUM_BB * (NUM_INF_OUT_LAYER - (n + 1));
 
         for (b = 0;b<NUM_BB;b++)
         {
@@ -433,7 +433,7 @@ void draw_bounding_box(void)
     vector<detection> det_buff;
     stringstream stream;
     string result_str;
-    int32_t i = 0;
+    size_t i = 0;
     uint32_t color=0;
  
     mtx.lock();
@@ -471,10 +471,10 @@ int8_t print_result(Image* img)
     chrono::system_clock::time_point start, end;
     start = chrono::system_clock::now();
 #endif // DEBUG_TIME_FLG
-
+    vector<detection> det_buff;
     stringstream stream;
     string str = "";
-    uint32_t total_time = ai_time + pre_time + post_time;
+    double total_time = ai_time + pre_time + post_time;
     
     /* Draw Total Time Result on RGB image.*/
     stream.str("");
@@ -513,7 +513,24 @@ int8_t print_result(Image* img)
     double time = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
     printf("Draw Text Time            : %lf[ms]\n", time);
 #endif // DEBUG_TIME_FLG
-
+    #ifdef CAM_INPUT_VGA
+    mtx.lock();
+    copy(det.begin(), det.end(), back_inserter(det_buff));
+    mtx.unlock();
+    /* Draw the detected results*/
+    for (size_t i = 0, num=1; i < det_buff.size(); i++)
+    {   
+        uint32_t color = box_color[det_buff[i].c];
+        if (det_buff[i].prob != 0)
+        {
+            stream.str("");
+            stream << label_file_map[det_buff[i].c].c_str() << " " << std::setw(5) << std::fixed << std::setprecision(1) << round(det_buff[i].prob*100) << "%";
+            str = stream.str();
+            img->write_string_rgb(str, 1, TEXT_WIDTH_OFFSET*5, LINE_HEIGHT_OFFSET + (LINE_HEIGHT * num), CHAR_SCALE_SMALL, color);
+            num++;
+        }
+    }
+#endif
     return 0;
 }
 
@@ -659,15 +676,13 @@ void *R_Inf_Thread(void *threadid)
         /*Display Processing Time On Log File*/
         drpai_time = timedifference_msec(inf_start_time, inf_end_time) * TIME_COEF;
         int idx = inf_cnt % SIZE_OF_ARRAY(array_drp_time);
-        ai_time = (uint32_t)((timedifference_msec(inf_start_time, inf_end_time) * TIME_COEF));
         array_drp_time[idx] = ai_time;
         drp_prev_time = inf_end_time;
-        uint32_t total_time = ai_time + pre_time + post_time;
+        double total_time = ai_time + pre_time + post_time;
         spdlog::info("Total AI Time  : {} [ms]", std::round(total_time * 10) / 10);
         spdlog::info("PreProcess     : {} [ms]", std::round(pre_time   * 10) / 10);
         spdlog::info("Inference      : {} [ms]", std::round(ai_time    * 10) / 10);
-        spdlog::info("Post-Proc (CPU): {} [ms]", std::round(post_time  * 10) / 10);
-        spdlog::info("PreP+Inf(DRPAI): {} [ms]", std::round(/*drpai_time*/ (ai_time+pre_time) * 10) / 10);
+        spdlog::info("PostProcess: {} [ms]", std::round(post_time * 10) / 10);
 
 #ifdef DISP_AI_FRAME_RATE
         int arraySum = std::accumulate(array_drp_time, array_drp_time + SIZE_OF_ARRAY(array_drp_time), 0);
@@ -708,16 +723,11 @@ void *R_Capture_Thread(void *threadid)
     uint8_t * img_buffer0;
 
     uint8_t capture_stabe_cnt = 8;  // Counter to wait for the camera to stabilize
-    int32_t cap_cnt = -1;
 #ifdef DISP_AI_FRAME_RATE
+    int32_t cap_cnt = -1;
     static struct timespec capture_time;
     static struct timespec capture_time_prev = { .tv_sec = 0, .tv_nsec = 0, };
 #endif /* DISP_AI_FRAME_RATE */
-
-#if (0) == INPUT_CAM_TYPE
-    double elapsed_time_last_disp = 0;
-    double target_disp_fps = 15.0;
-#endif
 
     printf("Capture Thread Starting\n");
 
@@ -846,7 +856,6 @@ void *R_Img_Thread(void *threadid)
     int32_t hdmi_sem_check = 0;
     /*Variable for checking return value*/
     int8_t ret = 0;
-    double img_proc_time = 0;
     bool padding = false;
 #ifdef CAM_INPUT_VGA
     padding = true;
@@ -884,11 +893,11 @@ void *R_Img_Thread(void *threadid)
             /* Convert YUYV image to BGRA format. */
             img.convert_format();
 
-            /* Convert output image size. */
-            img.convert_size(CAM_IMAGE_WIDTH, DRPAI_OUT_WIDTH, padding);
-
             /* Draw bounding box on image. */
             draw_bounding_box();
+
+            /* Convert output image size. */
+            img.convert_size(CAM_IMAGE_WIDTH, CAM_RESIZED_WIDTH, CAM_IMAGE_HEIGHT, CAM_RESIZED_HEIGHT, padding);
 
         	/*displays AI Inference Results on display.*/
             print_result(&img);
@@ -907,9 +916,9 @@ void *R_Img_Thread(void *threadid)
                 fprintf(stderr, "[ERROR] Failed to Get Display End Time\n");
                 goto err;
             }
-            img_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             
 #ifdef DEBUG_TIME_FLG
+            double img_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             printf("Img Proc Time             : %lf[ms]\n", img_proc_time);
 #endif
         }
@@ -940,7 +949,6 @@ void *R_Display_Thread(void *threadid)
     int32_t hdmi_sem_check = 0;
     /*Variable for checking return value*/
     int8_t ret = 0;
-    double disp_proc_time = 0;
     int32_t disp_cnt = 0;
 
     timespec start_time;
@@ -985,6 +993,13 @@ void *R_Display_Thread(void *threadid)
             /*Update Wayland*/
             wayland.commit(img.get_img(buf_id), NULL);
 
+#if END_DET_TYPE // To display the app_pointer_det in front of this application.
+            if (display_state == 0) 
+            {
+                display_state = 1;
+            }
+#endif
+
             hdmi_obj_ready.store(0);
             ret = timespec_get(&end_time, TIME_UTC);
             if (0 == ret)
@@ -992,12 +1007,12 @@ void *R_Display_Thread(void *threadid)
                 fprintf(stderr, "[ERROR] Failed to Get Display End Time\n");
                 goto err;
             }
-            disp_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             disp_time = (uint32_t)((timedifference_msec(disp_prev_time, end_time) * TIME_COEF));
             int idx = disp_cnt++ % SIZE_OF_ARRAY(array_disp_time);
             array_disp_time[idx] = disp_time;
             disp_prev_time = end_time;
 #ifdef DEBUG_TIME_FLG
+            double disp_proc_time = (timedifference_msec(start_time, end_time) * TIME_COEF);
             /* Draw Disp Frame Rate on RGB image.*/
             int arraySum = std::accumulate(array_disp_time, array_disp_time + SIZE_OF_ARRAY(array_disp_time), 0);
             double arrayAvg = 1.0 * arraySum / SIZE_OF_ARRAY(array_disp_time);
@@ -1071,6 +1086,33 @@ void *R_Kbhit_Thread(void *threadid)
             goto key_hit_end;
         }
 
+#if END_DET_TYPE 
+        // 1. Receive the end command via named pipe /tmp/appdetect from app_pointer_det.
+        // 2. Send the end command via named pipe /tmp/gui to app_rzv2h_demo
+        int fd;
+        char str[BUF_SIZE];
+        char str_end[BUF_SIZE] = "end";
+        ssize_t size;
+        mkfifo("/tmp/appdetect", 0666);
+        fd = open("/tmp/appdetect", O_RDWR);
+        size = read(fd, str, BUF_SIZE);
+        if (size > 0)
+        {
+            /* When mouse clicked. */
+            printf("mouse clicked. : %s\n", str);
+            str[size] = '\n';
+
+            if (strcmp(str, str_end) == 0)
+            {
+                if (system("echo \"end\" > /tmp/gui") == -1)
+                {
+                    printf("[ERROR] Failed to send command\n");
+                }
+                goto err;
+            }
+        }
+        close(fd);
+#else
         c = getchar();
         if (EOF != c)
         {
@@ -1078,11 +1120,10 @@ void *R_Kbhit_Thread(void *threadid)
             printf("key Detected.\n");
             goto err;
         }
-        else
-        {
-            /* When nothing is pressed. */
-            usleep(WAIT_TIME);
-        }
+#endif // END_DET_TYPE
+
+        /* When nothing is detected. */
+        usleep(WAIT_TIME);
     }
 
 /*Error Processing*/
@@ -1128,6 +1169,18 @@ int8_t R_Main_Process()
         {
             goto main_proc_end;
         }
+
+#if END_DET_TYPE // To launch app_pointer_det.
+        if (display_state == 1)
+        {
+            if (system("./../app_pointer_det & ") == -1)
+            {
+                printf("Command Error\n");
+                goto main_proc_end;
+            }
+            display_state = 2;
+        }
+#endif
         /*Wait for 1 TICK.*/
         usleep(WAIT_TIME);
     }

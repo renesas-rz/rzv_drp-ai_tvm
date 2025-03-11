@@ -31,7 +31,7 @@ def main():
     with torch.no_grad():
         torch_out = model(dummy_input)
         onnx_path = join(output_dir, model_file) 
-        torch.onnx.export(model, dummy_input, onnx_path, export_params=True, opset_version=13, input_names=['input'], output_names=['output'])
+        torch.onnx.export(model, dummy_input, onnx_path, export_params=True, opset_version=14, input_names=['input'], output_names=['output'])
         
     print(f"ONNX model saved at {onnx_path}")
 
