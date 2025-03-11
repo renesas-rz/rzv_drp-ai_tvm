@@ -1,7 +1,7 @@
 ---
 layout: tutorial
 title: How to Use Guide
-permalink: /gui_demo.html
+permalink: /gui_demo_v2h.html
 ---
 # 1. Overview
 

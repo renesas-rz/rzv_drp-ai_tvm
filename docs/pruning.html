@@ -30,10 +30,10 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="How to Prune Your Own Model" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","dateModified":"2024-09-20T13:48:36+09:00","description":"The best solution for starting your AI applications.","headline":"How to Prune Your Own Model","url":"http://localhost:4000/rzv_drp-ai_tvm/pruning.html"}</script>
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2024-10-11T18:31:24+09:00","description":"The best solution for starting your AI applications.","headline":"How to Prune Your Own Model","url":"http://localhost:4000/rzv_drp-ai_tvm/pruning.html"}</script>
 <!-- End Jekyll SEO tag -->
 
-    <link rel="stylesheet" href="assets/css/style.css?v=a4c4bfa278d8263aa473a37080f3022282f672df">
+    <link rel="stylesheet" href="assets/css/style.css?v=13f5f889d1d18ab2b5f6398f0b6cb10e3db85ab7">
     <script src="assets/js/drm-ai_tvm.js"></script>
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -71,7 +71,9 @@
 
     <div class="wrapper">
       <section>
-        <h2 id="introduction">Introduction</h2>
+        <p>The following is an example of how to implement RZ/V2H implementation, but it can be the same way in RZ/V2N.</p>
+
+<h2 id="introduction">Introduction</h2>
 <p>Nodes are interconnected in a neural network as shown in the figure below. Methods of reducing the number of parameters by removing weights between nodes or removing nodes are referred to as “pruning”. A neural network to which pruning has not been applied is generally referred to as a dense neural network.
 Applying pruning to a neural network leads to a slight deterioration in the accuracy of the model but can reduce the power required by hardware and accelerate the inference process.</p>
 

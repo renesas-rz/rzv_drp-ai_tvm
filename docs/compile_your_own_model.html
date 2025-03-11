@@ -30,10 +30,10 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="How to compile Your Own Model" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","dateModified":"2024-09-20T13:48:36+09:00","description":"The best solution for starting your AI applications.","headline":"How to compile Your Own Model","url":"http://localhost:4000/rzv_drp-ai_tvm/compile_your_own_model.html"}</script>
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2024-09-12T16:32:07+09:00","description":"The best solution for starting your AI applications.","headline":"How to compile Your Own Model","url":"http://localhost:4000/rzv_drp-ai_tvm/compile_your_own_model.html"}</script>
 <!-- End Jekyll SEO tag -->
 
-    <link rel="stylesheet" href="assets/css/style.css?v=a4c4bfa278d8263aa473a37080f3022282f672df">
+    <link rel="stylesheet" href="assets/css/style.css?v=13f5f889d1d18ab2b5f6398f0b6cb10e3db85ab7">
     <script src="assets/js/drm-ai_tvm.js"></script>
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -71,7 +71,9 @@
 
     <div class="wrapper">
       <section>
-        <h2 id="compile-your-own-model-for-rzv2h">Compile your own model for RZ/V2H</h2>
+        <p>The following is an example of how to implement RZ/V2H implementation, but it can be the same way in RZ/V2N.</p>
+
+<h2 id="compile-your-own-model-for-rzv2h">Compile your own model for RZ/V2H</h2>
 <p>You can compile your model using a sample script <em>compile_onnx_model_quant.py</em>.<br />
 However, since input size and data format of camera and input shape of AI model are different for each application and model, you need to change parameters in the script and some options to compile it.<br />
 Resnet50 was used as a sample model in the “How to Compile Sample Model”. In this page, it is explained how to change from Resnet50 to YOLOX as an example.<br />

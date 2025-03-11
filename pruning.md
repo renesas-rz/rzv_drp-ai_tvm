@@ -4,6 +4,8 @@ title: "How to Prune Your Own Model"
 permalink: /pruning.html
 ---
 
+The following is an example of how to implement RZ/V2H implementation, but it can be the same way in RZ/V2N.
+
 ## Introduction
 Nodes are interconnected in a neural network as shown in the figure below. Methods of reducing the number of parameters by removing weights between nodes or removing nodes are referred to as “pruning”. A neural network to which pruning has not been applied is generally referred to as a dense neural network.
 Applying pruning to a neural network leads to a slight deterioration in the accuracy of the model but can reduce the power required by hardware and accelerate the inference process.

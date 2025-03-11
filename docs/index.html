@@ -32,7 +32,7 @@
 {"@context":"https://schema.org","@type":"WebSite","dateModified":"2024-09-20T13:48:36+09:00","description":"The best solution for starting your AI applications.","headline":"DRP-AI TVM on RZ/V series","name":"DRP-AI TVM on RZ/V series","url":"http://localhost:4000/rzv_drp-ai_tvm/"}</script>
 <!-- End Jekyll SEO tag -->
 
-		<link rel="stylesheet" href="assets/css/style.css?v=a4c4bfa278d8263aa473a37080f3022282f672df">
+		<link rel="stylesheet" href="assets/css/style.css?v=13f5f889d1d18ab2b5f6398f0b6cb10e3db85ab7">
 		<script src="assets/js/drm-ai_tvm.js"></script>
 		<!--[if lt IE 9]>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -128,26 +128,13 @@
 <h3 id="new">What's new</h3>
 <div class="container">
     <div class="row">
-		<div class="col-12">
-            <h6 align="right">2024.8.30</h6>
-            <ul>
-				<li>
-					<b>RZ/V2H AI Applications and AI SDK on RZ/V series v5.00 </b> is now available.
-					<ul>
-						<li>RZ MPU Security Package for RZ/V2H AI SDK v5.00 is released.</li>
-					</ul>
-				</li>
-				<br />
-				For more details, see What's new of <a href="https://renesas-rz.github.io/rzv_ai_sdk/latest/">AI Applications and AI SDK on RZ/V series</a>.
-            </ul>
-        </div>
         <div class="col-12">
-            <h6 align="right">2024.7.31</h6>
+            <h6 align="right">2025.3.11</h6>
             <ul>
 				<li>
-					<b>DRP-AI TVM v2.3.1 </b> is now available.
+					<b>DRP-AI TVM v2.5.0 </b> is now available.
 					<ul>
-						<li>The bug on DRP-AI TVM has been fixed.</li>
+						<li>Newly support RZ/V2N device</li>
 					</ul>
 				</li>
 				<br />
@@ -180,9 +167,9 @@
             <img src="img/DRP-AI Extension Pack.png" alt="Get Started" />
         </div>
         <div class="col-12 col-sm-8">
-            <b style="font-size:large; ">AI model pruning support tool (DRP-AI Extension Pack) for RZ/V2H</b><br />
+            <b style="font-size:large; ">AI model pruning support tool (DRP-AI Extension Pack) for RZ/V2H, RZ/V2N</b><br />
             <ul style="margin-top: 2%;">
-				<li>Tool to provide a pruning function optimized for RZ/V2H.</li>
+				<li>Tool to provide a pruning function optimized for RZ/V2H, RZ/V2N.</li>
 				<li><a href="/rzv_drp-ai_tvm/pruning.html">How to Prune Your Own Model</a>: Tutorial for Pruning with your own AI model.</li>
             </ul>
         </div>
@@ -237,11 +224,11 @@
 			<ul style="margin-top: 2%;">
 				<li>High power efficiency is achieved through cooperation between hardware (DRP-AI) and software (DRP-AI Tool).</li>
 				<li>By using the DRP-AI Tool, you can easily deploy AI models that are optimized to maximize the performance of DRP-AI.</li>
-				<li>In addition, for the RZ/V2H, it is possible to generate pruning models optimized for the DRP-AI architecture, resulting in higher power efficiency.</li>
+				<li>In addition, for the RZ/V2H, RZ/V2N, it is possible to generate pruning models optimized for the DRP-AI architecture, resulting in higher power efficiency.</li>
 				<li>For details, see below:</li>
 				<ul style="margin-top: 2%;">
 					<li><a href="https://www.renesas.com/us/en/document/whp/embedded-ai-accelerator-drp-ai">Overview of DRP-AI hardware and tool optimization technology (whitepaper)</a></li>
-					<li><a href="https://www.renesas.com/us/en/document/whp/next-generation-highly-power-efficient-ai-accelerator-drp-ai3-10x-faster-embedded-processing?r=25471761">Overview of optimization technology for lightweight models of RZ/V2H (V2H whitepaper)</a></li>
+					<li><a href="https://www.renesas.com/us/en/document/whp/next-generation-highly-power-efficient-ai-accelerator-drp-ai3-10x-faster-embedded-processing?r=25471761">Overview of optimization technology for lightweight models of RZ/V2H, RZ/V2N (V2H whitepaper, V2N whitepaper)</a></li>
 				</ul>
 			</ul>
 		</div>
@@ -253,7 +240,7 @@
             <img src="img/軽量化AIモデル.png" alt="Get Started" />
         </div>
         <div class="col-12 col-sm-8">    
-            <b style="font-size:large; ">AI model weight reduction support(RZ/V2H)</b>
+            <b style="font-size:large; ">AI model weight reduction support(RZ/V2H, RZ/V2N)</b>
 			<ul style="margin-top: 2%;">
 				<li>The built-in calibration function of DRP-AI TVM automatically generates INT8 models that are lighter than FP32 AI models.(*)</li>
                 <small>(*) A few dozen sample images are required.</small>
@@ -327,11 +314,39 @@
 <h3 id="Demo">Demo</h3>
 <p>With the demo binary, users can try the Reference sample applications using GUI application.<br />
 Download the Demo Binary and refer to How to Use Guide for more details.</p>
-<ul style="margin-top: 2%;">
-	<li><a href="https://www.renesas.com/us/en/document/sws/rzv2haiperformancedemosdimagewicgz">Demo Binary</a> : SD card image file. </li>
-	<li><a href="https://www.renesas.com/us/en/document/sws/rzmpudemoapplicationsoftware-license-agreement-description">License</a>: OSS license list for software included in the SD card image file.</li>
-	<li><a href="./gui_demo.html">How to Use Guide</a>: A quick guide to using SD card image.</li>
-</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>RZ/V2H</th>
+      <th>RZ/V2N</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://www.renesas.com/document/sws/rzv2h-ai-performance-demo-usb-camera-sd-image">Demo Binary (USB)</a></td>
+      <td><a href="https://www.renesas.com/document/sws/rzv2n-ai-performance-demo-usb-camera-sd-image">Demo Binary (USB)</a></td>
+      <td>SD card image file (USB camera version)</td>
+    </tr>
+    <tr>
+      <td><a href="https://www.renesas.com/document/sws/rzv2h-ai-performance-demo-mipi-camera-sd-image">Demo Binary (MIPI)</a></td>
+      <td><a href="https://www.renesas.com/document/sws/rzv2n-ai-performance-demo-mipi-camera-sd-image">Demo Binary (MIPI)</a></td>
+      <td>SD card image file (MIPI camera version)</td>
+    </tr>
+    <tr>
+      <td><a href="https://www.renesas.com/document/oth/description-license-rzv2h-ai-performance-demo-software">Licence</a></td>
+      <td><a href="https://www.renesas.com/document/oth/description-license-rzv2n-ai-performance-demo-software">Licence</a></td>
+      <td>OSS license list for software included in the SD card image file.</td>
+    </tr>
+    <tr>
+      <td><a href="./gui_demo_v2h.html">How to Use Guide</a></td>
+      <td><a href="./gui_demo_v2n.html">How to Use Guide</a></td>
+      <td>A quick guide to using SD card image.</td>
+    </tr>
+  </tbody>
+</table>
+
 <p><br /><br /><br /></p>
 
 <h3 id="Video">Video</h3>
@@ -364,7 +379,7 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
             <b style="font-size:large; ">RZ/V series with dedicated AI accelerator (DRP-AI)</b> <br />
             <ul style="margin-top: 2%;">
 				<li>Highly power efficient and flexible by co-operation between high-speed MAC unit for AI and Dynamically Reconfigurable Processor (DRP)</li>
-				<li>RZ/V2H supports efficient calculation of compacted AI models (INT8 quantization and pruning (option))</li>
+				<li>RZ/V2H, RZ/V2N supports efficient calculation of compacted AI models (INT8 quantization and pruning (option))</li>
             </ul>
         </div>
 	</div>
@@ -378,6 +393,7 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
         <th style="text-align: center;" width="160">RZ/V2MA</th>
         <th style="text-align: center;" width="160">RZ/V2M</th>
         <th style="text-align: center;" width="160">RZ/V2H</th>
+        <th style="text-align: center;" width="160">RZ/V2N</th>
     </tr>
     <tr>
         <td></td>
@@ -385,12 +401,14 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
         <td><img src="img/RZ V2MA.jpg" alt="Get Started" /></td>
         <td><img src="img/RZ V2M.jpg" alt="Get Started" /></td>
         <td><img src="img/RZ-V2H.jpg" alt="Get Started" /></td>
+	<td><img src="img/RZ_V2N.png" alt="Get Started" /></td>
     </tr>
     <tr>
         <td>CPU</td>
         <td>Cortex-A55<br />Dual/Single<br />Cortex-M33<br />Single</td>
         <td>Cortex-A53<br />Dual</td>
         <td>Cortex-A53<br />Dual</td>
+        <td>Cortex-A55<br />Quad<br />Cortex-R8<br />Dual<br />Cortex-M33<br />Single</td>
         <td>Cortex-A55<br />Quad<br />Cortex-M33<br />Single</td>
     </tr>
     <tr>
@@ -399,6 +417,7 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
         <td>DRP-AI<br />1 TOPS</td>
         <td>DRP-AI<br />1 TOPS</td>
         <td>DRP-AI3<br />8 Dense TOPS<br />80 Sparse TOPS</td>
+        <td>DRP-AI3<br />4 Dense TOPS<br />15 Sparse TOPS</td>
     </tr>
     <tr>
         <td>Data type</td>
@@ -406,19 +425,23 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
         <td>FP16</td>
         <td>FP16</td>
         <td>INT8</td>
+        <td>INT8</td>
     </tr>
     <tr>
         <td>Compaction model support</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
-		<td>Performance  <br /> optimization for  <br /> pruned model</td>          </tr>
+		<td>Performance  <br /> optimization for  <br /> pruned model</td>
+        <td>Performance  <br /> optimization for  <br /> pruned model</td>
+    </tr>
     <tr>
         <td>Production page</td>
         <td><a href="https://www.renesas.com/jp/ja/products/microcontrollers-microprocessors/rz-mpus/rzv2l-general-purpose-microprocessor-equipped-renesas-original-ai-accelerator-drp-ai-12ghz-dual-core-arm">Link</a></td>
         <td><a href="https://www.renesas.com/jp/ja/products/microcontrollers-microprocessors/rz-mpus/rzv2ma-vision-ai-opencv-accelerator">Link</a></td>
 		<td><a href="https://www.renesas.com/jp/ja/products/microcontrollers-microprocessors/rz-mpus/rzv2m-ai-accelerator-drp-ai-4k-compatible-image-signal-processor-isp-vision-ai-assp-real-time-human-and">Link</a></td>
 		<td><a href="https://www.renesas.com/jp/ja/products/microcontrollers-microprocessors/rz-mpus/rzv2h-quad-core-vision-ai-mpu-drp-ai3-accelerator-and-high-performance-real-time-processor">Link</a></td>
+        <td><a href="https://renesas.com/rzv2n">Link</a></td>
     </tr>
 </table>
 <p><br /><br /><br /></p>

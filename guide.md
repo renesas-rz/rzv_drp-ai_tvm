@@ -4,6 +4,8 @@ title: "How to compile Your Own Model"
 permalink: /compile_your_own_model.html
 ---
 
+The following is an example of how to implement RZ/V2H implementation, but it can be the same way in RZ/V2N.
+
 ## Compile your own model for RZ/V2H
 You can compile your model using a sample script *compile_onnx_model_quant.py*.  
 However, since input size and data format of camera and input shape of AI model are different for each application and model, you need to change parameters in the script and some options to compile it.  

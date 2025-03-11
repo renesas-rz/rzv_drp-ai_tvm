@@ -4,6 +4,8 @@ layout: tutorial
 permalink: /compile_sample_model.html
 ---
 
+The following is an example of how to implement RZ/V2H implementation, but it can be the same way in RZ/V2N.
+
 <img src="./img/overview.png" width="100%">
 <br>
 
