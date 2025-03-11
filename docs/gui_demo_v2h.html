@@ -30,7 +30,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="How to Use Guide" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","dateModified":"2025-03-04T13:58:36+09:00","description":"The best solution for starting your AI applications.","headline":"How to Use Guide","url":"http://localhost:4000/rzv_drp-ai_tvm/gui_demo_v2h.html"}</script>
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2025-03-11T18:19:30+09:00","description":"The best solution for starting your AI applications.","headline":"How to Use Guide","url":"http://localhost:4000/rzv_drp-ai_tvm/gui_demo_v2h.html"}</script>
 <!-- End Jekyll SEO tag -->
 
     <link rel="stylesheet" href="assets/css/style.css?v=13f5f889d1d18ab2b5f6398f0b6cb10e3db85ab7">
@@ -75,22 +75,66 @@
 
 <p>This package is a demo system which can confirm the performances of AI models on RZ/V2H Evaluation Board Kit.</p>
 
+<p>Users can select the AI model applications on the GUI menu by using the USB mouse, without typing any command.</p>
+
 <p>This package supports the following AI models.</p>
 
 <ul>
-  <li>YOLOX-S</li>
-  <li>DeepLabv3</li>
-  <li>HRNet</li>
-  <li>ResNet50</li>
+  <li>Depth Estimation
+    <ul>
+      <li>MiDaS (Dense model only)</li>
+    </ul>
+  </li>
+  <li>Semantic Segmentation
+    <ul>
+      <li>TopFormer-Tiny (Dense model only)</li>
+    </ul>
+  </li>
+  <li>Object Detection
+    <ul>
+      <li>YOLOX-S (Dense model and 70% sparse model)</li>
+      <li>YOLOv2 (Dense model and 90% sparse model)</li>
+    </ul>
+  </li>
+  <li>Pose Estimation
+    <ul>
+      <li>HRNet (Dense model and 90% sparse model)</li>
+    </ul>
+  </li>
+  <li>Classification
+    <ul>
+      <li>ResNet50 (Dense model and 90% sparse model)</li>
+    </ul>
+  </li>
 </ul>
 
-<p>Users can select the AI model applications on the GUI menu by using the USB mouse, without typing any command.</p>
+<p>Sparse models are created by the pruning tool in DRP-AI extension package, and realize faster performance and lower foot print than Dense model.</p>
 
 <h1 id="2-package-contents">2. Package Contents</h1>
 
-<figure class="highlight"><pre><code class="language-text" data-lang="text">rzv2h_ai_performance_demo_sd_image.wic.gz	: SD Card Image file (WIC format)
-licenses.zip					: License files for the software   
-					          composing this SD Card Image. </code></pre></figure>
+<table>
+ <tr>
+  <th colspan="2">Contents</th>
+  <th>File name</th>
+ </tr>
+ <tr>
+  <td rowspan="2">SD card image file (WIC format)</td>
+  <td>USB Camera</td>
+  <td>rzv2h_ai_performance_demo_usb_camera_sd_image.wic.gz</td>
+</tr>
+<tr>
+  <td>MIPI Camera</td>
+  <td>rzv2h_ai_performance_demo_mipi_camera_sd_image.wic.gz</td>
+</tr>
+<tr>
+  <td colspan="2">License files *</td>
+  <td>licenses.zip</td>
+</tr>
+</table>
+
+<blockquote>
+  <p>Note: Licence files for the software that composes the above SD card image.</p>
+</blockquote>
 
 <h1 id="3-required-hardware">3. Required Hardware</h1>
 
@@ -109,7 +153,7 @@ licenses.zip					: License files for the software
       <td>Hereinafter referred to as the “RZ/V2H EVK”</td>
     </tr>
     <tr>
-      <td>USB PD (100W) + USB Type-C cable</td>
+      <td>USB PD (100W) + USB Type-C Cable</td>
       <td> </td>
     </tr>
     <tr>
@@ -117,19 +161,29 @@ licenses.zip					: License files for the software
       <td><strong>Required 8GB or more of the capacity.</strong><br />This package is tested by using SDHC microSD 16GB.</td>
     </tr>
     <tr>
-      <td>MIPI camera (e-con Systems e-CAM22_CURZH)</td>
+      <td>MIPI Camera*</td>
+      <td>e-con Systems e-CAM22_CURZH</td>
+    </tr>
+    <tr>
+      <td>USB Camera*</td>
+      <td>Supported resolution: 640x480<br /> Supported format: ‘YUYV’ (YUYV 4:2:2)</td>
+    </tr>
+    <tr>
+      <td>USB Hub</td>
+      <td>Only when using a USB camera.</td>
+    </tr>
+    <tr>
+      <td>HDMI Monitor + HDMI Cable</td>
       <td> </td>
     </tr>
     <tr>
-      <td>HDMI monitor + HDMI cable</td>
-      <td> </td>
-    </tr>
-    <tr>
-      <td>USB mouse</td>
+      <td>USB Mouse</td>
       <td> </td>
     </tr>
   </tbody>
 </table>
+
+<p>*Select MIPI or USB Camera according to the SD Card Image to be used.</p>
 
 <h2 id="32-pc-for-writing-sd-card-image">3.2 PC for writing SD Card image</h2>
 
@@ -147,7 +201,7 @@ licenses.zip					: License files for the software
     </tr>
     <tr>
       <td>micro SD card reader</td>
-      <td>Required if the Linux PC does NOT equips any micro SD card reader.</td>
+      <td>Required if the Linux PC does NOT equip any micro SD card reader.</td>
     </tr>
   </tbody>
 </table>
@@ -159,7 +213,7 @@ licenses.zip					: License files for the software
 <ol>
   <li>Copy the following files into any directory on the Linux PC.
     <ul>
-      <li><code class="language-plaintext highlighter-rouge">rzv2h_ai_performance_demo_sd_image.wic.gz</code></li>
+      <li><code class="language-plaintext highlighter-rouge">rzv2h_ai_performance_demo_***_camera_sd_image.wic.gz</code></li>
     </ul>
   </li>
   <li>Execute the following command to install <code class="language-plaintext highlighter-rouge">bmap-tools</code> into the Linux PC. (If already installed, this step can be skipped.)</li>
@@ -167,9 +221,9 @@ licenses.zip					: License files for the software
 
 <figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>apt <span class="nb">install </span>bmap-tools</code></pre></figure>
 
-<ol>
+<ol start="3">
   <li>Insert the micro SD Card into the micro SD Card reader, and connect the micro SD Card reader to the Linux PC.</li>
-  <li>Execute <code class="language-plaintext highlighter-rouge">lsblk</code> command, and confirm the Confirm the device file name of the micro SD Card and the size of it.
+  <li>Execute <code class="language-plaintext highlighter-rouge">lsblk</code> command, and confirm the device file name of the micro SD Card and the size of it.
     <ul>
       <li>In this example below, the device file name of the micro SD Card is <code class="language-plaintext highlighter-rouge">sda</code> listed on the  <code class="language-plaintext highlighter-rouge">NAME</code> column.</li>
     </ul>
@@ -179,8 +233,8 @@ licenses.zip					: License files for the software
 <figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span>lsblk
 <span class="go">NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
 :
-sda           8:0    1  14.2G  0 disk 
-├─sda1        8:1    1  16.9M  0 part 
+sda           8:0    1  14.2G  0 disk
+├─sda1        8:1    1  16.9M  0 part
 └─sda2        8:2    1     4G  0 part /mnt/sd
 :</span></code></pre></figure>
 
@@ -196,16 +250,16 @@ sda           8:0    1  14.2G  0 disk
 <span class="go">or
 </span><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>umount /mnt/sd</code></pre></figure>
 
-<ol>
-  <li>Write the SD Card image files (<code class="language-plaintext highlighter-rouge">rzv2h_ai_performance_demo_sd_image.wic.gz</code>) into the micro SD card by the following command.
+<ol start="5">
+  <li>Write the SD Card image file (<code class="language-plaintext highlighter-rouge">rzv2h_ai_performance_demo_***_camera_sd_image.wic.gz</code>) into the micro SD card by the following command.
     <ul>
-      <li>The command below write the SD Card image to the <code class="language-plaintext highlighter-rouge">sda</code> device file. 
-Please replace <code class="language-plaintext highlighter-rouge">sda</code> with a device file name displayed on your Linux PC by  <code class="language-plaintext highlighter-rouge">lsblk</code> command.</li>
+      <li>The command below writes the SD Card image to the <code class="language-plaintext highlighter-rouge">sda</code> device file.
+ Please replace <code class="language-plaintext highlighter-rouge">sda</code> with a device file name displayed on your Linux PC by  <code class="language-plaintext highlighter-rouge">lsblk</code> command.</li>
     </ul>
   </li>
 </ol>
 
-<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>bmaptool copy <span class="nt">--nobmap</span> rzv2h_ai_performance_demo_sd_image.wic.gz /dev/sda</code></pre></figure>
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">$</span><span class="w"> </span><span class="nb">sudo </span>bmaptool copy <span class="nt">--nobmap</span> rzv2h_ai_performance_demo_<span class="k">***</span>_camera_sd_image.wic.gz /dev/sda</code></pre></figure>
 
 <blockquote>
   <p><strong>Note: It will take approximately 5 minutes to write the image file to the SD card.</strong></p>
@@ -213,31 +267,24 @@ Please replace <code class="language-plaintext highlighter-rouge">sda</code> wit
 
 <h2 id="42-how-to-configure-rzv2h-evk">4.2 How to configure RZ/V2H EVK</h2>
 
-<p>First, please prepare RZ/V2H EVK.</p>
+<p>First, please prepare RZ/V2H EVK, on which the EXP Board is mounted. Please refer to <a href="https://www.renesas.com/us/en/document/mah/rzv2h-evaluation-board-kit-secure-type-hardware-manual?r=25471796">RZ/V2H Evaluation Board Kit Hardware Manual</a> for more details.</p>
 
-<ul>
-  <li>RZ/V2H EVK is composed of CPU Board and EXP Board. 
-Please assembly the RZ/V2H EVK according to the RZ/V2H EVK Hardware Manual in the link below.
-    <ul>
-      <li><a href="https://www.renesas.com/us/en/document/mah/rzv2h-evaluation-board-kit-secure-type-hardware-manual?r=25471796">RZ/V2H Evaluation Board Kit Hardware Manual</a></li>
-    </ul>
-  </li>
-</ul>
+<p>Next, please configure the RZ/V2H EVK and connect the peripheral equipment to it in the order according to the figure below.</p>
 
-<p>Next, please configure the RZ/V2H EVK and connects the peripheral equipment to it in the order according to the figure below.</p>
-
-<p><img src="/rzv_drp-ai_tvm/img/image-20240426185111619.png" alt="image-20240426185111619" /></p>
+<p><img src="/rzv_drp-ai_tvm/img/rzv2h_evk_demo_setting.png" alt="rzv2h_evk_demo_setting" /></p>
 
 <ol>
   <li>Insert the micro SD Card to the RZ/V2H EVK.</li>
   <li>Configure the DSW1 and DSW2 according the figure above.</li>
-  <li>Connect the USB Mouse to the USB 2.0 terminal on RZ/V2H EVK.</li>
+  <li>Connect the USB Mouse (and USB camera via USB hub if using a USB camera) to the USB 2.0 terminal
+on RZ/V2H EVK.</li>
   <li>Connect the HDMI monitor to the RZ/V2H EVK with HDMI cable.</li>
-  <li>Connect the MIPI camera to the RZ/V2H EVK.
+  <li>If using a MIPI camera, connect the MIPI camera to the RZ/V2H EVK.
     <ul>
-      <li>Regarding how to connect the MIPI camera, please refer to the following link and the “Run the application” section in the link.
+      <li>Please connect to CN7 terminal.</li>
+      <li>Regarding how to connect the MIPI camera, please refer to the following link.
         <ul>
-          <li><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_yolox_cam#1-connecting-camera-and-display">https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_yolox_cam#1-connecting-camera-and-display</a></li>
+          <li><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/how-to/img/connect_e-cam22_curzh_to_rzv2h_evk.png">connect_e-cam22_curzh_to_rzv2h_evk.png</a></li>
         </ul>
       </li>
     </ul>
@@ -269,12 +316,12 @@ Please assembly the RZ/V2H EVK according to the RZ/V2H EVK Hardware Manual in th
 <h2 id="44-how-to-shut-down-the-gui-menu-and-the-rzv2h-evk">4.4 How to shut down the GUI menu and the RZ/V2H EVK</h2>
 
 <ol>
-  <li>Clicks to the [x] icon at the upper right corner on the GUI menu, then the software will shut down and the following log will be displayed.</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="o">[</span>xxxxx.xxxxxx] reboot: Power down</code></pre></figure>
-
-<ol>
+  <li>
+    <p>Clicks to the [x] icon at the upper right corner on the GUI menu, then the software will shut down.</p>
+  </li>
+  <li>
+    <p>On the screen, check that shutdown procedure runs and the HDMI display is blacked out.</p>
+  </li>
   <li>
     <p>Turn the SW2 to OFF.</p>
   </li>
@@ -286,10 +333,27 @@ Please assembly the RZ/V2H EVK according to the RZ/V2H EVK Hardware Manual in th
 <h1 id="5-version-history">5. Version History</h1>
 
 <ul>
-  <li>v0.50 issued on 10th May 2024.</li>
-  <li>v1.00 issued on 26th June 2024.</li>
+  <li>v1.00 issued on 26th June 2024.
+    <ul>
+      <li>First version based on DRP-AI TVM 2.3.1.</li>
+    </ul>
+  </li>
+  <li>v1.10 issued on 29th November 2024.
+    <ul>
+      <li>Update for DRP-AI TVM v2.4.1.</li>
+    </ul>
+  </li>
+  <li>v1.20 issued on 6th December 2024
+    <ul>
+      <li>Update for USB Camera version.</li>
+    </ul>
+  </li>
+  <li>v1.30 issued on 11th March 2025
+    <ul>
+      <li>Update for DRP-AI TVM v2.5.0.</li>
+    </ul>
+  </li>
 </ul>
-
 
       </section>
 
