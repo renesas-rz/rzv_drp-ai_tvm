@@ -1,5 +1,5 @@
 diff --git tools/export_onnx.py tools/torch2onnx.py
-index 3bcbb1d..715ec52 100644
+index 8703166..715ec52 100644
 --- tools/export_onnx.py
 +++ tools/torch2onnx.py
 @@ -1,6 +1,42 @@
@@ -111,7 +111,7 @@ index 3bcbb1d..715ec52 100644
          model,
          dummy_input,
          args.output_name,
-@@ -96,7 +143,7 @@ def main():
+@@ -96,17 +143,22 @@ def main():
          output_names=[args.output],
          dynamic_axes={args.input: {0: 'batch'},
                        args.output: {0: 'batch'}} if args.dynamic else None,
@@ -120,3 +120,20 @@ index 3bcbb1d..715ec52 100644
      )
      logger.info("generated onnx model named {}".format(args.output_name))
  
+     if not args.no_onnxsim:
+         import onnx
++
+         from onnxsim import simplify
+ 
+-        # use onnx-simplifier to reduce reduent model.
++        input_shapes = {args.input: list(dummy_input.shape)} if args.dynamic else None
++
++        # use onnxsimplify to reduce reduent model.
+         onnx_model = onnx.load(args.output_name)
+-        model_simp, check = simplify(onnx_model)
++        model_simp, check = simplify(onnx_model,
++                                     dynamic_input_shape=args.dynamic,
++                                     input_shapes=input_shapes)
+         assert check, "Simplified ONNX model could not be validated"
+         onnx.save(model_simp, args.output_name)
+         logger.info("generated simplified onnx model named {}".format(args.output_name))

@@ -2,12 +2,12 @@
 <!-- Below is a list of AI models supported by this manual. -->
 The AI models in the table below should be converted according to the following procedure and then entered into the compilation script.
 
-| AI model                                                                                                                                     | Download model name   |Input shape    | Task              |
-|----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|---------------|-------------------|
-| [YOLOX_s](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth)                                              |yolox-s                |(640, 640)     | Object Detection  |
-| [YOLOX_m](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth)                                              |yolox-m                |(640, 640)     | Object Detection  |
-| [YOLOX_l](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_l.pth)                                              |yolox-l                |(320, 320)     | Object Detection  |
-| [YOLOX_x](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_x.pth)                                              |yolox-x                |(320, 320)     | Object Detection  |
+| AI model                                                                                        | Download model name | Input shape | Task             |
+|-------------------------------------------------------------------------------------------------|---------------------|-------------|------------------|
+| [YOLOX_s](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth) | yolox-s             | (640, 640)  | Object Detection |
+| [YOLOX_m](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth) | yolox-m             | (640, 640)  | Object Detection |
+| [YOLOX_l](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_l.pth) | yolox-l             | (640, 640)  | Object Detection |
+| [YOLOX_x](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_x.pth) | yolox-x             | (640, 640)  | Object Detection |
 ---
 
 ## 1. Set environment variables.
@@ -30,7 +30,9 @@ git clone https://github.com/Megvii-BaseDetection/YOLOX ${TVM_ROOT}/convert/repo
 cd ${TVM_ROOT}/convert/repos/yolox
 git reset --hard "ac58e0a5e68e57454b7b9ac822aced493b553c53"
 . ${TVM_ROOT}/convert/venvs/yolox/bin/activate
-pip install torch==2.1.2 torchvision==0.16.2 onnx==1.9.0 numpy==1.19.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.*
+pip install --upgrade pip 
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.18.1 
 pip install .
 ```
 
@@ -40,12 +42,13 @@ Note : Check the downloaded PyTorch Model (.pth) file from the link in the table
 Use the following script to convert the model. \
 Set the options refer to the following table.
 
-|option       |value                                                    |
-|-------------|---------------------------------------------------------|
-|${onnx_file} |`{ Download model name column in the table above }.onnx` |
-|${arg_name}  |`Download model name` column in the table above          |
-|${torch_file}|Downloaded PyTorch Model (.pth) file                     |
-|${image_size}|`Input shape` column in the table above                  |
+| option        | value                                                    |
+|---------------|----------------------------------------------------------|
+| ${onnx_file}  | `{ Download model name column in the table above }.onnx` |
+| ${arg_name}   | `Download model name` column in the table above          |
+| ${torch_file} | Downloaded PyTorch Model (.pth) file                     |
+| ${image_size} | `Input shape` column in the table above                  |
+
 ---
 
 ```sh
@@ -68,8 +71,44 @@ ${TVM_ROOT}/convert
       └── yolox_s_megvii_onnx
            └── yolox-s.onnx
 ```
+## 4. Cut post-process with onnx file.
 
-## 4. Delete the environment for yolox_onnx models.
+Yolox models have redundant post-processing part, so cut part from onnx.
+Please delete the following six nodes common to all yolox onnxs by looking at the example script below.
+
+| cut point  | node name                       |
+| ---        | ---                             |
+| 1/8 scale  | /head/Sigmoid_1_output_0        |
+| 1/8 scale  | /head/reg_preds.0/Conv_output_0 |
+| 1/8 scale  | /head/Sigmoid_output_0          |
+| 1/16 scale | /head/Sigmoid_3_output_0        |
+| 1/16 scale | /head/reg_preds.1/Conv_output_0 |
+| 1/16 scale | /head/Sigmoid_2_output_0        |
+| 1/32 scale | /head/Sigmoid_5_output_0        |
+| 1/32 scale | /head/reg_preds.2/Conv_output_0 |
+| 1/32 scale | /head/Sigmoid_4_output_0        |
+
+<center><img src=./img/cut_yolox.png></center>
+
+```sh
+$ python3
+Python 3.8.10 (default, Feb  4 2025, 15:02:54)
+[GCC 9.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import onnx
+>>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
+>>> exit()
+
+# The following is an example for YOLOx-s.
+Python 3.8.10 (default, Feb  4 2025, 15:02:54)
+[GCC 9.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import onnx
+>>> onnx.utils.extract_model("yolox-s.onnx", "yolox-s_cut.onnx", ["images"], ["/head/Sigmoid_1_output_0", "/head/reg_preds.0/Conv_output_0", "/head/Sigmoid_output_0", "/head/Sigmoid_3_output_0", "/head/reg_preds.1/Conv_output_0", "/head/Sigmoid_2_output_0", "/head/Sigmoid_5_output_0", "/head/reg_preds.2/Conv_output_0", "/head/Sigmoid_4_output_0"])
+>>> exit()
+```
+
+## 5. Delete the environment for yolox_onnx models.
 
 ```sh
 deactivate
@@ -78,14 +117,14 @@ rm -R ${TVM_ROOT}/convert/venvs/yolox
 rm -R ${TVM_ROOT}/convert/repos/yolox
 ```
 
-## 5. Next Step
+## 6. Next Step
 
 To compile the models, enter the ONNX (.onnx) files into the compilation script in the tutorials.【See [tutorials](../../../tutorials/)】
 
 Run the script in the tutorials with the following command. For YOLOX_s, as the following.
 
 ```sh
-python3 compile_onnx_model_quant.py ../convert/output/yolox_s_megvii_onnx/yolox-s.onnx -o yolox_s_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100
+python3 compile_onnx_model_quant.py ../convert/output/yolox_s_megvii_onnx/yolox-s_cut.onnx -o yolox_s_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ----

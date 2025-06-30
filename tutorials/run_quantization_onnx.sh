@@ -64,7 +64,7 @@ python3 -m drpai_quantizer.cli_interface --calibrate_method MinMax \
         --input_model_path ${work_dir}/${MODEL_DIR}/${INPUT} \
         --output_model_path ${work_dir}/${OUTPUT} --tvm \
         ${QUANT_OPTION} \
-        exclude_act_func_dir ${work_dir}/exclude_operator 
+        --opts exclude_act_func_dir ${work_dir}/exclude_operator
 
 
 RET_CODE=$?

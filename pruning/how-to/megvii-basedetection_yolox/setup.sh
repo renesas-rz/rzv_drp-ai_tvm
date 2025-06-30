@@ -58,8 +58,9 @@ function download_base_repo
 {
     pr_info "Download the base repositories..."
 
-    git clone -b 0.3.0 https://github.com/Megvii-BaseDetection/YOLOX.git
+    git clone https://github.com/Megvii-BaseDetection/YOLOX.git
     cd YOLOX
+    git checkout 6ddff4824372906469a7fae2dc3206c7aa4bbaee
 }
 
 
@@ -69,10 +70,11 @@ function setup_python_lib
 
     python3 -m pip install cython matplotlib urllib3==1.21.1 \
                            scikit-learn==1.2.0 scikit-image==0.21.0 \
-                           onnx==1.8.1 onnxruntime==1.8.0 wheel==0.40.0
+                           onnx==1.14.0 onnxruntime==1.12.0 wheel==0.40.0
     python3 -m pip install -r requirements.txt
-    python3 -m pip install -e .
-    python3 -m pip install protobuf==3.20.1 numpy==1.21.1
+    python3 -m pip install --no-deps -e .
+    python3 -m pip install protobuf==3.20.3 numpy==1.23.5
+    python3 -m pip install -U urllib3
 }
 
 

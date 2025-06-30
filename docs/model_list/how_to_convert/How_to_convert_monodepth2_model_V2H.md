@@ -71,7 +71,7 @@ To compile the model, enter the TorchScript (.pt) files into the compilation scr
 Run the script in the tutorials with the following command.
 
 ```sh
-python3 compile_pytorch_model_quant.py ../convert/output/mono_640x192_encoder_pytorch/mono_640x192_encoder.pt -o mono_640x192_encoder_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,3,640,192
+python3 compile_pytorch_model_quant.py ../convert/output/mono_640x192_encoder_pytorch/mono_640x192_encoder.pt -o mono_640x192_encoder_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -s 1,3,640,192
 ```
 
 ----

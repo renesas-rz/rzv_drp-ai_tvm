@@ -159,7 +159,7 @@ To compile the models, enter the TorchScript (.pt) files into the compilation sc
 Run the script in the tutorials with the following command. For DenseNet169, as the following.
 
 ```sh
-python3 compile_pytorch_model_quant.py ../convert/output/cspresnet50_timm_pytorch/cspresnet50.pt -o cspresnet50_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,3,256,256
+python3 compile_pytorch_model_quant.py ../convert/output/cspresnet50_timm_pytorch/cspresnet50.pt -o cspresnet50_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -s 1,3,256,256
 ```
 
 ----

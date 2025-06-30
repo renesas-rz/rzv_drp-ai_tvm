@@ -31,7 +31,9 @@ git clone -b v5.0 --recursive https://github.com/ultralytics/yolov5.git ${TVM_RO
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov5
 sed -i -e "s@latest@tags/v5.0@g" ./utils/google_utils.py
 . ${TVM_ROOT}/convert/venvs/ultralytics_onnx/bin/activate 
-pip install torch==2.1.2 torchvision==0.16.2 onnx==1.9.0 numpy==1.23.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.*
+pip install --upgrade pip 
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.18.1
 pip install -r requirements.txt
 ```
 
@@ -41,18 +43,18 @@ Note : Check the downloaded TorchScript (.pt) file from the link in the table ab
 Use the following script to convert the model. \
 Set the options refer to the following table.
 
-|option    |value                                  |
-|----------|---------------------------------------|
-|--weights | Downloaded TorchScript (.pt) file      |
-|--img-size   |`Input shape` column in the table above|
+| option     | value                                   |
+|------------|-----------------------------------------|
+| --weights  | Downloaded TorchScript (.pt) file       |
+| --img-size | `Input shape` column in the table above |
 ---
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov5
-python export.py --weights ${torch_file} --img-size ${image_size}
+python models/export.py --weights ${torch_file} --img-size ${image_size}
 
 # The following is an example for YOLOv5l.
-python export.py --weights yolov5l.pt --img-size 640 640
+python models/export.py --weights yolov5l.pt --img-size 640 640
 
 mkdir -p ${TVM_ROOT}/convert/output/yolov5l_ultralytics_onnx
 mv yolov5l.onnx ${TVM_ROOT}/convert/output/yolov5l_ultralytics_onnx/
@@ -113,7 +115,7 @@ Run the script in the tutorials with the following command. For YOLOv5l, as the 
 
 ```sh
 python3 compile_onnx_model_quant.py ../convert/output/yolov5l_ultralytics_onnx/yolov5l_cut.onnx -o yolov5l_onnx \
--t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100
+-t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ----

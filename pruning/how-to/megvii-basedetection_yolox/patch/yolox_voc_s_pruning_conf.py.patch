@@ -1,6 +1,6 @@
 diff --git yolox_voc_s_pruning_conf.py yolox_voc_s_pruning_conf.py
 new file mode 100644
-index 0000000..acf422f
+index 0000000..9099375
 --- /dev/null
 +++ yolox_voc_s_pruning_conf.py
 @@ -0,0 +1,264 @@
@@ -259,7 +259,7 @@ index 0000000..acf422f
 +    def get_onnx_evaluator(self, batch_size, is_distributed, testdev=False, legacy=False):
 +        from onnx_voc_evaluator import OnnxVOCEvaluator
 +
-+        val_loader = self.get_eval_loader(batch_size, is_distributed, testdev, legacy)
++        val_loader = self.get_eval_loader(batch_size, is_distributed, testdev=testdev, legacy=legacy)
 +        evaluator = OnnxVOCEvaluator(
 +            dataloader=val_loader,
 +            img_size=self.test_size,

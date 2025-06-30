@@ -79,7 +79,7 @@ To compile the models, enter the TorchScript (.pt) files into the compilation sc
 Run the script in the tutorials with the following command. For sc_depth_resnet50_depth_256_dispnet, as the following.
 
 ```sh
-python3 compile_pytorch_model_quant.py ../convert/output/sc_depth_resnet50_depth_256_dispnet_pytorch/sc_depth_resnet50_depth_256_dispnet.pt -o sc_depth_resnet50_depth_256_dispnet_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,3,416,128
+python3 compile_pytorch_model_quant.py ../convert/output/sc_depth_resnet50_depth_256_dispnet_pytorch/sc_depth_resnet50_depth_256_dispnet.pt -o sc_depth_resnet50_depth_256_dispnet_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -s 1,3,416,128
 ```
 
 ----

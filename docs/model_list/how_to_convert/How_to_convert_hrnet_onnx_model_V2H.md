@@ -94,7 +94,7 @@ To compile the model, enter the ONNX (.onnx) files into the compilation script i
 Run the script in the tutorials with the following command.
 
 ```sh
-python3 compile_onnx_model_quant.py ../convert/output/hrnet_mmpose_onnx/hrnet.onnx -o hrnet_mmpose_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100
+python3 compile_onnx_model_quant.py ../convert/output/hrnet_mmpose_onnx/hrnet.onnx -o hrnet_mmpose_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ 
 ```
 
 ----

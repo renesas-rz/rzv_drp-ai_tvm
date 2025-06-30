@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ARG PRODUCT="V2L"
 
@@ -7,11 +7,10 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential cmake
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libomp-dev libgtest-dev libgoogle-glog-dev libtinfo-dev zlib1g-dev libedit-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxml2-dev llvm-8-dev g++-9 gcc-9
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential cmake python3-pip
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y llvm-14-dev
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libgl1-mesa-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y wget git vim locales
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y wget git vim locales file
 RUN locale-gen en_US.UTF-8
 
 # Install onnxruntime
@@ -26,17 +25,17 @@ RUN cd /opt && yes "" | ./poky*.sh
 RUN rm /opt/poky*.sh
 
 # Install DRP-AI Translator
+ENV TZ=Asia/Tokyo
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY ./DRP-AI_Translator-v*-Linux-x86_64-Install /opt
 RUN chmod a+x /opt/DRP-AI_Translator-v*-Linux-x86_64-Install
 RUN cd /opt && yes | ./DRP-AI_Translator-v*-Linux-x86_64-Install
 RUN rm /opt/DRP-AI_Translator-v*-Linux-x86_64-Install
 
 # Install Python packages
-RUN pip3 install onnxruntime==1.18.1
-RUN pip3 install scipy numpy==1.23.5 psutil pytest
-RUN pip3 install decorator attrs
-RUN pip3 install torchvision==0.9.0 --index-url https://download.pytorch.org/whl/cpu
-RUN pip3 install tensorflow tflite typing-extensions==4.5.0
+RUN pip3 install decorator psutil scipy attrs
+RUN pip3 install torchvision==0.12.0 --index-url https://download.pytorch.org/whl/cpu
+RUN pip3 install tensorflow tflite
 
 
 # Clone repository

@@ -39,8 +39,7 @@ python3 compile_onnx_model_quant.py \
  -c $QUANTIZER \
  -i input1 \
  -s 1,3,256,256 \
- --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
- -v 100
+ --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ## Setup the Execution Environment

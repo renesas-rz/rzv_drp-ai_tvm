@@ -59,8 +59,7 @@ $TRANSLATOR/../onnx_models/hrnet_w32_coco_256x192_sparse90.onnx \
  -c $QUANTIZER \
  -i input.1 \
  -s 1,3,256,192 \
- --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
- -v 100 
+ --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ## Setup the Execution Environment

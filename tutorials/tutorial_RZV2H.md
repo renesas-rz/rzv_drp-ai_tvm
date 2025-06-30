@@ -27,8 +27,7 @@ python3 compile_onnx_model_quant.py \
     -t $SDK \
     -d $TRANSLATOR \
     -c $QUANTIZER \
-    --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
-    -v 100 
+    --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ 
 ```
 
 <!--
@@ -40,8 +39,7 @@ python3 compile_onnx_model_quant.py \
     -t $SDK \
     -d $TRANSLATOR \
     -c $QUANTIZER \
-    -n 10 \
-    -v 100
+    -n 10 
 -->
 
 ## 2. Compile pytorch models
@@ -51,12 +49,14 @@ python3 compile_onnx_model_quant.py \
 ```sh
 cd $TVM_ROOT/tutorials/
 # Download resnet18 model from torchvision & save it as resnet18.pt
-export TVVER=`pip show torchvision | grep Version | awk '{print $2}'`
-pip3 install torchvision==0.9.1
 python3 sample_save_torch_model.py
-pip3 install torchvision==$TVVER --index-url https://download.pytorch.org/whl/cpu
+
 # Run DRP-AI TVM Compiler script
-python3 compile_pytorch_model_quant.py ./resnet18.pt -o resnet18_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,3,224,224
+python3 compile_pytorch_model_quant.py ./resnet18.pt -o resnet18_torch -t $SDK \
+        -d $TRANSLATOR -c $QUANTIZER \
+        --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
+        -s 1,3,224,224
+
 ```
 
 **Note**: Only TorchScripted model is supported. See [here for reference](https://tvm.apache.org/docs/how_to/compile_models/from_pytorch.html).
@@ -75,7 +75,11 @@ tar zxvf resnet50-v1.tar.gz -C resnet50-v1
 python3 sample_save_tflite_model.py
 
 # Run DRP-AI TVM Compiler script
-python3 compile_tflite_model_quant.py ./resnet50-v1.tflite -o resnet50_tflite -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,224,224,3
+python3 compile_tflite_model_quant.py ./resnet50-v1.tflite -o resnet50_tflite \
+        -t $SDK -d $TRANSLATOR -c $QUANTIZER \
+        --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
+        -s 1,224,224,3
+
 ```
 
 ## 4. Compile using CPU-only deploy mode
@@ -182,7 +186,7 @@ If model-compilation is failed, the error might be solved by disabling this opti
 Please set `OPTIMIZER_ENABLE=false`  as below.  
 
 ``` bash
-OPTIMIZER_ENABLE=false python3 compile_onnx_model_quant.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images calibrate_images_voc -v 100
+OPTIMIZER_ENABLE=false python3 compile_onnx_model_quant.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images calibrate_images_voc 
 ```
 
 ### b. SPARSE_ENABLE option
@@ -193,7 +197,7 @@ If you want to explicitly disable Sparse mode (to ensure processing in Dense mod
 Please set `SPARSE_ENABLE=false`  as below.  
 
 ``` bash
-SPARSE_ENABLE=false python3 compile_onnx_model_quant.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images calibrate_images_voc -v 100
+SPARSE_ENABLE=false python3 compile_onnx_model_quant.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images calibrate_images_voc 
 ```
 
 ### c. Interpreter mode

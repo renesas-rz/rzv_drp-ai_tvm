@@ -83,7 +83,7 @@ To compile the model, enter the TensorFlow (.tflite) file into the compilation s
 Run the script in the tutorials with the following command.
 
 ```sh
-python3 compile_tflite_model_quant.py ../convert/output/facenet_tflite/facenet.tflite -o facenet_tflite -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,160,160,3
+python3 compile_tflite_model_quant.py ../convert/output/facenet_tflite/facenet.tflite -o facenet_tflite -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -s 1,160,160,3
 ```
 
 ----
