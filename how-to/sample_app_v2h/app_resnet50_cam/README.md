@@ -55,8 +55,7 @@ $TRANSLATOR/../onnx_models/Resnet50v1_sparse90.onnx \
  -d $TRANSLATOR \
  -c $QUANTIZER \
  -i input.1 \
- --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
- -v 100
+ --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ## Setup the Execution Environment  

@@ -53,8 +53,7 @@ $TRANSLATOR/../onnx_models/YoloX-S_VOC_sparse70.onnx \
  -d $TRANSLATOR \
  -c $QUANTIZER \
  -s 1,3,640,640 \
- --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
- -v 100
+ --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ## Setup the Execution Environment  

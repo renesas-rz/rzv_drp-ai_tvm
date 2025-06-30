@@ -60,8 +60,7 @@ $TRANSLATOR/../onnx_models/YoloV2_sparse90.onnx \
  -c $QUANTIZER \
  -i input1 \
  -s 1,3,416,416 \
- --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
- -v 100
+ --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ## Setup the Execution Environment  

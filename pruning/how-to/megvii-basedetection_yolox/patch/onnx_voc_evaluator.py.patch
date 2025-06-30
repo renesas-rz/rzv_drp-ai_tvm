@@ -1,8 +1,8 @@
 diff --git yolox/evaluators/voc_evaluator.py yolox/evaluators/onnx_voc_evaluator.py
-index b5052e7..b196c1c 100644
+index 094df3d..b196c1c 100644
 --- yolox/evaluators/voc_evaluator.py
 +++ yolox/evaluators/onnx_voc_evaluator.py
-@@ -1,22 +1,54 @@
+@@ -1,27 +1,66 @@
  #!/usr/bin/env python3
  # -*- coding:utf-8 -*-
 +#######################################################################################################################
@@ -65,7 +65,20 @@ index b5052e7..b196c1c 100644
      """
      VOC AP Evaluation class.
      """
-@@ -38,19 +70,14 @@ class VOCEvaluator:
+ 
+-    def __init__(self, dataloader, img_size, confthre, nmsthre, num_classes):
++    def __init__(
++        self,
++        dataloader,
++        img_size,
++        confthre,
++        nmsthre,
++        num_classes,
++    ):
+         """
+         Args:
+             dataloader (Dataloader): evaluate dataloader.
+@@ -31,16 +70,16 @@ class VOCEvaluator:
                  is defined in the config file.
              nmsthre (float): IoU threshold of non-max supression ranging from 0 to 1.
          """
@@ -78,16 +91,19 @@ index b5052e7..b196c1c 100644
 +        super().__init__(dataloader, img_size, confthre, nmsthre, num_classes)
  
      def evaluate(
-         self,
-         model,
-         distributed=False,
-         half=False,
--        trt_file=None,
+-        self, model, distributed=False, half=False, trt_file=None,
+-        decoder=None, test_size=None, return_outputs=False,
++        self,
++        model,
++        distributed=False,
++        half=False,
 +        onnx_file=None,
-         decoder=None,
-         test_size=None,
++        decoder=None,
++        test_size=None,
      ):
-@@ -81,15 +108,18 @@ class VOCEvaluator:
+         """
+         VOC average precision (AP) Evaluation. Iterate inference on the test dataset
+@@ -69,17 +108,22 @@ class VOCEvaluator:
          nms_time = 0
          n_samples = max(len(self.dataloader) - 1, 1)
  
@@ -112,9 +128,14 @@ index b5052e7..b196c1c 100644
 +        else:
 +            raise RuntimeError("Please set the `onnx_file` argument to path to ONNX file.")
  
-         for cur_iter, (imgs, _, info_imgs, ids) in enumerate(
-             progress_bar(self.dataloader)
-@@ -102,7 +132,13 @@ class VOCEvaluator:
+-        for cur_iter, (imgs, _, info_imgs, ids) in enumerate(progress_bar(self.dataloader)):
++        for cur_iter, (imgs, _, info_imgs, ids) in enumerate(
++            progress_bar(self.dataloader)
++        ):
+             with torch.no_grad():
+                 imgs = imgs.type(tensor_type)
+ 
+@@ -88,7 +132,13 @@ class VOCEvaluator:
                  if is_time_record:
                      start = time.time()
  
@@ -129,16 +150,17 @@ index b5052e7..b196c1c 100644
                  if decoder is not None:
                      outputs = decoder(outputs, dtype=outputs.type())
  
-@@ -128,81 +164,3 @@ class VOCEvaluator:
+@@ -113,75 +163,4 @@ class VOCEvaluator:
+ 
          eval_results = self.evaluate_prediction(data_list, statistics)
          synchronize()
+-        if return_outputs:
+-            return eval_results, data_list
          return eval_results
 -
 -    def convert_to_voc_format(self, outputs, info_imgs, ids):
 -        predictions = {}
--        for (output, img_h, img_w, img_id) in zip(
--            outputs, info_imgs[0], info_imgs[1], ids
--        ):
+-        for output, img_h, img_w, img_id in zip(outputs, info_imgs[0], info_imgs[1], ids):
 -            if output is None:
 -                predictions[int(img_id)] = (None, None, None)
 -                continue
@@ -147,9 +169,7 @@ index b5052e7..b196c1c 100644
 -            bboxes = output[:, 0:4]
 -
 -            # preprocessing: resize
--            scale = min(
--                self.img_size[0] / float(img_h), self.img_size[1] / float(img_w)
--            )
+-            scale = min(self.img_size[0] / float(img_h), self.img_size[1] / float(img_w))
 -            bboxes /= scale
 -
 -            cls = output[:, 6]
@@ -180,7 +200,6 @@ index b5052e7..b196c1c 100644
 -                )
 -            ]
 -        )
--
 -        info = time_info + "\n"
 -
 -        all_boxes = [
@@ -201,13 +220,9 @@ index b5052e7..b196c1c 100644
 -                c_dets = torch.cat((bboxes, scores.unsqueeze(1)), dim=1)
 -                all_boxes[j][img_num] = c_dets[mask_c].numpy()
 -
--            sys.stdout.write(
--                "im_eval: {:d}/{:d} \r".format(img_num + 1, self.num_images)
--            )
+-            sys.stdout.write(f"im_eval: {img_num + 1}/{self.num_images} \r")
 -            sys.stdout.flush()
 -
 -        with tempfile.TemporaryDirectory() as tempdir:
--            mAP50, mAP70 = self.dataloader.dataset.evaluate_detections(
--                all_boxes, tempdir
--            )
+-            mAP50, mAP70 = self.dataloader.dataset.evaluate_detections(all_boxes, tempdir)
 -            return mAP50, mAP70, info

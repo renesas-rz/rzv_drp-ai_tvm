@@ -29,7 +29,9 @@ python3 -m venv ${TVM_ROOT}/convert/venvs/meituan_yolov6
 git clone -b 0.4.0 https://github.com/meituan/YOLOv6 ${TVM_ROOT}/convert/repos/meituan_yolov6 
 cd ${TVM_ROOT}/convert/repos/meituan_yolov6
 . ${TVM_ROOT}/convert/venvs/meituan_yolov6/bin/activate
-pip install torch==2.1.2 torchvision==0.16.2 onnx==1.9.0 numpy==1.19.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.*
+pip install --upgrade pip 
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.18.1
 pip install -r requirements.txt
 ```
 
@@ -64,8 +66,57 @@ ${TVM_ROOT}/convert
       └── yolov6n_meituan_onnx
            └── yolov6n.onnx
 ```
+## 4. Cut post-process with onnx file.
 
-## 4. Delete the environment for yolov6_onnx models.
+Yolov6 models have redundant post-processing part, so cut part from onnx.
+Please delete the following six nodes all yolov6 onnxs by looking at the example script below.
+
++ case 1 yolov6n or yolov6s common node names.
+
+| cut point | node name |
+| --- | --- |
+| 1/8 scale | /detect/Sigmoid_output_0 |
+| 1/8 scale | /detect/reg_preds.0/Conv_output_0 |
+| 1/16 scale | /detect/Sigmoid_1_output_0 |
+| 1/16 scale | /detect/reg_preds.1/Conv_output_0 |
+| 1/32 scale | /detect/Sigmoid_2_output_0 |
+| 1/32 scale | /detect/reg_preds.2/Conv_output_0 |
+
+<center><img src=./img/cut_yolov6n.png></center>
+
++ case 2 yolov6m or yolov6l common node names.
+
+| cut point | node name |
+| --- | --- |
+| 1/8 scale | /detect/Sigmoid_output_0 |
+| 1/8 scale | /detect/proj_conv/Conv_output_0 |
+| 1/16 scale | /detect/Sigmoid_1_output_0 |
+| 1/16 scale | /detect/proj_conv_1/Conv_output_0 |
+| 1/32 scale | /detect/Sigmoid_2_output_0 |
+| 1/32 scale | /detect/proj_conv_2/Conv_output_0 |
+
+<center><img src=./img/cut_yolov6m.png></center>
+
+```sh
+$ python3
+Python 3.8.10 (default, Feb  4 2025, 15:02:54)
+[GCC 9.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import onnx
+>>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
+>>> exit()
+
+# The following is an example for YOLOv6n.
+Python 3.8.10 (default, Feb  4 2025, 15:02:54)
+[GCC 9.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import onnx
+>>> onnx.utils.extract_model("yolov6n.onnx", "yolov6n_cut.onnx", ["images"],
+["/detect/Sigmoid_output_0", "/detect/reg_preds.0/Conv_output_0", "/detect/Sigmoid_1_output_0", "/detect/reg_preds.1/Conv_output_0", "/detect/Sigmoid_2_output_0", "/detect/reg_preds.2/Conv_output_0"])
+>>> exit()
+```
+
+## 5. Delete the environment for yolov6_onnx models.
 
 ```sh
 deactivate
@@ -74,14 +125,14 @@ rm -R ${TVM_ROOT}/convert/venvs/meituan_yolov6
 rm -R ${TVM_ROOT}/convert/repos/meituan_yolov6
 ```
 
-## 5. Next Step
+## 6. Next Step
 
 To compile the models, enter the ONNX (.onnx) files into the compilation script in the tutorials.【See [tutorials](../../../tutorials/)】
 
 Run the script in the tutorials with the following command. For YOLOv6N, as the following.
 
 ```sh
-python3 compile_onnx_model_quant.py ../convert/output/yolov6n_meituan_onnx/yolov6n.onnx -o yolov6n_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 
+python3 compile_onnx_model_quant.py ../convert/output/yolov6n_meituan_onnx/yolov6n_cut.onnx -o yolov6n_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ----

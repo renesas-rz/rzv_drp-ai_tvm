@@ -4,17 +4,17 @@
 
 Requirements are listed below.
 
-- OS : Ubuntu 20.04  
-- Python : 3.8.10
+- OS : Ubuntu 22.04  
+- Python : 3.10
 - Package : git
 - Evaluation Board: RZ/V2H EVK or RZ/V2N EVK
 - Related Software Version:
-  - [DRP-AI Translator i8 v1.04][def2]
-    - DRP-AI_Translator_i8-v1.04-Linux-x86_64-Install or later.
+  - [DRP-AI Translator i8 v1.10][def2]
+    - DRP-AI_Translator_i8-v1.10-Linux-x86_64-Install or later.
   - SDK
     - [RZ/V2H AI SDK v5.20](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
       - RTK0EF0180F05200SJ.zip or later.
-    - [RZ/V2N AI SDK v6.00pre](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
+    - [RZ/V2N AI SDK v6.00](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
       - RTK0EF0189F06000SJ.zip or lator.
 
 To install DRP-AI TVM[^1] without Dockerfile, see [Installing DRP-AI TVM](#installing-drp-ai-tvm1-rzv2h-and-rzv2n)[^1].
@@ -36,9 +36,9 @@ The following example shows a case where downloaded software is stored under /tm
 
 ```bash
 cd /opt
-apt update && DEBIAN_FRONTEND=noninteractive apt install -y git wget unzip curl libboost-all-dev libeigen3-dev build-essential python3-pip libgl1-mesa-dev
-chmod +x /tmp/DRP-AI_Translator_i8-v*-Linux-x86_64-Install
-/tmp/DRP-AI_Translator_i8-v*-Linux-x86_64-Install
+apt update && DEBIAN_FRONTEND=noninteractive apt install -y git wget unzip build-essential python3-pip libgl1-mesa-dev file
+chmod +x /tmp/DRP-AI_Translator_i8-*-Install
+/tmp/DRP-AI_Translator_i8-*-Install
 
 export PYTHONPATH=${PWD}/DRP-AI_Translator_i8/drpAI_Quantizer:${PYTHONPATH}
 ```
@@ -72,17 +72,13 @@ apt update
 DEBIAN_FRONTEND=noninteractive apt install -y software-properties-common
 add-apt-repository ppa:ubuntu-toolchain-r/test
 apt update
-DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake \
-libomp-dev libgtest-dev libgoogle-glog-dev libtinfo-dev zlib1g-dev libedit-dev \
-libxml2-dev llvm-8-dev g++-9 gcc-9
-apt install -y libboost-all-dev libeigen3-dev
+DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake llvm-14-dev
 apt install -y libgl1-mesa-dev
 
 pip3 install --upgrade pip
-pip3 install scipy==1.5.4 psutil
+pip3 install psutil numpy==1.26.4
 pip3 install cython==3.0.11
 pip3 install decorator attrs
-pip3 install torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu
 pip3 install tensorflow tflite tqdm
 
 # Install onnx runtime
@@ -95,6 +91,7 @@ mv /tmp/onnxruntime-linux-x64-1.18.1/ /opt/
 
 ```sh
 cd ~/YOURWORKDIR
+
 git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git drp-ai_tvm
 
 cd drp-ai_tvm

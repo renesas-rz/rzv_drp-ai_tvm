@@ -10,12 +10,12 @@
 
 Requirements are listed below.  
 
-- OS : Ubuntu 20.04  
-- Python : 3.8  
+- OS : Ubuntu 22.04  
+- Python : 3.10
 - Package : git
 - Evaluation Board: RZ/V2L EVK, RZ/V2M EVK, RZ/V2MA EVK
 - Related Software Version:
-  - [DRP-AI Translator V1.85 or lator](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
+  - [DRP-AI Translator V1.90 or lator](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
   - RZ/V2L
     - [RZ/V2L AI SDK v5.00](https://www.renesas.com/software-tool/rzv2l-ai-software-development-kit)
   - RZ/V2M, RZ/V2MA
@@ -36,7 +36,8 @@ Before installing DRP-AI TVM[^1], please follow the instruction below to install
 Download the DRP-AI Translator from the Software section in [DRP-AI](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai#software) and install it by following the *User's Manual* as shown below.
 
 ```sh
-./DRP-AI_Translator-v*-Linux-x86_64-Install
+apt update; apt install -y python3-pip
+yes | ./DRP-AI_Translator-v*-Linux-x86_64-Install
 export TRANSLATOR=${PWD}/drp-ai_translator_release/
 ```
 
@@ -49,7 +50,7 @@ export TRANSLATOR=${PWD}/drp-ai_translator_release/
 
   ```sh
   apt update
-  apt install -y unzip
+  apt install -y unzip file
   unzip RTK0EF0160F0*SJ.zip */poky*sh
   mv */poky*sh .
   chmod a+x poky*sh
@@ -115,14 +116,12 @@ apt update
 DEBIAN_FRONTEND=noninteractive apt install -y software-properties-common
 add-apt-repository ppa:ubuntu-toolchain-r/test
 apt update
-DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake \
-libomp-dev libgtest-dev libgoogle-glog-dev libtinfo-dev zlib1g-dev libedit-dev \
-libxml2-dev llvm-8-dev g++-9 gcc-9 wget
+DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake llvm-14-dev \
+                                              libgl1-mesa-dev
 
-pip3 install decorator attrs scipy numpy==1.23.5 pytest
-pip3 install torch==1.8.0 torchvision==0.9.0 --index-url https://download.pytorch.org/whl/cpu
-pip3 install tensorflow tflite psutil typing-extensions==4.5.0
-pip3 install onnxruntime==1.18.1
+pip3 install decorator psutil scipy attrs
+pip3 install torchvision==0.12.0 --index-url https://download.pytorch.org/whl/cpu
+pip3 install tensorflow tflite
 
 # Install onnx runtime
 wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz -O /tmp/onnxruntime.tar.gz
@@ -168,6 +167,7 @@ export PRODUCT=V2L
 #V2M/MA
 # PRODUCT=V2M or PRODUCT=V2MA
 docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} --build-arg PRODUCT=${PRODUCT} .
+
 ```
 
 Please set the values in the table below to the PRODUCT variables according to Renesas Evaluation Board Kit you use.

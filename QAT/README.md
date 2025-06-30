@@ -138,7 +138,6 @@ python  compile_onnx_model_quant.py ¥                       # Execute the compi
         -d <path-to>/drpai_quant_translator ¥               # Specify DRP-AI Translator root directory
         -q <path-to>/drpai_quant_converter ¥                # Specify Quantization tool directory
         -p "quantizer options" ¥                            # Adding Command Line Options for Quantization tool, example -p "az True"
-        -v 091 ¥                                            # Specify DRP-AI Translator version (091 or 100)
         -a ¥                                                # Specify to compile QAT models
         -m pytorch                                          # Specify the QAT models' source framework as PyTorch
 ```  
@@ -149,7 +148,6 @@ python  compile_onnx_model_quant.py ¥                       # Execute the compi
         -d <path-to>/drpai_quant_translator ¥               # Specify DRP-AI Translator root directory
         -q <path-to>/drpai_quant_converter ¥                # Specify Quantization tool directory
         -p "quantizer options" ¥                            # Adding Command Line Options for Quantization tool, example -p "az True"
-        -v 091 ¥                                            # Specify DRP-AI Translator version (091 or 100)
         -a ¥                                                # Specify to compile QAT models
         -m Tensorflow                                       # Specify the QAT models' source framework as Tensorflow
 ```  
