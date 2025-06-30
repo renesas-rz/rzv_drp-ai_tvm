@@ -1,7 +1,7 @@
 # DRP-AI TVM[^1] Application Example (RZ/V2L, RZ/V2M, RZ/V2MA)
 
 This page explains how to use the application provided in this directory, which is the example to run ResNet18 inference on the target board.
-If you would like to build an application for **RZ/V2H** [see here](./build_appV2H.md).
+If you would like to build an application for **RZ/V2H and RZ/V2N** [see here](./build_appV2H.md).
 
 ## Overview
 

@@ -497,7 +497,11 @@ void Image::write_string_rgb(std::string str, uint32_t align_type, uint32_t x, u
 * Return value  : 0 if succeeded
 *               not 0 otherwise
 ******************************************/
+#ifdef V2N
+int8_t Image::draw_depth_map(uint8_t* buffer, Camera *capture, size_t depth_w, size_t depth_h, int resize_w, int resize_h)
+#else  /* not V2N */
 int8_t Image::draw_depth_map(uint8_t* buffer, Camera *capture, size_t depth_w, size_t depth_h, size_t resize_w, size_t resize_h)
+#endif
 {
     cv::Mat src(depth_h, depth_w, CV_8UC1, buffer);
     // Color Map Apply
@@ -551,7 +555,7 @@ int8_t Image::create_side_by_side(int resized_w, int resized_h, bool is_padding)
     }
     else
     {
-        if(concat_w != this->out_w || resized_h != this->out_h)
+        if(concat_w != this->out_w || static_cast<uint32_t>(resized_h) != this->out_h)
         {
             cv::resize(concat_image, concat_image, cv::Size(this->out_w, this->out_h), 0, 0, cv::INTER_LINEAR);
         }

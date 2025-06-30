@@ -78,7 +78,7 @@ To compile the models, enter the TorchScript (.pt) files into the compilation sc
 Run the script in the tutorials with the following command. For DeepLabv3-resnet50, as the following.
 
 ```sh
-python3 compile_pytorch_model.py ../convert/output/resnext50_32x4d_torchvision_pytorch/resnext50_32x4d.pt -o resnext50_32x4d_torchvision -s 1,3,224,224
+python3 compile_pytorch_model_quant.py ../convert/output/resnext50_32x4d_torchvision_pytorch/resnext50_32x4d.pt -o resnext50_32x4d_torchvision -s 1,3,224,224
 ```
 
 ----

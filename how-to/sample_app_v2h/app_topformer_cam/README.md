@@ -2,7 +2,7 @@
 
 ## Build the application
 
-1. Please refer to [Application Example for V2H and V2N](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
+1. Please refer to [Application Example for RZ/V2H and RZ/V2N](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
 
     ```bash
     cd $TVM_ROOT/how-to/sample_app_v2h/app_topformer_cam/src
@@ -19,6 +19,8 @@
 ## AI models
 
 This sample only uses [topformer](https://github.com/hustvl/TopFormer?tab=readme-ov-file).
+
+### Edit the script to compile TopFormer
 
 ```bash
 cd $TVM_ROOT/tutorials
@@ -49,7 +51,7 @@ python3 compile_onnx_model_quant.py \
 ```bash
 cd $TVM_ROOT/../
 rm -r sample_topformer_cam  ; mkdir sample_topformer_cam
-cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_topformer_cam/
+cp $TVM_ROOT/obj/build_runtime/$PRODUCT/libtvm_runtime.so sample_topformer_cam/
 cp $TVM_ROOT/how-to/sample_app_v2h/app_topformer_cam/src/build/app_topformer_cam sample_topformer_cam/
 cp -r $TVM_ROOT/tutorials/topformer_cam sample_topformer_cam/
 tar cvfz sample_topformer.tar.gz sample_topformer_cam/
@@ -59,15 +61,15 @@ tar cvfz sample_topformer.tar.gz sample_topformer_cam/
 
 ### 1. Connecting Camera and Display
 
-- Camera
+- Camera:
   - Use a MIPI camera:
     - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
     - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
     <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
   - Use a USB camera:
     - Please connect USB camera as shown below on the EVK board
-      <img src=./img/hw_conf_v2h.png width=700>
-- Display : Please connect to the HDMI port on the EVK board
+    <img src=./img/hw_conf_v2h.png width=700>
+- Display: Please connect to the HDMI port on the EVK board
 
 ### 2. **(On RZ/V Board)** Copy and Try it  
 

@@ -1,7 +1,7 @@
 # Compile AI models (RZ/V2L, RZ/V2M, RZ/V2MA)
 
 This tutorial show how to compile an onnx AI model.
-And how to compile for **RZ/V2H**, [see here](tutorial_RZV2H.md).
+And how to compile for **RZ/V2H and RZ/V2N**, [see here](tutorial_RZV2H.md).
 
 ## Compile model with Sample Scripts
 

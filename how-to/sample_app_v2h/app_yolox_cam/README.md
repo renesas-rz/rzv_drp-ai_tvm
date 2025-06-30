@@ -2,7 +2,7 @@
 
 ## Build the application
 
-1. Please refer to [Application Example for V2H and V2N](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
+1. Please refer to [Application Example for RZ/V2H and RZ/V2N](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
 
     ```bash
     cd $TVM_ROOT/how-to/sample_app_v2h/app_yolox_cam/src
@@ -14,7 +14,7 @@
     make
     ```
 
-2. The `sample_app_drpai_tvm_yolox_cam` application binary is generated.
+2. The `app_yolox_cam` application binary is generated.
 
 ## AI models
 
@@ -64,8 +64,8 @@ $TRANSLATOR/../onnx_models/YoloX-S_VOC_sparse70.onnx \
 ```bash
 cd $TVM_ROOT/../
 rm -r sample_yolox_cam ; mkdir sample_yolox_cam
-cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_yolox_cam/
-cp $TVM_ROOT/how-to/sample_app_v2h/app_yolox_cam/src/build/sample_app_drpai_tvm_yolox_cam sample_yolox_cam/
+cp $TVM_ROOT/obj/build_runtime/$PRODUCT/libtvm_runtime.so sample_yolox_cam/
+cp $TVM_ROOT/how-to/sample_app_v2h/app_yolox_cam/src/build/app_yolox_cam sample_yolox_cam/
 cp -r $TVM_ROOT/tutorials/yolox_cam sample_yolox_cam/
 tar cvfz sample_yolox.tar.gz sample_yolox_cam/
 ```
@@ -93,8 +93,8 @@ scp <yourhost>:sample_yolox.tar.gz .
 tar xvfz sample_yolox.tar.gz
 cd sample_yolox_cam/
 export LD_LIBRARY_PATH=.
-./sample_app_drpai_tvm_yolox_cam
-# ./sample_app_drpai_tvm_yolox_cam 2 5 # run DRP-AI at 315Mhz
+./app_yolox_cam
+# ./app_yolox_cam 2 5 # run DRP-AI at 315Mhz
 ```
 
 ### 3. Following window shows up on HDMI screen

@@ -168,9 +168,6 @@ export PRODUCT=V2L
 #V2M/MA
 # PRODUCT=V2M or PRODUCT=V2MA
 docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} --build-arg PRODUCT=${PRODUCT} .
-#V2M/MA
-#docker build -t drp-ai_tvm_v2m_image_${USER} --build-arg PRODUCT="V2M" .
-#docker build -t drp-ai_tvm_v2ma_image_${USER} --build-arg PRODUCT="V2MA" .
 ```
 
 Please set the values in the table below to the PRODUCT variables according to Renesas Evaluation Board Kit you use.

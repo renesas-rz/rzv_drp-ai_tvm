@@ -7,18 +7,21 @@ Requirements are listed below.
 - OS : Ubuntu 20.04  
 - Python : 3.8.10
 - Package : git
-- Evaluation Board: RZ/V2H EVK or RZ/V2L EVK
+- Evaluation Board: RZ/V2H EVK or RZ/V2N EVK
 - Related Software Version:
   - [DRP-AI Translator i8 v1.04][def2]
     - DRP-AI_Translator_i8-v1.04-Linux-x86_64-Install or later.
   - SDK
-    - [RZ/V2H AI SDK v5.00](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
-      - RTK0EF0180F05000SJ.zip or later.
-    - [RZ/V2N AI SDK v5.00](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
-      - RTK0EF0189F05000SJ.zip or lator.
+    - [RZ/V2H AI SDK v5.20](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
+      - RTK0EF0180F05200SJ.zip or later.
+    - [RZ/V2N AI SDK v6.00pre](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
+      - RTK0EF0189F06000SJ.zip or lator.
 
-To install DRP-AI TVM[^1] without Dockerfile, see [Installing DRP-AI TVM](#installing-drp-ai-tvm1-rzv2h)[^1].  
-To install DRP-AI TVM[^1] with Dockerfile, see [Installing DRP-AI TVM](#installing-drp-ai-tvm1-with-docker-rzv2h)[^1] [with Docker for RZ/V2H and RZ/V2N](#installing-drp-ai-tvm1-with-docker-rzv2h).
+To install DRP-AI TVM[^1] without Dockerfile, see [Installing DRP-AI TVM](#installing-drp-ai-tvm1-rzv2h-and-rzv2n)[^1].
+
+To install DRP-AI TVM[^1] with Dockerfile, see [Installing DRP-AI TVM](#installing-drp-ai-tvm1-with-docker-rzv2h-and-rzv2n)[^1] [with Docker for RZ/V2H and RZ/V2N](#installing-drp-ai-tvm1-with-docker-rzv2h-and-rzv2n).
+
+## Installing DRP-AI TVM[^1] (RZ/V2H and RZ/V2N)
 
 ## Installing DRP-AI TVM[^1]
 
@@ -49,9 +52,14 @@ The following example shows a case where downloaded software is stored under /tm
 
 ```bash
 cd /tmp
-unzip RTK0EF018?F0*000SJ.zip */poky*sh 
-chmod a+x ./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-*-toolchain-3.1.*.sh 
-./ai_sdk_setup/poky-glibc-x86_64-core-image-weston-aarch64-*-toolchain-3.1.*.sh -y
+unzip RTK0EF018?F0??00SJ.zip
+mv `find ./ -name "*toolchain*sh"` .
+chmod a+x *toolchain-*.sh 
+./*toolchain-*.sh  -y
+find /opt -name "cortexa55-poky-linux" | grep -q .
+if [ $? -eq 0 ]; then
+  ln -s `find /opt -name "cortexa55-poky-linux"` `find /opt -name "cortexa55-poky-linux"`/../aarch64-poky-linux
+fi
 ```
 
 ### 2. Install the minimal pre-requisites
@@ -101,10 +109,11 @@ Note that environment variables must be set every time when opening the terminal
 export TVM_ROOT=$PWD                                        # or path to your own cloned repository.
 export TVM_HOME=${TVM_ROOT}/tvm
 export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
-export SDK=/opt/poky/3.1.31                                 # or path to your own Linux SDK.
+export SDK=`find /opt -type d -name "sysroots"`/../         # or path to your own Linux SDK.
 export TRANSLATOR=/opt/DRP-AI_Translator_i8/translator/     # or path to your own DRP-AI Translator.
 export QUANTIZER=/opt/DRP-AI_Translator_i8/drpAI_Quantizer/ # or path to your own DRP-AI Quantizer.
-export PRODUCT=V2H #or V2N
+export PRODUCT=V2N #or V2H
+
 ```
 
 ### 5. Setup DRP-AI TVM[^1] environment
@@ -114,7 +123,7 @@ cd $TVM_ROOT
 bash setup/make_drp_env.sh
 ```
 
-## Installing DRP-AI TVM[^1] with Docker (RZ/V2H)
+## Installing DRP-AI TVM[^1] with Docker (RZ/V2H and RZ/V2N)
 
 ### 1. Preparation for Docker
 
@@ -129,11 +138,11 @@ wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/Dockerfile
 ### 3. Build docker image
 
 ```bash
-export PRODUCT=V2H
-#export PRODUCT=V2N
-unzip RTK0EF018?F*SJ.zip */poky*sh
-mv ai_sdk_setup/* .
-docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} -f DockerfileV2HN --build-arg PRODUCT=${PRODUCT} .
+#export PRODUCT=V2H
+export PRODUCT=V2N
+unzip RTK0EF018?F0??00SJ.zip
+mv `find ./ -name "*toolchain*sh"` .
+docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} -f Dockerfile* --build-arg PRODUCT=${PRODUCT} .
 ```
 
 **Tip:** If you encounter an error like "404 Not Found," try adding the `--no-cache` option with "`docker build`".

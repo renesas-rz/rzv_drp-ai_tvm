@@ -1,6 +1,6 @@
 ﻿# CMakeList.txt : CMake projects in V2H_TVM_USBMIPI_SAMPLE with yolox
 cmake_minimum_required (VERSION 3.10)
-project(V2H_TVM_USBMIPI_SAMPLE)
+project(app_yolox_cam)
 set(CMAKE_CXX_STANDARD 17)
 
 # Setting and including TVM Directory
@@ -15,9 +15,20 @@ include_directories(${TVM_ROOT}/../how-to/sample_app_v2h/common_files)
 include_directories(${TVM_ROOT}/../how-to/sample_app_v2h/common_files/package)
 
 set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
-set(EXE_NAME sample_app_drpai_tvm_yolox_cam)
+set(EXE_NAME ${PROJECT_NAME}) 
 
 file(GLOB SOURCE *.cpp *.h ${TVM_ROOT}/../how-to/sample_app_v2h/common_files/*.cpp ${TVM_ROOT}/../how-to/sample_app_v2h/common_files/*.h  ../../../../apps/MeraDrpRuntimeWrapper.* ../../../../apps/PreRuntime.h ../../../../apps/PreRuntimeV2H.cpp)
+if(NOT EXISTS "$ENV{SDK}/sysroots/cortexa55-poky-linux")
+    list(REMOVE_ITEM SOURCE ${TVM_ROOT}/../how-to/sample_app_v2h/common_files/wayland_scarthgap.cpp) 
+    add_definitions(-DV2H)
+    message("-- For Dunfell or older") 
+else()
+    include_directories(${CMAKE_SYSROOT}/usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl)
+    list(REMOVE_ITEM SOURCE ${TVM_ROOT}/../how-to/sample_app_v2h/common_files/wayland.cpp)
+    list(APPEND SOURCE ${CMAKE_SYSROOT}/usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.c)
+    add_definitions(-DV2H -DV2N)
+    message("-- For Scarthgap or lator") 
+endif()
 add_executable (${EXE_NAME}
 ${SOURCE}
 )

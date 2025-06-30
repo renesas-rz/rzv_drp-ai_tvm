@@ -2,7 +2,7 @@
 
 ## Build the application
 
-1. Please refer to [Application Example for V2H and V2H](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
+1. Please refer to [Application Example for RZ/V2H and RZ/V2N](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
 
     ```bash
     cd $TVM_ROOT/how-to/sample_app_v2h/app_yolov2_cam/src
@@ -19,6 +19,8 @@
 ## AI models
 
 This sample only uses [yolov2](https://gitlab.com/EAVISE/lightnet/-/tree/v1.1.1?ref_type=tags).
+
+### Edit the script to compile YOLOv2
 
 ```bash
 cd $TVM_ROOT/tutorials
@@ -69,7 +71,7 @@ $TRANSLATOR/../onnx_models/YoloV2_sparse90.onnx \
 ```bash
 cd $TVM_ROOT/../
 rm -r sample_yolov2_cam ; mkdir sample_yolov2_cam
-cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_yolov2_cam/
+cp $TVM_ROOT/obj/build_runtime/$PRODUCT/libtvm_runtime.so sample_yolov2_cam/
 cp $TVM_ROOT/how-to/sample_app_v2h/app_yolov2_cam/src/build/app_yolov2_cam sample_yolov2_cam
 cp -r $TVM_ROOT/tutorials/yolov2_cam sample_yolov2_cam/
 tar cvfz sample_yolov2.tar.gz sample_yolov2_cam/
@@ -81,8 +83,8 @@ tar cvfz sample_yolov2.tar.gz sample_yolov2_cam/
 
 - Camera:
   - Use a MIPI camera:
-    - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
-    - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
+	  - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
+	  - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
       <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
   - Use a USB camera:
     - Please connect USB camera as shown below on the EVK board

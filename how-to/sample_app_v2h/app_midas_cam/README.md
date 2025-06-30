@@ -2,7 +2,7 @@
 
 ## Build the application
 
-1. Please refer to [Application Example for V2H](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
+1. Please refer to [Application Example for RZ/V2H and RZ/V2N](./../../../apps/build_appV2H.md#how-to-build-the-application).  An example of command execution is shown below.
 
     ```bash
     cd $TVM_ROOT/how-to/sample_app_v2h/app_midas_cam/src
@@ -50,7 +50,7 @@ python3 compile_onnx_model_quant.py \
 ```bash
 cd $TVM_ROOT/../
 rm -r sample_midas_cam  ; mkdir sample_midas_cam
-cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_midas_cam/
+cp $TVM_ROOT/obj/build_runtime/$PRODUCT/libtvm_runtime.so sample_midas_cam/
 cp $TVM_ROOT/how-to/sample_app_v2h/app_midas_cam/src/build/app_midas_cam sample_midas_cam/
 cp -r $TVM_ROOT/tutorials/midas_cam sample_midas_cam/
 tar cvfz sample_midas.tar.gz sample_midas_cam/
@@ -60,7 +60,7 @@ tar cvfz sample_midas.tar.gz sample_midas_cam/
 
 ### 1. Connecting Camera and Display
 
-- Camera
+- Camera:
   - Use a MIPI camera:
     - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
     - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
@@ -68,7 +68,7 @@ tar cvfz sample_midas.tar.gz sample_midas_cam/
   - Use a USB camera:
     - Please connect USB camera as shown below on the EVK board
     <img src=./img/hw_conf_v2h.png width=700>
-- Display : Please connect to the HDMI port on the EVK board
+- Display: Please connect to the HDMI port on the EVK board
 
 ### 2. **(On RZ/V Board)** Copy and Try it  
 

@@ -940,7 +940,7 @@ class PreRuntime():
         
         # Run DRP-AI Translator
         PRODUCT= os.getenv("PRODUCT")
-        if(PRODUCT == 'V2H'):
+        if(PRODUCT == 'V2H' or PRODUCT == 'V2N'):
             drpai_tran.run_translate("pp", \
                 prepost=pp_file, \
                 s_addr=dynamic_alloc_addr, \

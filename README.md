@@ -17,8 +17,8 @@ Contributors Licensed under an Apache-2.0 license.
 - Renesas RZ/V2L Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2l-contents-guide))
 - Renesas RZ/V2M Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2m-contents-guide))
 - Renesas RZ/V2MA Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2ma-contents-guide))
-- Renesas RZ/V2H Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2h-easy-download-guide))
-- Renesas RZ/V2N Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2n-easy-download-guide))
+- Renesas RZ/V2H Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2h-group-handbook))
+- Renesas RZ/V2N Evaluation Board Kit ([How to get](https://www.renesas.com/document/gde/rzv2n-group-handbook))
 
 ## Introduction
 

@@ -90,7 +90,7 @@ To compile the models, enter the TorchScript (.pt) files into the compilation sc
 Run the script in the tutorials with the following command. For DeepPose, as the following.
 
 ```sh
-python3 compile_pytorch_model.py ../convert/output/deeppose_res50_coco_mmpose_pytorch/deeppose_res50_coco.pt -o deeppose_res50_coco_mmpose_pytorch -s 1,3,256,192
+python3 compile_pytorch_model_quant.py ../convert/output/deeppose_res50_coco_mmpose_pytorch/deeppose_res50_coco.pt -o deeppose_res50_coco_mmpose_pytorch -s 1,3,256,192
 ```
 
 ----

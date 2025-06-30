@@ -70,7 +70,7 @@ static void color_rgb_to_hsv( float_t r, float_t g, float_t b, float_t* h, float
         }
 
         *h = 60 * ( (x-y) / (max - min) ) + bias;
-        *h = fmodf32(*h, 360.0);
+        *h = fmodf32(*h, 360.0f);
         if ( *h < 0 ) *h = *h + 360;
         *s = (max-min) / max * 255.0;
         *v = max;
@@ -89,7 +89,7 @@ static void color_hsv_to_rgb( float_t* r, float_t* g, float_t* b, float_t h, flo
     float_t max, min;
     max = v;
     min = max - ( s/255.0 * max );
-    h = fmodf32(h, 360.0);
+    h = fmodf32(h, 360.0f);
 
     if ( h >= 0 && h < 60 )
     {
@@ -157,7 +157,7 @@ static void class_ade_color_configuration()
         {
             // Here, rotate Hue 60 degrees.
             h = h - 60;
-            h = fmodf32(h, 360.0);
+            h = fmodf32(h, 360.0f);
             if ( h < 0 ) h = h + 360;
         }        
 
