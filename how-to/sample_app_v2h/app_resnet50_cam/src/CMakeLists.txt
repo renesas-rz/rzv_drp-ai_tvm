@@ -15,9 +15,20 @@ include_directories(${TVM_ROOT}/../how-to/sample_app_v2h/common_files)
 include_directories(${TVM_ROOT}/../how-to/sample_app_v2h/common_files/package)
 
 set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
-set(EXE_NAME app_resnet50_cam)
+set(EXE_NAME ${PROJECT_NAME}) 
 
 file(GLOB SOURCE *.cpp *.h ${TVM_ROOT}/../how-to/sample_app_v2h/common_files/*.cpp ${TVM_ROOT}/../how-to/sample_app_v2h/common_files/*.h  ../../../../apps/MeraDrpRuntimeWrapper.* ../../../../apps/PreRuntime.h ../../../../apps/PreRuntimeV2H.cpp)
+if(NOT EXISTS "$ENV{SDK}/sysroots/cortexa55-poky-linux")
+    list(REMOVE_ITEM SOURCE ${TVM_ROOT}/../how-to/sample_app_v2h/common_files/wayland_scarthgap.cpp) 
+    add_definitions(-DV2H)
+    message("-- For Dunfell or older") 
+else()
+    include_directories(${CMAKE_SYSROOT}/usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl)
+    list(REMOVE_ITEM SOURCE ${TVM_ROOT}/../how-to/sample_app_v2h/common_files/wayland.cpp)
+    list(APPEND SOURCE ${CMAKE_SYSROOT}/usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.c)
+    add_definitions(-DV2H -DV2N)
+    message("-- For Scarthgap or lator") 
+endif()
 add_executable (${EXE_NAME}
 ${SOURCE}
 )

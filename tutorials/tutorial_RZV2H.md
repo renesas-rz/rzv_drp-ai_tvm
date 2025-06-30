@@ -18,8 +18,6 @@ Additionally, if you want to know how to accelerate the AI model by pruning, you
 
 ```sh
 cd $TVM_ROOT/tutorials/
-export PBACK=${PRODUCT}
-export PRODUCT=V2H
 # Download onnx model from official ONNX model zoo
 wget https://github.com/onnx/models/raw/main/validated/vision/classification/resnet/model/resnet50-v1-7.onnx
 
@@ -31,7 +29,6 @@ python3 compile_onnx_model_quant.py \
     -c $QUANTIZER \
     --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
     -v 100 
-export PRODUCT=${PBACK}
 ```
 
 <!--
@@ -53,8 +50,6 @@ python3 compile_onnx_model_quant.py \
 
 ```sh
 cd $TVM_ROOT/tutorials/
-export PBACK=${PRODUCT}
-export PRODUCT=V2H
 # Download resnet18 model from torchvision & save it as resnet18.pt
 export TVVER=`pip show torchvision | grep Version | awk '{print $2}'`
 pip3 install torchvision==0.9.1
@@ -62,7 +57,6 @@ python3 sample_save_torch_model.py
 pip3 install torchvision==$TVVER --index-url https://download.pytorch.org/whl/cpu
 # Run DRP-AI TVM Compiler script
 python3 compile_pytorch_model_quant.py ./resnet18.pt -o resnet18_torch -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,3,224,224
-export PRODUCT=${PBACK}
 ```
 
 **Note**: Only TorchScripted model is supported. See [here for reference](https://tvm.apache.org/docs/how_to/compile_models/from_pytorch.html).
@@ -73,8 +67,6 @@ export PRODUCT=${PBACK}
 
 ```bash
 cd $TVM_ROOT/tutorials/
-export PBACK=${PRODUCT}
-export PRODUCT=V2H
 # Download resnet50 model from TensorFlow Hub
 mkdir resnet50-v1
 wget https://tfhub.dev/google/imagenet/resnet_v1_50/classification/5?tf-hub-format=compressed -O resnet50-v1.tar.gz
@@ -84,7 +76,6 @@ python3 sample_save_tflite_model.py
 
 # Run DRP-AI TVM Compiler script
 python3 compile_tflite_model_quant.py ./resnet50-v1.tflite -o resnet50_tflite -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ -v 100 -s 1,224,224,3
-export PRODUCT=${PBACK}
 ```
 
 ## 4. Compile using CPU-only deploy mode
@@ -95,10 +86,7 @@ Same as [Here](./README.md#41-example-using-resnet-from-the-official-onnx-model-
 
 ```bash
 cd $TVM_ROOT/tutorials/
-export PBACK=${PRODUCT}
-export PRODUCT=V2H
 python3 compile_cpu_only_onnx_model.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx_cpu -s 1,3,224,224 -i data
-export PRODUCT=${PBACK}
 ```
 
 ----

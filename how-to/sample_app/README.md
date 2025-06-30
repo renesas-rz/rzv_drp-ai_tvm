@@ -98,16 +98,28 @@ In `etc` directory, following files are provided as execution environment to be 
 |Websocket_Client/index.html | Demo page HTML file on client PC. |  
 
 ## Build the application
+
 1. Prepare the cross compiler that includes following package.
     - opencv  
     Pease refer to [How to install OpenCV to Linux Package](../../apps/README.md#how-to-install-opencv-to-linux-package).  
 2. Use the cross compiler generated in 1 to build the sample application.  
-Please refer to [Application Example](../../apps/README.md#how-to-build-the-application).  
-Please make sure to change the cross compiler path (`$SDK`) to the one generated in 1.  
+  Please refer to [Application Example](../../apps/README.md#how-to-build-the-application).
+  Please make sure to change the cross compiler path (`$SDK`) to the one generated in 1.
+
+  ```sh
+  cd $TVM_ROOT/how-to/sample_app/src
+  mkdir build
+  cd build
+  cmake -DCMAKE_TOOLCHAIN_FILE=$TVM_ROOT/apps/toolchain/runtime.cmake ..
+  make -j$(nproc)
+  ```
+
 3. Check that `sample_app_drpai_tvm_usbcam_http` application binary is generated.
 
-## Setup the Execution Environment  
-### 1. Setup the board  
+## Setup the Execution Environment
+
+### 1. Setup the board
+
 1. Copy the `sample_app_drpai_tvm_usbcam_http` application binary to `exe` directory.  
 
 2. Compile the AI models to generate following directories according to the instruction provided in each "How to create Model Object" column.  

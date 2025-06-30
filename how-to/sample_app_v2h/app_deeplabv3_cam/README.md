@@ -70,7 +70,7 @@ $TRANSLATOR/../onnx_models/DeepLabV3_sparse90.onnx \
 ```bash
 cd $TVM_ROOT/../
 rm -r sample_deeplabv3_cam  ; mkdir sample_deeplabv3_cam
-cp $TVM_ROOT/obj/build_runtime/V2H/libtvm_runtime.so sample_deeplabv3_cam/
+cp $TVM_ROOT/obj/build_runtime/$PRODUCT/libtvm_runtime.so sample_deeplabv3_cam/
 cp $TVM_ROOT/how-to/sample_app_v2h/app_deeplabv3_cam/src/build/app_deeplabv3_cam sample_deeplabv3_cam/
 cp -r $TVM_ROOT/tutorials/deeplabv3_cam sample_deeplabv3_cam/
 tar cvfz sample_deeplabv3.tar.gz sample_deeplabv3_cam/
@@ -82,8 +82,8 @@ tar cvfz sample_deeplabv3.tar.gz sample_deeplabv3_cam/
 
 - Camera:
   - Use a MIPI camera:
-    - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
-    - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
+	  - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
+	  - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
       <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
   - Use a USB camera:
     - Please connect USB camera as shown below on the EVK board

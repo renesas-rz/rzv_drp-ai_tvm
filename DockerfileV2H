@@ -28,10 +28,11 @@ RUN wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnx
     && mv /tmp/onnxruntime-linux-x64-1.18.1/ /opt/
 
 # Install SDK
-COPY ./poky*.sh /opt
-RUN chmod a+x /opt/poky*.sh
-RUN cd /opt && yes "" | ./poky*.sh
-RUN rm /opt/poky*.sh
+COPY ./*.sh /opt
+RUN chmod a+x /opt/*.sh
+RUN cd /opt && yes "" | ./*.sh
+RUN rm /opt/*.sh
+RUN ln -s `find /opt -name "cortexa55-poky-linux"` `find /opt -name "cortexa55-poky-linux"`/../aarch64-poky-linux
 
 # Install DRP-AI Translator
 COPY ./DRP-AI_Translator_i8-*-Linux-x86_64-Install  /opt
@@ -46,7 +47,7 @@ RUN git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git  ${TV
 # Set environment variables
 ENV TVM_HOME="${TVM_ROOT}/tvm"
 ENV PYTHONPATH="$TVM_HOME/python"
-RUN echo 'export SDK="/opt/poky/`ls /opt/poky/`"' >> ~/.bashrc
+RUN echo 'export SDK="`find /opt/ -name "sysroots"`/../"' >> ~/.bashrc
 ENV TRANSLATOR="/opt/DRP-AI_Translator_i8/translator/"
 ENV QUANTIZER="/opt/DRP-AI_Translator_i8/drpAI_Quantizer/"
 ENV PRODUCT="${PRODUCT}"
