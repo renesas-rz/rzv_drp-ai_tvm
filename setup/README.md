@@ -37,7 +37,7 @@ Download the DRP-AI Translator from the Software section in [DRP-AI](https://www
 
 ```sh
 apt update; apt install -y python3-pip
-yes | ./DRP-AI_Translator-v*-Linux-x86_64-Install
+yes | DEBIAN_FRONTEND=noninteractive ./DRP-AI_Translator-v*-Linux-x86_64-Install
 export TRANSLATOR=${PWD}/drp-ai_translator_release/
 ```
 
@@ -52,14 +52,18 @@ export TRANSLATOR=${PWD}/drp-ai_translator_release/
   apt update
   apt install -y unzip file
   unzip RTK0EF0160F0*SJ.zip */poky*sh
-  mv */poky*sh .
-  chmod a+x poky*sh
+  mv */*toolchain*sh .
+  chmod a+x *toolchain*sh
   ```
 
 3. Install SDK.
 
   ```sh
-  ./poky*sh -y
+  ./*toolchain*sh -y
+  find /opt -name "cortexa55-poky-linux" | grep -q .
+  if [ $? -eq 0 ]; then
+    ln -s `find /opt -name "cortexa55-poky-linux"` `find /opt -name "cortexa55-poky-linux"`/../aarch64-poky-linux
+  fi
   ```
 
 ##### RZ/V2M, RZ/V2MA
@@ -94,12 +98,13 @@ Run the following commands to set environment variables.
 Note that environment variables must be set every time when opening the terminal.
 
 ```sh
-export TVM_ROOT=$PWD/drp-ai_tvm                   # or path to your own cloned 
+export TVM_ROOT=$PWD/drp-ai_tvm                     # or path to your own cloned 
 export TVM_HOME=${TVM_ROOT}/tvm
 export PYTHONPATH=$TVM_HOME/python:${PYTHONPATH}
-export SDK=/opt/poky/3.1.31/                      # Your own Linux SDK path.
-export PRODUCT=V2L                                # Product name (V2L, V2M, or V2MA)
+export SDK=`find /opt -type d -name "sysroots"`/../ # or path to your own Linux SDK.
+export PRODUCT=V2L                                  # Product name (V2L, V2M, or V2MA)
 ```
+
 Please set the values in the table below to the PRODUCT variables according to Renesas Evaluation Board Kit you use.
 
 | Renesas Evaluation Board Kit | PRODUCT  |
@@ -114,14 +119,14 @@ Please set the values in the table below to the PRODUCT variables according to R
 # Install packagess
 apt update
 DEBIAN_FRONTEND=noninteractive apt install -y software-properties-common
-add-apt-repository ppa:ubuntu-toolchain-r/test
+yes "" |add-apt-repository ppa:ubuntu-toolchain-r/test
 apt update
 DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake llvm-14-dev \
-                                              libgl1-mesa-dev
+                                              libgl1-mesa-dev wget
 
 pip3 install decorator psutil scipy attrs
 pip3 install torchvision==0.12.0 --index-url https://download.pytorch.org/whl/cpu
-pip3 install tensorflow tflite
+pip3 install tensorflow==2.18.1 tflite
 
 # Install onnx runtime
 wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz -O /tmp/onnxruntime.tar.gz
@@ -166,7 +171,7 @@ wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/Dockerfile
 export PRODUCT=V2L
 #V2M/MA
 # PRODUCT=V2M or PRODUCT=V2MA
-docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} --build-arg PRODUCT=${PRODUCT} .
+docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} -f Dockerfile* --build-arg PRODUCT=${PRODUCT} .
 
 ```
 

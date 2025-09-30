@@ -8,7 +8,7 @@ There are three types of sample scripts to compile an AI model.
 4. Compile script with onnx model \[Only CPU\]
 
 All scripts use the DRP-AI Pre-processing Runtime Compile Module to generate object files for pre-processing, which are located in the `preprocess` directory in the output directory.
-For more details on DRP-AI Pre-processing Runtime, please refer to its [Documentation](../docs/PreRuntime.md).
+For more details on DRP-AI Pre-processing Runtime, please refer to its [Documentation](../docs/PreRuntime.md).  
 
 Additionally, if you want to know how to accelerate the AI model by pruning, you need to introduce the DRP-AI Extension Pack. The DRP-AI Extension Pack is pruning tools for accelerating the AI model. [See here for more information.](../pruning/how-to/torchvision_resnet50/README.md)
 
@@ -95,12 +95,22 @@ python3 compile_cpu_only_onnx_model.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx_
 
 ----
 
-## Tips for INT8 Quantization
+## Tips for INT8 Quantization  
+### Using the DRP-AI Quantizer
+When compiling models specifically for the DRP-AI accelerator in RZ/V2H or RZ/V2N, it is mandatory to use the DRP-AI Quantizer.   
+Example usage:  
+```sh
+-c $QUANTIZER \
+-p "quantizer options"   # Adding Command Line Options for Quantization tool, e.g., -p "--calibrate_method Percentile --opts percentile_value 99.99"
+```  
+The DRP-AI Quantizer ensures that the model is quantized to be available on the DRP-AI. When executing the above scripts, enable the quantization tool by specifying the `-c` option. Additionally, you can pass further quantization tool options using the `-p` or `--quantization_option` flags to fine-tune the quantization parameters and settings.    
+
+For detailed information on available options for the DRP-AI Quantizer, please refer to its [user manual](https://www.renesas.com/en/support/document-search?doc_file_all_types%5BManual+-+Software%5D=Manual+-+Software&keywords=R20UT5184EJ&page=0).  
+
+### Calibration Data Preparation & Pre-processing Guidelines for INT8 Quantization
 
 When using the sample script to compile the model, it includes the process of INT8 quantization. When using the sample model (specifically referring to the `resnet50-v1-7.onnx` through wget) and sample calibration data (specifically referring to the `calibrate_images_voc.tar` or `impleguide_calidata.zip` through wget), there is no need to make changes to the sample script.  
 However, If using a model other than sample model or a dataset other than sample calibration data, certain modifications to the sample script are necessary to ensure the accuracy of the model after quantization. Please refer to the following content for specific adjustment methods.
-
-### Prepare the Calibration data and Define the preprocessing of calibration data
 
 #### What is calibration in quantization
 
@@ -156,11 +166,11 @@ def pre_process_imagenet_pytorch(img, mean=[0.485, 0.456, 0.406], stdev=[0.229, 
     return img
 ```
 
-##### Customizing the data preprocessing
+#### Customizing the data preprocessing
 
 To use other models or other calibration data to perform quantization, modify this function which should be consistance with the preprocessing during training model.
 
-##### Customizing the Normalization paramter  
+#### Customizing the Normalization paramter  
 
 To adapt this preprocessing function to your specific model, Another thing need to be aware is the normalization parameter - the mean value and the standard deviation. These values must be consistent with the model when it was trained.
 
@@ -173,6 +183,44 @@ For example, if your model was trained with different mean and standard deviatio
     mean    = [0.485, 0.456, 0.406]
     stdev   = [0.229, 0.224, 0.225]
     ```
+
+### Notes Regarding Quantization Advanced options `--opts` Flag
+
+The DRP‑AI Quantizer has advanced options via the `--opts` flag.  
+
+Example of Correct Usage: <span style="color:green;">✅ OK</span>  
+```bash
+-p "--opts activation_zeropoint True percentile_value 99.99"
+```
+
+
+When passing advanced options through `--quantization_option` or `-p`, keep the following in mind:  
+
+* **Single `--opts` Limitation**  
+The `--opts` flag should only appear once when pass parameter to argument `--quantization_option` or `-p`. Due to limitations in the Python command-line parser, multiple occurrences of `--opts` will cause unexpected behavior, where only the last `--opts` is processed.
+
+Example of Incorrect Usage: <span style="color:red;">❌ NG</span>  
+```bash
+-p "--opts activation_zeropoint True --opts percentile_value 99.99"
+```  
+
+* **Notes about "--opts" option overridden between Compilation Scripts and shell script**  
+When the Compliation script is executed, the shell script [`run_quantization_onnx.sh`](./run_quantization_onnx.sh) will be called.There is `--opts` flag in the shell script, but `--opts` flag has Limitation as above.Refer to the line 66 to 67 of the script as below.
+
+```bash
+work_dir=$PWD
+cd ${TOOL_DIR}
+python3 -m drpai_quantizer.cli_interface --calibrate_method MinMax \
+        --input_model_path ${work_dir}/${MODEL_DIR}/${INPUT} \
+        --output_model_path ${work_dir}/${OUTPUT} --tvm \
+        ${QUANT_OPTION} \
+        --opts exclude_act_func_dir ${work_dir}/exclude_operator
+```  
+Due to the hardcoded option `exclude_act_func_dir`, any additional advanced options provided via `--quantization_option` or `-p` with `--opts` flags will be ignored or overwritten.
+
+#### Workaround:  
+As a workaround, remove the hardcoded options(The `L67` in `run_quantization_onnx.sh`) from the shell script and instead consolidate all advanced quantization options through a single instance of the `--opts` flag, specified via `--quantization_option`  or `-p`.
+
 
 ----
 

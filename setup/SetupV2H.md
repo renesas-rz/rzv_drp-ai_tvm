@@ -23,8 +23,6 @@ To install DRP-AI TVM[^1] with Dockerfile, see [Installing DRP-AI TVM](#installi
 
 ## Installing DRP-AI TVM[^1] (RZ/V2H and RZ/V2N)
 
-## Installing DRP-AI TVM[^1]
-
 ### 1. Preparation
 
 Before installing DRP-AI TVM[^1], please follow the instruction below to install the software listed in [Requirements](#requirements).  
@@ -79,7 +77,7 @@ pip3 install --upgrade pip
 pip3 install psutil numpy==1.26.4
 pip3 install cython==3.0.11
 pip3 install decorator attrs
-pip3 install tensorflow tflite tqdm
+pip3 install tensorflow==2.18.1 tflite tqdm
 
 # Install onnx runtime
 wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz -O /tmp/onnxruntime.tar.gz
@@ -149,9 +147,6 @@ docker build -t drp-ai_tvm_${PRODUCT,,}_image_${USER} -f Dockerfile* --build-arg
 ```sh
 docker run -it --name drp-ai_tvm_${PRODUCT,,}_container_${USER} drp-ai_tvm_${PRODUCT,,}_image_${USER}
 ```
-
-The local `$(pwd)/data` is mounted to `/drp-ai_tvm/data` on the Docker container by the above command option.  
-For example, you can use this directory to copy files created on the Docker container to your local environment.
 
 [^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
 

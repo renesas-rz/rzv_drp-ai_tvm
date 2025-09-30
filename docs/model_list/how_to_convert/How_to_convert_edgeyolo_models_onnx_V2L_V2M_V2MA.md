@@ -30,7 +30,9 @@ git clone https://github.com/LSH9832/edgeyolo ${TVM_ROOT}/convert/repos/lsh9832_
 cd ${TVM_ROOT}/convert/repos/lsh9832_edgeyolo
 git reset --hard "1d15c76db54fc191954bf474480b8c50f05a178a"
 . ${TVM_ROOT}/convert/venvs/lsh9832_edgeyolo/bin/activate
-pip install torch==1.8.0 torchvision==0.9.0 onnx==1.9.0 numpy==1.23.5 tensorrt onnxruntime protobuf==3.20.*
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.20.1
+pip install numpy==1.23.5 tensorrt protobuf==3.20.3
 pip install -r requirements.txt
 ```
 

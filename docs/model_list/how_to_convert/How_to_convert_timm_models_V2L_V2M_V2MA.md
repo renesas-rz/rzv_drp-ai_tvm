@@ -192,7 +192,10 @@ apt install -y python3-venv
 
 python3 -m venv ${TVM_ROOT}/convert/venvs/timm 
 . ${TVM_ROOT}/convert/venvs/timm/bin/activate 
-pip install torch==1.8.0 torchvision==0.9.0 pytz opencv-python gitpython pandas requests pyyaml tqdm matplotlib seaborn ipython smplx timm==0.6.12
+pip install torchvision==0.16.2 \
+    pytz opencv-python gitpython pandas requests pyyaml \
+    tqdm matplotlib seaborn psutil ipython scipy smplx \
+    numpy==1.23.5 timm==1.0.9
 ```
 
 ## 3. Download and save as TorchScript (.pt) files.

@@ -49,6 +49,7 @@ This directory contains the solution to specific problems related to DRP-AI TVM[
 - [How to read compile log](tips/how-to-read-log.md)
 - [How to compare CPU vs DRP-AI TVM accuracy differences for ONNX model](tips/compare_difference)
 - [How to obtain profiling data](tips/profiling)
+- [How to optimize post-processing](tips/post_processing_optimization_method/README.md)
 
 ---
 [^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.

@@ -38,7 +38,7 @@ apt install -y python3-venv
 python3 -m venv ${TVM_ROOT}/convert/venvs/pytorch
 . ${TVM_ROOT}/convert/venvs/pytorch/bin/activate
 
-pip install torch==1.8.0 torchvision==0.9.0 \
+pip install torch==2.1.2 torchvision==0.16.2 \
     pytz opencv-python gitpython pandas requests pyyaml \
     tqdm matplotlib seaborn psutil ipython scipy smplx \
     numpy==1.23.5
