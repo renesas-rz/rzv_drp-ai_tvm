@@ -29,8 +29,11 @@ apt install -y python3-venv
 python3 -m venv ${TVM_ROOT}/convert/venvs/ultralytics_onnx
 git clone -b v7.0 --recursive https://github.com/ultralytics/yolov5.git ${TVM_ROOT}/convert/repos/ultralytics_yolov5
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov5
+sed -i -e "s@latest@tags/v5.0@g" ./utils/google_utils.py
 . ${TVM_ROOT}/convert/venvs/ultralytics_onnx/bin/activate 
-pip install torch==1.8.0 torchvision==0.9.0 onnx==1.9.0 numpy==1.19.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.*
+pip install --upgrade pip 
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.20.1
 pip install -r requirements.txt
 ```
 

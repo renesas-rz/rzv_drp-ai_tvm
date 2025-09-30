@@ -28,10 +28,13 @@ apt install -y python3-venv
 
 python3 -m venv ${TVM_ROOT}/convert/venvs/ultralytics_onnx
 . ${TVM_ROOT}/convert/venvs/ultralytics_onnx/bin/activate
-pip install torch==1.8.0 torchvision==0.9.0 onnx==1.9.0 numpy==1.19.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.* ultralytics==8.0.104
 git clone --recursive https://github.com/ultralytics/ultralytics ${TVM_ROOT}/convert/repos/ultralytics_yolov8
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov8
 git reset --hard "b1119d512e738e90f2327b316216b069ed576a56"
+pip install --upgrade pip 
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.20.1
+pip install ultralytics==8.0.104
 ```
 
 ## 3. Convert TorchScript (.pt) files to ONNX (.onnx) files.

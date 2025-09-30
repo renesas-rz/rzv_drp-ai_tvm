@@ -30,7 +30,9 @@ git clone https://github.com/Megvii-BaseDetection/YOLOX ${TVM_ROOT}/convert/repo
 cd ${TVM_ROOT}/convert/repos/yolox
 git reset --hard "ac58e0a5e68e57454b7b9ac822aced493b553c53"
 . ${TVM_ROOT}/convert/venvs/yolox/bin/activate
-pip install torch==1.8.0 torchvision==0.9.0 onnx==1.9.0 numpy==1.19.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.*
+pip install --upgrade pip 
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.20.1 
 pip install .
 ```
 

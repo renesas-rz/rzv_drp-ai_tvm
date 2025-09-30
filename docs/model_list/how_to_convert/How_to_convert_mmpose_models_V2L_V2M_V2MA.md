@@ -27,14 +27,14 @@ apt install -y python3-venv
 python3 -m venv ${TVM_ROOT}/convert/venvs/mmpose
 . ${TVM_ROOT}/convert/venvs/mmpose/bin/activate
 
-pip install torch==1.8.0 torchvision==0.9.0 \
+pip install torch==2.1.2 torchvision==0.16.2 opencv-python==4.10.0.84 \
     pytz opencv-python gitpython pandas requests pyyaml \
     tqdm matplotlib seaborn psutil ipython scipy smplx \
     numpy==1.23.5
 
-git clone -b v1.7.0 https://github.com/open-mmlab/mmcv.git ${TVM_ROOT}/convert/repos/mmcv
+git clone -b v1.7.2 https://github.com/open-mmlab/mmcv.git ${TVM_ROOT}/convert/repos/mmcv
 git clone -b v2.28.2 https://github.com/open-mmlab/mmdetection.git ${TVM_ROOT}/convert/repos/mmdetection
-git clone --recursive -b v0.29.0 https://github.com/open-mmlab/mmpose.git ${TVM_ROOT}/convert/repos/mmpose
+git clone --recursive -b 0.x https://github.com/open-mmlab/mmpose.git ${TVM_ROOT}/convert/repos/mmpose
 
 cd ${TVM_ROOT}/convert/repos/mmcv
 MMCV_WITH_OPS=1 pip install -e .

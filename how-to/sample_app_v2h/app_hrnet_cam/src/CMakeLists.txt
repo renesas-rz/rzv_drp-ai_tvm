@@ -33,7 +33,7 @@ add_executable (${EXE_NAME}
 ${SOURCE}
 )
 
-target_compile_options(${EXE_NAME} PRIVATE -O3 -Ofast -mtune=cortex-a55 -Wall)
+target_compile_options(${EXE_NAME} PRIVATE -O3 -mtune=cortex-a55 -Wall)
 target_compile_definitions(${EXE_NAME} PRIVATE IMAGE_MODE)
 target_compile_definitions(${EXE_NAME} PRIVATE V2H)
 target_compile_definitions(${EXE_NAME} PRIVATE DEBUG_LOG)

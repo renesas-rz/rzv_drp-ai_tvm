@@ -32,7 +32,9 @@ git clone https://github.com/WongKinYiu/yolov7 ${TVM_ROOT}/convert/repos/wongkin
 cd ${TVM_ROOT}/convert/repos/wongkinyiu_yolov7
 git reset --hard "3b41c2cc709628a8c1966931e696b14c11d6db0c"
 . ${TVM_ROOT}/convert/venvs/wongkinyiu_yolov7/bin/activate
-pip install torch==1.8.0 torchvision==0.9.0 onnx==1.9.0 numpy==1.19.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.*
+pip install --upgrade pip 
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.20.1
 pip install -r requirements.txt
 ```
 

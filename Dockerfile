@@ -19,23 +19,22 @@ RUN wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnx
     && mv /tmp/onnxruntime-linux-x64-1.18.1/ /opt/
     
 # Install SDK
-COPY ./poky*.sh /opt
-RUN chmod a+x /opt/poky*.sh
-RUN cd /opt && yes "" | ./poky*.sh
-RUN rm /opt/poky*.sh
+COPY ./*toolchain*.sh /opt
+RUN chmod a+x /opt/*toolchain*.sh
+RUN cd /opt && yes "" | ./*toolchain*.sh -y
+RUN rm /opt/*toolchain*.sh
+RUN ln -s `find /opt -name "cortexa55-poky-linux"` `find /opt -name "cortexa55-poky-linux"`/../aarch64-poky-linux
 
 # Install DRP-AI Translator
-ENV TZ=Asia/Tokyo
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY ./DRP-AI_Translator-v*-Linux-x86_64-Install /opt
 RUN chmod a+x /opt/DRP-AI_Translator-v*-Linux-x86_64-Install
-RUN cd /opt && yes | ./DRP-AI_Translator-v*-Linux-x86_64-Install
+RUN cd /opt && yes | DEBIAN_FRONTEND=noninteractive ./DRP-AI_Translator-v*-Linux-x86_64-Install
 RUN rm /opt/DRP-AI_Translator-v*-Linux-x86_64-Install
 
 # Install Python packages
 RUN pip3 install decorator psutil scipy attrs
 RUN pip3 install torchvision==0.12.0 --index-url https://download.pytorch.org/whl/cpu
-RUN pip3 install tensorflow tflite
+RUN pip3 install tensorflow==2.18.1 tflite
 
 
 # Clone repository
@@ -45,7 +44,7 @@ RUN git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git  ${TV
 # Set environment variables
 ENV TVM_HOME="${TVM_ROOT}/tvm"
 ENV PYTHONPATH="$TVM_HOME/python"
-RUN echo 'export SDK="/opt/poky/`ls /opt/poky/`"' >> ~/.bashrc
+RUN echo 'export SDK="`find /opt/ -name "sysroots"`/../"' >> ~/.bashrc
 ENV TRANSLATOR="/opt/drp-ai_translator_release"
 ENV PRODUCT="${PRODUCT}"
 

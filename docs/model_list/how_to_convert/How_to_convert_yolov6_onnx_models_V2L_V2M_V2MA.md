@@ -29,7 +29,9 @@ python3 -m venv ${TVM_ROOT}/convert/venvs/meituan_yolov6
 git clone -b 0.4.0 https://github.com/meituan/YOLOv6 ${TVM_ROOT}/convert/repos/meituan_yolov6 
 cd ${TVM_ROOT}/convert/repos/meituan_yolov6
 . ${TVM_ROOT}/convert/venvs/meituan_yolov6/bin/activate
-pip install torch==1.8.0 torchvision==0.9.0 onnx==1.9.0 numpy==1.19.5 matplotlib==3.2.2 pandas==1.3.3 protobuf==3.20.*
+pip install --upgrade pip 
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install onnx==1.16.0 onnxruntime==1.20.1 requests
 pip install -r requirements.txt
 ```
 
