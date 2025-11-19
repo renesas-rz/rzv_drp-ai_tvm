@@ -33,7 +33,7 @@ cd ${TVM_ROOT}/convert/repos/ultralytics_yolov8
 git reset --hard "b1119d512e738e90f2327b316216b069ed576a56"
 pip install --upgrade pip 
 pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
-pip install onnx==1.16.0 onnxruntime==1.18.1
+pip install onnx==1.16.0 onnxruntime==1.20.1
 pip install ultralytics==8.0.104
 ```
 
@@ -86,16 +86,16 @@ Please delete the following six nodes common to all yolov8 onnxs by looking at t
 
 ```sh
 $ python3
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
 >>> exit()
 
 # The following is an example for YOLOv5l.
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("yolov8n.onnx", "yolov8n_cut.onnx", ["images"], ["/model.22/cv3.0/cv3.0.2/Conv_output_0", "/model.22/cv2.0/cv2.0.2/Conv_output_0", "/model.22/cv3.1/cv3.1.2/Conv_output_0", "/model.22/cv2.1/cv2.1.2/Conv_output_0", "/model.22/cv3.2/cv3.2.2/Conv_output_0", "/model.22/cv2.2/cv2.2.2/Conv_output_0"])

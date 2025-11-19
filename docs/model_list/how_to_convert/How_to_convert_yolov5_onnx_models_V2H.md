@@ -33,7 +33,7 @@ sed -i -e "s@latest@tags/v5.0@g" ./utils/google_utils.py
 . ${TVM_ROOT}/convert/venvs/ultralytics_onnx/bin/activate 
 pip install --upgrade pip 
 pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
-pip install onnx==1.16.0 onnxruntime==1.18.1
+pip install onnx==1.16.0 onnxruntime==1.20.1 requests
 pip install -r requirements.txt
 ```
 
@@ -82,16 +82,16 @@ Please delete the following three nodes common to all yolov5 onnxs by looking at
 
 ```sh
 $ python3
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
 >>> exit()
 
 # The following is an example for YOLOv5l.
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("yolov5l.onnx", "yolov5l_cut.onnx", ["images"],["/model.24/m.0/Conv_output_0", "/model.24/m.1/Conv_output_0", "/model.24/m.2/Conv_output_0"])

@@ -33,7 +33,7 @@ git clone -b v8.3.0 --recursive https://github.com/ultralytics/ultralytics ${TVM
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov11
 pip install --upgrade pip 
 pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
-pip install onnx==1.16.0 onnxruntime==1.18.1  onnxslim==0.1.34
+pip install onnx==1.16.0 onnxruntime==1.20.1  onnxslim==0.1.34
 pip install ultralytics==8.3.0
 ```
 
@@ -54,18 +54,18 @@ Set the options refer to the following table.
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov11
 
 # execute below python sctiprs
-from ultralytics import YOLO
-     model = YOLO(${model})↵
-     _ = model.export(format="onnx", opset=13, imgsz=${img_size})
+>>> from ultralytics import YOLO
+>>> model = YOLO("${model}")
+>>> _ = model.export(format="onnx", opset=13, imgsz=${img_size})
 
 # The following is an example for YOLOv11n
 # execute below python sctiprs
-from ultralytics import YOLO
-     model = YOLO(yolo11n.pt)↵
-     _ = model.export(format="onnx", opset=13, imgsz=640)
+>>> from ultralytics import YOLO
+>>> model = YOLO("yolo11n.pt")
+>>> _ = model.export(format="onnx", opset=13, imgsz=640)
 
 mkdir -p ${TVM_ROOT}/convert/output/yolov11n_ultralytics_onnx
-mv yolo11n.onnx ${TVM_ROOT}/convert/output/yolov11n_ultralytics_onnx/yolov11.onnx
+mv yolo11n.onnx ${TVM_ROOT}/convert/output/yolov11n_ultralytics_onnx/yolov11n.onnx
 ```
 
 After the above command is executed, the file structure will be as follows.
@@ -94,16 +94,16 @@ Please delete the following six nodes common to all yolov11 onnxs by looking at 
 
 ```sh
 $ python3
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
 >>> exit()
 
 # The following is an example for YOLOv11n.
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("yolov11n.onnx", "yolov11n_cut.onnx", ["images"], ["/model.23/cv3.0/cv3.0.2/Conv_output_0", "/model.23/cv2.0/cv2.0.2/Conv_output_0", "/model.23/cv3.1/cv3.1.2/Conv_output_0", "/model.23/cv2.1/cv2.1.2/Conv_output_0", "/model.23/cv3.2/cv3.2.2/Conv_output_0", "/model.23/cv2.2/cv2.2.2/Conv_output_0"])

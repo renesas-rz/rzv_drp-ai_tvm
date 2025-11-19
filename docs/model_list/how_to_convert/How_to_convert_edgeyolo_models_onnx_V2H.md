@@ -34,7 +34,7 @@ cd ${TVM_ROOT}/convert/repos/lsh9832_edgeyolo
 git reset --hard "1d15c76db54fc191954bf474480b8c50f05a178a"
 . ${TVM_ROOT}/convert/venvs/lsh9832_edgeyolo/bin/activate
 pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
-pip install onnx==1.16.0 onnxruntime==1.18.1
+pip install onnx==1.16.0 onnxruntime==1.20.1
 pip install numpy==1.23.5 tensorrt protobuf==3.20.3
 pip install -r requirements.txt
 ```
@@ -91,16 +91,16 @@ Please delete the following six nodes common to all edgeyolo onnxs by looking at
 
 ```sh
 $ python3
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
 >>> exit()
 
 # The following is an example for edgeyolo_tiny.
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("edgeyolo_tiny.onnx", "edgeyolo_tiny_cut.onnx", ["input_0"], ["/model.113/cls_preds.0/Conv_output_0", "/model.113/rego_preds.0/Conv_output_0", "/model.113/cls_preds.1/Conv_output_0", "/model.113/rego_preds.1/Conv_output_0", "/model.113/cls_preds.2/Conv_output_0", "/model.113/rego_preds.2/Conv_output_0"])

@@ -32,7 +32,7 @@ git reset --hard "ac58e0a5e68e57454b7b9ac822aced493b553c53"
 . ${TVM_ROOT}/convert/venvs/yolox/bin/activate
 pip install --upgrade pip 
 pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
-pip install onnx==1.16.0 onnxruntime==1.18.1 
+pip install onnx==1.16.0 onnxruntime==1.20.1 
 pip install .
 ```
 
@@ -92,16 +92,16 @@ Please delete the following six nodes common to all yolox onnxs by looking at th
 
 ```sh
 $ python3
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
 >>> exit()
 
 # The following is an example for YOLOx-s.
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("yolox-s.onnx", "yolox-s_cut.onnx", ["images"], ["/head/Sigmoid_1_output_0", "/head/reg_preds.0/Conv_output_0", "/head/Sigmoid_output_0", "/head/Sigmoid_3_output_0", "/head/reg_preds.1/Conv_output_0", "/head/Sigmoid_2_output_0", "/head/Sigmoid_5_output_0", "/head/reg_preds.2/Conv_output_0", "/head/Sigmoid_4_output_0"])
