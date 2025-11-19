@@ -31,7 +31,7 @@ cd ${TVM_ROOT}/convert/repos/meituan_yolov6
 . ${TVM_ROOT}/convert/venvs/meituan_yolov6/bin/activate
 pip install --upgrade pip 
 pip install torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
-pip install onnx==1.16.0 onnxruntime==1.18.1
+pip install onnx==1.16.0 onnxruntime==1.20.1 requests
 pip install -r requirements.txt
 ```
 
@@ -99,19 +99,19 @@ Please delete the following six nodes all yolov6 onnxs by looking at the example
 
 ```sh
 $ python3
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
 >>> exit()
 
 # The following is an example for YOLOv6n.
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
->>> onnx.utils.extract_model("yolov6n.onnx", "yolov6n_cut.onnx", ["images"],
+>>> onnx.utils.extract_model("yolov6s.onnx", "yolov6s_cut.onnx", ["images"],
 ["/detect/Sigmoid_output_0", "/detect/reg_preds.0/Conv_output_0", "/detect/Sigmoid_1_output_0", "/detect/reg_preds.1/Conv_output_0", "/detect/Sigmoid_2_output_0", "/detect/reg_preds.2/Conv_output_0"])
 >>> exit()
 ```

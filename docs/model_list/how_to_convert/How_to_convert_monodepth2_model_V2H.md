@@ -24,7 +24,7 @@ apt install -y python3-venv
 
 python3 -m venv ${TVM_ROOT}/convert/venvs/monodepth2
 . ${TVM_ROOT}/convert/venvs/monodepth2/bin/activate
-pip install torch==2.1.2 torchvision==0.16.2 pytz opencv-python gitpython pandas requests pyyaml tqdm matplotlib seaborn ipython smplx 
+pip install torch==2.1.2 torchvision==0.16.2 pytz opencv-python gitpython pandas requests pyyaml tqdm matplotlib seaborn ipython smplx numpy==1.23.5
 git clone https://github.com/nianticlabs/monodepth2.git ${TVM_ROOT}/convert/repos/monodepth2
 cd ${TVM_ROOT}/convert/repos/monodepth2
 git reset --hard "b676244e5a1ca55564eb5d16ab521a48f823af31"

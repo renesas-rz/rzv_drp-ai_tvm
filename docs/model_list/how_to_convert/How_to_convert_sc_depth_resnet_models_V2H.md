@@ -27,7 +27,7 @@ apt install -y python3-venv
 
 python3 -m venv ${TVM_ROOT}/convert/venvs/sc_deapth
 . ${TVM_ROOT}/convert/venvs/sc_deapth/bin/activate 
-pip install torch==2.1.2 torchvision==0.16.2 pytz opencv-python gitpython pandas requests pyyaml tqdm matplotlib seaborn ipython smplx
+pip install torch==2.1.2 torchvision==0.16.2 pytz opencv-python gitpython pandas requests pyyaml tqdm matplotlib seaborn ipython smplx numpy==1.23.5
 git clone https://github.com/JiawangBian/SC-SfMLearner-Release.git ${TVM_ROOT}/convert/repos/SC-SfMLearner-Release
 
 # Change name of .tar file

@@ -8,8 +8,8 @@ The AI models in the table below are available via direct links.
 | [YOLOv10s](https://github.com/THU-MIG/yolov10/releases/download/v1.1/yolov10s.onnx) | yolov10s            | (640, 640)  | Object Detection |
 | [YOLOv10m](https://github.com/THU-MIG/yolov10/releases/download/v1.1/yolov10m.onnx) | yolov10m            | (640, 640)  | Object Detection |
 | [YOLOv10b](https://github.com/THU-MIG/yolov10/releases/download/v1.1/yolov10b.onnx) | yolov10b            | (640, 640)  | Object Detection |
-| [YOLOv10l](https://github.com/THU-MIG/yolov10/releases/download/v1.1/yolov10l.onnx) | yolov10b            | (640, 640)  | Object Detection |
-| [YOLOv10x](https://github.com/THU-MIG/yolov10/releases/download/v1.1/yolov10x.onnx) | yolov10b            | (640, 640)  | Object Detection |
+| [YOLOv10l](https://github.com/THU-MIG/yolov10/releases/download/v1.1/yolov10l.onnx) | yolov10l            | (640, 640)  | Object Detection |
+| [YOLOv10x](https://github.com/THU-MIG/yolov10/releases/download/v1.1/yolov10x.onnx) | yolov10x            | (640, 640)  | Object Detection |
 
 
 ---
@@ -36,16 +36,16 @@ Please delete the following six nodes common to all yolov10 onnxs by looking at 
 
 ```sh
 $ python3
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("<onnx name>", "<cut onnx name>", "<input_node_list>", "<output_node_list>")
 >>> exit()
 
 # The following is an example for YOLOv10n.
-Python 3.8.10 (default, Feb  4 2025, 15:02:54)
-[GCC 9.4.0] on linux
+Python 3.10.12 (main, Aug 15 2025, 14:32:43)
+[GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
 >>> onnx.utils.extract_model("yolov10n.onnx", "yolov10n_cut.onnx", ["images"], ["/model.23/one2one_cv3.0/one2one_cv3.0.2/Conv_output_0", "/model.23/one2one_cv2.0/one2one_cv2.0.2/Conv_output_0", "/model.23/one2one_cv3.1/one2one_cv3.1.2/Conv_output_0", "/model.23/one2one_cv2.1/one2one_cv2.1.2/Conv_output_0", "/model.23/one2one_cv3.2/one2one_cv3.2.2/Conv_output_0", "/model.23/one2one_cv2.2/one2one_cv2.2.2/Conv_output_0"])
