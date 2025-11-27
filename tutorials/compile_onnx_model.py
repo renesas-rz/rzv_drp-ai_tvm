@@ -24,19 +24,13 @@
 from drpai_preprocess import * 
 import os
 import onnx
-import tvm
 import sys
-import numpy as np
 
-from tvm import relay, runtime
+from tvm import relay
 from tvm.relay.mera import drp
-from tvm.contrib import graph_executor
-from google.protobuf.json_format import MessageToDict
-from optparse import OptionParser
 
+from drpai_preprocess import preruntime, drpai_param, op
 from arg_parser import get_args
-
-import json
 
 PRODUCT= os.getenv("PRODUCT")
 if(PRODUCT == None):
@@ -71,11 +65,19 @@ if __name__ == "__main__":
     # 2.2 Set input data information
     shape_dict = {opts["input_name"]:opts["input_shape"]}
 
-    # 3. Run DRP-AI TVM[*1] compiler 
-    # 3.1 Run TVM Frontend
-    print("-------------------------------------------------")
-    print("   Run TVM frotend compiler ")
-    mod, params = relay.frontend.from_onnx(onnx_model, shape_dict)
+    try:
+        # 3. Run DRP-AI TVM[*1] compiler
+        # 3.1 Run TVM Frontend
+        print("-------------------------------------------------")
+        print("   Run TVM frontend compiler ")
+        mod, params = relay.frontend.from_onnx(onnx_model, shape_dict)
+    except Exception as e:
+        print(f"An error occured: {e}")
+        if not opts["input_name"]: print("Try again with ' -i : Input node name of AI model'")
+
+        if not opts["input_shape"]: print("Try again with ' -s : Input shape of AI model'")
+        elif opts["input_shape"] == [1, 3, 224, 224]: print("Did you pass an input shape with -s?")
+        sys.exit(1)
 
     # 3.2 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")
