@@ -16,4 +16,6 @@ You can confirm the RZ/V2H operation and performance of the each AI model.
 |Model Name|Description|
 |:---|:---|
 |Megvii-BaseDetection YOLOX|For more details about how to use it, please see this [document](./megvii-basedetection_yolox/README.md).|
+|Ultralytics_Yolov8x|For more details about how to use it, please see this [document](./ultralytics_yolov8x/README.md).|
+|Hustvl_Topformer|For more details about how to use it, please see this [document](./hustvl_topformer/README.md).|
 

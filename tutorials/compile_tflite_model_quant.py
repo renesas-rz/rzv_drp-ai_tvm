@@ -1,7 +1,7 @@
 #
-#  Original code (C) Copyright EdgeCortix, Inc. 2022
-#  Modified Portion (C) Copyright Renesas Electronics Corporation 2023
-#
+#  Original code (C) Copyright EdgeCortix, Inc. 2025
+#  Modified Portion (C) Copyright Renesas Electronics Corporation 2025
+# 
 #   *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 # 
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -35,12 +35,10 @@ import cv2
 from PIL import Image
 import torchvision.transforms.functional as F
 
-from tvm import relay, runtime
-from tvm.relay.mera import drp
-from tvm.contrib import graph_executor
+import mera2_ as mera2
+from mera2_ import runtime, graph_executor
 from collections import namedtuple
 from optparse import OptionParser
-from torchvision import models
 
 from arg_parser import get_args
 
@@ -107,8 +105,17 @@ if __name__ == "__main__":
         print("Calibration data record directory not specified: use .data and clear it now.")
         if os.path.exists(record_dir):
             shutil.rmtree(record_dir)
-    
+    os.makedirs(record_dir, exist_ok=True)
     print("Calibration data record directory: ", record_dir)
+
+    print("Compiling ", model_file, ":")
+    print("  Cross-compilation toolchain: ", opts["toolchain_dir"])
+    print("  DRP-AI Quant Translator: ", opts["drp_compiler_dir"])
+    print("  DRP-AI Quant Translator Version: ", opts["drp_compiler_version"])
+    print("  DRP-AI Quant Converter: ", opts["quantization_tool"])
+    print("  DRP-AI Quant Option: ", opts["quantization_option"])
+    print("  Calibration data record directory: ", opts["record_dir"])
+    print("  Number input random frames: ", opts["num_frame"])
     
     # 2. Load tflite model and set input shape.
     tflite_model_buf = open(model_file, "rb").read()
@@ -118,19 +125,51 @@ if __name__ == "__main__":
     shape_list = [(input_name, opts["input_shape"])]
 
     # 3. Run DRP-AI TVM[*1] compiler 
-    # 3.1 Run TVM Frontend
+    
     print("-------------------------------------------------")
     print("   Run TVM frotend compiler ")
-    mod, params = relay.frontend.from_tflite(tflite_model)
-    # 3.2 Create calibration data(using random values.)
-    drp_config = {
-        "target": "Fp32DataRecorder",
-        "drp_compiler_version": opts["drp_compiler_version"],
-        "record_dir": record_dir,
-    }
+    try:
+        # 3.1 Run TVM Frontend
+        mod, params = mera2.from_tflite(model_file, \
+                                    is_quant=True, \
+                                    acl_mode=opts["acl_mode"], \
+                                    cpu_data_type=opts["cpu_data_type"], \
+                                    use_mera2=not opts["mera1_mode"])
+        # 3.2 Create calibration data(using random values.)
+        drp_config = {
+            "target": "Fp32DataRecorder",
+            "drp_compiler_version": opts["drp_compiler_version"],
+            "record_dir": record_dir,
+        }
 
-    # 3.2.2 Run the backend compiler for x86 and generate reference output.
-    json, params, lib_path = drp.build(mod, params, "x86", drp_config, output_dir="_out", disable_concat= opts["disable_concat"], cpu_data_type=opts["cpu_data_type"])
+        # 3.2.2 Run the backend compiler for x86 and generate calibaration data.
+        json, params, lib_path = mera2.drp.build(mod, params, "x86", drp_config, \
+                                                output_dir=record_dir, \
+                                                disable_concat=False, \
+                                                cpu_data_type=opts["cpu_data_type"], \
+                                                )
+    except:
+        # 3.1 Run TVM Frontend
+        print("[INFO] Switch to mera1 mode")
+        opts["mera1_mode"] = True
+        mod, params = mera2.from_tflite(model_file, \
+                                    is_quant=True, \
+                                    acl_mode=opts["acl_mode"], \
+                                    cpu_data_type=opts["cpu_data_type"], \
+                                    use_mera2=not opts["mera1_mode"])
+        # 3.2 Create calibration data(using random values.)
+        drp_config = {
+            "target": "Fp32DataRecorder",
+            "drp_compiler_version": opts["drp_compiler_version"],
+            "record_dir": record_dir,
+        }
+
+        # 3.2.2 Run the backend compiler for x86 and generate calibaration data.
+        json, params, lib_path = mera2.drp.build(mod, params, "x86", drp_config, \
+                                                output_dir=record_dir, \
+                                                disable_concat=False, \
+                                                cpu_data_type=opts["cpu_data_type"], \
+                                                )
     lib = runtime.load_module(lib_path)
     ctx = runtime.cpu()
     rt_mod = graph_executor.create(json, lib, ctx)
@@ -172,38 +211,50 @@ if __name__ == "__main__":
         "quantization_option": opts["quantization_option"],
         "calibration_data": record_dir
     }
-    output_dir="_out_quant"
-    os.makedirs(output_dir, exist_ok=True)
 
     # 3.3.2 Run the backend compiler for x86 and generate reference output of int8.
     ref_result_output_dir = os.path.join(opts["output_dir"],"interpreter_out")
     os.makedirs(ref_result_output_dir, exist_ok=True)
     input_data.flatten().astype(np.float32).tofile(
             os.path.join(ref_result_output_dir, "input_" + str(0) + ".bin"))
-    json, params, lib_path = drp.build(mod, params, "x86", drp_config, output_dir, disable_concat= opts["disable_concat"], cpu_data_type=opts["cpu_data_type"])
-    lib = runtime.load_module(lib_path)
+    host_arch = "x86"
+    json, params, lib_path = mera2.drp.build(mod, params, host_arch, drp_config, \
+                                             output_dir=output_dir, \
+                                            disable_concat=False, \
+                                            cpu_data_type=opts["cpu_data_type"], \
+                                            )
     ctx = runtime.cpu()
     rt_mod = graph_executor.create(json, lib, ctx)
     rt_mod.set_input(**params)
     rt_mod.set_input(0, input_data)
     rt_mod.run()
 
-    # 3.3.3 Save to use as reference output.
+    # 3.3.3 Save output data to use it as reference output.
     for i in range(rt_mod.get_num_outputs()):
-        byoc_output = rt_mod.get_output(i).asnumpy()
+        byoc_output = rt_mod.get_output(i)
+        if not isinstance(byoc_output, np.ndarray):
+            byoc_output = byoc_output.asnumpy()
         if byoc_output.dtype == "float32":
             byoc_output.flatten().astype(np.float32).tofile(
                 os.path.join(ref_result_output_dir, "ref_result_" + str(i) + "_fp32.bin"))
         elif byoc_output.dtype == "float16":
             byoc_output.flatten().astype(np.float16).tofile(
-                os.path.join(ref_result_output_dir, "ref_result_" + str(i) +"_fp16.bin"))
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) + "_fp16.bin"))
+        elif byoc_output.dtype == "int64":
+            byoc_output.flatten().astype(np.int64).tofile(
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) + "_int64.bin"))
+        elif byoc_output.dtype == "int32":
+            byoc_output.flatten().astype(np.int32).tofile(
+                os.path.join(ref_result_output_dir, "ref_result_" + str(i) + ".bin"))
+        else:
+            assert False, "Unsupport this data type" + byoc_output.dtype
 
     # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")
     print("   Run TVM backend compiler with DRP-AI Translator")
     # 3.4.1 Set config for DRP-AI runtime with quantized int8.
-    drp_config = {
+    drp_config_runtime = {
         "target": "DrpAiQuant",
         "addr_map_start": 0x00,
         "toolchain_dir": opts["drp_compiler_dir"],
@@ -215,8 +266,11 @@ if __name__ == "__main__":
     }
 
     # 3.4.2 Run backend compiler with Quantizeer.
-    json, params, lib_path = drp.build(mod, params, "arm", drp_config, output_dir=opts["output_dir"], disable_concat = opts["disable_concat"], cpu_data_type=opts["cpu_data_type"])
-
+    json, params, lib_path = mera2.drp.build(mod, params, "arm", \
+                                             drp_config_runtime, output_dir, \
+                                             disable_concat=False, \
+                                             cpu_data_type=opts["cpu_data_type"], \
+                                             )
     print("[TVM compile finished]")
     print("   Please check {0} directory".format(opts["output_dir"]))
 

@@ -1,6 +1,6 @@
 /*
  * Original Code (C) Copyright Edgecortix, Inc. 2022
- * Modified Code (C) Copyright Renesas Electronics Corporation 2023
+ * Modified Code (C) Copyright Renesas Electronics Corporation 2025
  *
  *  *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
  *
@@ -25,20 +25,30 @@
 
 /***********************************************************************************************************************
 * File Name    : tutorial_app.cpp
-* Version      : 1.1.0
+* Version      : 2.7.0
 * Description  : DRP-AI TVM[*1] Application Example
 ***********************************************************************************************************************/
 
 /*****************************************
 * includes
 ******************************************/
-#include <linux/drpai.h>
-#include <builtin_fp16.h>
+#include <cstddef>
 #include <iostream>
+#include <memory>
+#include <ostream>
+#include <sstream>
 #include <fstream>
+
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include <chrono>
+#include <getopt.h>
+#include <builtin_fp16.h>
+
+#include <linux/drpai.h>
 #include <sys/time.h>
 #include <climits>
-
 #include "MeraDrpRuntimeWrapper.h"
 #include "PreRuntime.h"
 /*****************************************
@@ -253,8 +263,46 @@ static double timedifference_msec(struct timespec t0, struct timespec t1)
     return (t1.tv_sec - t0.tv_sec) * 1000.0 + (t1.tv_nsec - t0.tv_nsec) / 1000.0 / 1000.0;
 }
 
+static void print_usage() {
+  std::cout
+    << "Usage: tutorial_app [-z] [-f <freq_index>]\n"
+    << "  -z, --zero-copy     Use zero-copy I/O path (Get*Ptr APIs)\n"
+    << "  -f, --freq-index N  DRP-AI frequency index (default 1)\n"
+    << "  -h, --help          Show this help\n";
+}
+
 int main(int argc, char **argv)
 {
+
+    bool zero_copy = false;
+    int  freq_index = 1;
+    while (1) {
+        static struct option long_opts[] = {
+            {"zero-copy",  no_argument,       0, 'z'},
+            {"freq-index", required_argument, 0, 'f'},
+            {"help",       no_argument,       0, 'h'},
+            {0,0,0,0}
+        };
+        int optidx = 0;
+        int c = getopt_long(argc, argv, "zf:h", long_opts, &optidx);
+        if (c == -1) break;
+        switch (c) {
+            case 'z': zero_copy = true; break;
+            case 'f': {
+                int v = std::atoi(optarg);
+                freq_index = (v > 0 ? v : 1);
+                break;
+            }
+            case 'h':
+            default:  print_usage(); return 0;
+        }
+    }
+
+    if (optind < argc) {
+        int maybe_freq = std::atoi(argv[optind]);
+        if (maybe_freq > 0) freq_index = maybe_freq;
+    }
+
     /* Label list file for ImageNet*/
     std::string labels = "synset_words_imagenet.txt";
     /* Map to store label list */
@@ -324,6 +372,39 @@ int main(int argc, char **argv)
         s_preproc_param_t in_param;
         in_param.pre_in_addr    = (uint64_t)img_buffer;
 
+        in_param.pre_in_shape_w = INPUT_IMAGE_W;
+        in_param.pre_in_shape_h = INPUT_IMAGE_H;
+        in_param.pre_in_format  = FORMAT_BGR;
+        in_param.pre_out_format = FORMAT_RGB;
+
+        /*Crop parameters can be changed. Currently not used.*/
+        /* 
+        in_param.crop_tl_x = 185;
+        in_param.crop_tl_y = 0;
+        in_param.crop_w = 480;
+        in_param.crop_h = 480;
+        */
+
+        /*Resize parameters can be changed. Currently not used.*/
+        /*
+        in_param.resize_w       = MODEL_IN_W;
+        in_param.resize_h       = MODEL_IN_H;
+        in_param.resize_alg     = ALG_BILINEAR;
+        */
+
+        /*Normalize parameters can be changed. Currently not used.*/
+        /* Compute normalize coefficient, cof_add/cof_mul for DRP-AI from mean/std */
+        /*
+        float mean[] = { 0.485, 0.456, 0.406 };
+        float std[] = { 0.229, 0.224, 0.225 };
+        in_param.cof_add[0] = -255*mean[0];
+        in_param.cof_add[1] = -255*mean[1];
+        in_param.cof_add[2] = -255*mean[2];
+        in_param.cof_mul[0] = 1/(std[0]*255);
+        in_param.cof_mul[1] = 1/(std[1]*255);
+        in_param.cof_mul[2] = 1/(std[2]*255);
+        */
+
         /*Output variables for Pre-processing Runtime */
         void *output_ptr;
         uint32_t out_size;
@@ -344,7 +425,32 @@ int main(int argc, char **argv)
         std::cout << "[TIME] Pre Processing Time: " << std::fixed << std::setprecision(2) << diff << " msec." << std::endl;
 
         /*Set Pre-processing output to be inference input. */
-        runtime.SetInput(0, (float *)output_ptr);
+        if (zero_copy) {
+            auto input_info = runtime.GetInputInfo(); // {name, size(bytes), type}
+            if (input_info.empty()) {
+                std::cerr << "[ERROR] GetInputInfo returned empty." << std::endl;
+                return -1;
+            }
+            const auto& info0 = input_info[0];
+            const std::string& in_name = std::get<0>(info0);
+            size_t in_bytes = std::get<1>(info0);
+            InOutDataType in_type = std::get<2>(info0);
+            if (in_type != InOutDataType::FLOAT32) {
+                std::cerr << "[ERROR] Zero-copy expects FLOAT32 input, but got type=" << (int)in_type << std::endl;
+                return -1;
+            }
+            void* in_ptr = runtime.GetInputPtr(in_name);
+            if (!in_ptr) {
+                std::cerr << "[ERROR] GetInputPtr returned nullptr." << std::endl;
+                return -1;
+            }
+            size_t copy_bytes = (size_t)out_size * sizeof(float);
+            if (copy_bytes > in_bytes) copy_bytes = in_bytes;
+            std::memcpy(in_ptr, output_ptr, copy_bytes);
+        } else {
+            
+            runtime.SetInput(0, (float *)output_ptr);
+        }
     }
     else if (InOutDataType::FLOAT16 == input_data_type)
     {
@@ -359,16 +465,9 @@ int main(int argc, char **argv)
     }
 
     timespec_get(&start_time, TIME_UTC);
-    std::cout << "Running tvm runtime" << std::endl;
-    if(argc == 1)
-    {
-        runtime.Run();
-
-    } 
-    else 
-    {
-        runtime.Run(std::stoi(argv[1]));
-    }
+    std::cout << "Running tvm runtime (freq_index=" << freq_index
+              << ", zero_copy=" << (zero_copy ? "on" : "off") << ")" << std::endl;
+    runtime.Run(freq_index);
     timespec_get(&end_time, TIME_UTC);
 
     /* Print Inference processing time */
@@ -388,48 +487,87 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    /* Comparing output with reference.*/
+    /* Prepare output access (zero-copy vs. non zero-copy) */
+    InOutDataType out_type;
+    void*         out_addr;
+    int64_t       out_elems;
+
+    if (zero_copy) {
+        auto out_info = runtime.GetOutputInfo(); // {name, size(bytes), type}
+        if (out_info.size() != 1) {
+            if (out_info.size() == 3) {
+                std::cout << "[INFO] Output layer =3::maybe yolov3. End." << std::endl;
+                return 0;
+            }
+            std::cerr << "[ERROR] Output size : not 1." << std::endl;
+            return 0;
+        }
+        const auto& oi0 = out_info[0];
+        const std::string& out_name = std::get<0>(oi0);
+        size_t out_bytes = std::get<1>(oi0);
+        out_type = std::get<2>(oi0);
+        out_addr = runtime.GetOutputPtr(out_name);
+        if (!out_addr) {
+            std::cerr << "[ERROR] GetOutputPtr returned nullptr." << std::endl;
+            return 0;
+        }
+        if (out_type == InOutDataType::FLOAT32)      out_elems = out_bytes / sizeof(float);
+        else if (out_type == InOutDataType::FLOAT16) out_elems = out_bytes / sizeof(uint16_t);
+        else if (out_type == InOutDataType::INT64)   out_elems = out_bytes / sizeof(int64_t);
+        else if (out_type == InOutDataType::INT32)   out_elems = out_bytes / sizeof(int32_t);
+        else { std::cerr << "[ERROR] Output data type : unsupported." << std::endl; return 0; }
+    } else {
     /* output_buffer below is tuple, which is { data type, address of output data, number of elements } */
     auto output_buffer = runtime.GetOutput(0);
-    int64_t out_size = std::get<2>(output_buffer);
+        out_type = std::get<0>(output_buffer);
+        out_addr = std::get<1>(output_buffer);
+        out_elems= std::get<2>(output_buffer);
+    }
+
     /* Array to store the FP32 output data from inference. */
-    float floatarr[out_size];
+    float floatarr[out_elems];
 
     /* Clear the classification result. */
     result.clear();
-
-    if (InOutDataType::FLOAT16 == std::get<0>(output_buffer))
+    if (InOutDataType::FLOAT16 == out_type)
     {
         std::cout << "Output data type : FP16." << std::endl;
         /* Extract data in FP16 <uint16_t>. */
-        uint16_t *data_ptr = reinterpret_cast<uint16_t *>(std::get<1>(output_buffer));
+        uint16_t *data_ptr = reinterpret_cast<uint16_t *>(out_addr);
 
         /* Post-processing for FP16 */
         /* Cast FP16 output data to FP32. */
-        for (int n = 0; n < out_size; n++)
+        for (int n = 0; n < out_elems; n++)
         {
             floatarr[n] = float16_to_float32(data_ptr[n]);
         }
     }
-    else if (InOutDataType::FLOAT32 == std::get<0>(output_buffer))
+    else if (InOutDataType::FLOAT32 == out_type)
     {
         std::cout << "Output data type : FP32." << std::endl;
         /* Extract data in FP32 <float>. */
-        float *data_ptr = reinterpret_cast<float *>(std::get<1>(output_buffer));
+        float *data_ptr = reinterpret_cast<float *>(out_addr);
         /*Copy output data to buffer for post-processing. */
-        for (int n = 0; n < out_size; n++)
+        for (int n = 0; n < out_elems; n++)
         {
             floatarr[n] = data_ptr[n];
         }
     }
-    else if (InOutDataType::INT64 == std::get<0>(output_buffer)) 
+    else if (InOutDataType::INT64 == out_type)
     {
         std::cout << "Output data type : INT64." << std::endl;
-        /* Extract data in FP32 <float>. */
-        int64_t* data_ptr = reinterpret_cast<int64_t*>(std::get<1>(output_buffer));
+        int64_t* data_ptr = reinterpret_cast<int64_t*>(out_addr);
 
         std::cout << "[INFO] There are no prepost for INT64. End." << std::endl;
         return 0;
+    }
+    else if (InOutDataType::INT32 == out_type)
+    {
+        std::cout << "Output data type : INT32." << std::endl;
+        int32_t* data_ptr = reinterpret_cast<int32_t*>(out_addr);
+        for (int n = 0; n < out_elems; n++) {
+            floatarr[n] = static_cast<float>(data_ptr[n]);
+        }
     }
     else
     {
@@ -440,16 +578,16 @@ int main(int argc, char **argv)
 
     /*Post-processing: common for FP16/FP32*/
     /* Softmax 1000 class scores. */
-    softmax(&floatarr[0], out_size);
+    softmax(&floatarr[0], out_elems);
     /* Sort in decending order. */
-    for (int n = 0; n < out_size; n++)
+    for (int n = 0; n < out_elems; n++)
     {
         result[floatarr[n]] = n;
     }
 
     result_cnt = 0;
     /* Print Top-5 results. */
-    std::cout << "Result ----------------------- " << std::endl;
+    std::cout << "Result ---------------------- " << std::endl;
     for (auto it = result.rbegin(); it != result.rend(); it++)
     {
         result_cnt++;

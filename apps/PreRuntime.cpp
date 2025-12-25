@@ -1,6 +1,6 @@
 /*
  * Original Code (C) Copyright Renesas Electronics Corporation 2023
- *　
+ *
  *  *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,7 +24,7 @@
 
 /***********************************************************************************************************************
 * File Name    : PreRuntime.cpp
-* Version      : 1.1.0
+* Version      : 2.7.0
 * Description  : PreRuntime Source file
 ***********************************************************************************************************************/
 
@@ -300,13 +300,13 @@ end:
 /*****************************************
 * Function Name : LoadDataToMem
 * Description   : Loads a drp_param.bin to memory via DRP-AI Driver
-* Arguments     : data = filename to be written to memory
+* Arguments     : data = data to be written to memory
 *                 from = memory start address where the data is written
 *                 size = data size to be written
 * Return value  : 0 if succeeded
 *                 not 0 otherwise
 ******************************************/
-uint8_t PreRuntime::LoadDataToMem(std::vector<uint8_t> data, unsigned long from, unsigned long size)
+uint8_t PreRuntime::LoadDataToMem(std::vector<uint8_t> &data, unsigned long from, unsigned long size)
 {
     int          drpai_fd = drpai_obj_info.drpai_fd;
     drpai_data_t drpai_data;
@@ -322,27 +322,13 @@ uint8_t PreRuntime::LoadDataToMem(std::vector<uint8_t> data, unsigned long from,
         std::cerr << "[ERROR] Failed to run DRPAI_ASSIGN : errno=" << errno << std::endl;
         return PRE_ERROR;
     }
-    for (i = 0 ; i<(drpai_data.size/BUF_SIZE) ; i++)
+    ret = write(drpai_fd, data.data(), size);
+    if ( -1 == ret )
     {
-        errno = 0;
-        ret = write(drpai_fd, &data[BUF_SIZE*i], BUF_SIZE);
-        if ( -1 == ret )
-        {
-            std::cerr << "[ERROR] Failed to write via DRP-AI Driver : errno=" << errno << std::endl;
-            return PRE_ERROR;
-        }
+        std::cerr << "[ERROR] Failed to write with DRPAI_ASSIGN : errno=" << errno << std::endl;
+        return PRE_ERROR;
     }
 
-    if ( 0 != (drpai_data.size%BUF_SIZE))
-    {
-        errno = 0;
-        ret = write(drpai_fd, &data[BUF_SIZE*(int)(drpai_data.size/BUF_SIZE)], (drpai_data.size % BUF_SIZE));
-        if ( -1 == ret )
-        {
-            std::cerr << "[ERROR] Failed to write via DRP-AI Driver : errno=" << errno << std::endl;
-            return PRE_ERROR;
-        }
-    }
     return PRE_SUCCESS;
 }
 
@@ -357,8 +343,6 @@ uint8_t PreRuntime::LoadDataToMem(std::vector<uint8_t> data, unsigned long from,
 ******************************************/
 uint8_t PreRuntime::ReadFileData(std::vector<uint8_t> &data, std::string file, unsigned long size)
 {
-    uint8_t obj_fd, ret;
-    drpai_data_t drpai_data;
     errno = 0;
     data.resize(size);
     data.clear();
@@ -587,7 +571,7 @@ uint8_t PreRuntime::ParseParamInfo(const std::string info_file)
 /*****************************************
 * Function Name : LoadParamInfo
 * Description   : Loads a drp_param_info.txt.
-* Arguments     : info_file = filename to be loaded.
+* Arguments     : -
 * Return value  : 0 if succeeded
 *                 not 0 otherwise
 ******************************************/
@@ -616,6 +600,13 @@ uint8_t PreRuntime::LoadParamInfo()
     std::string dout_rgb_format     = P_DOUT_RGB_FORMAT;
     std::string img_ich             = P_IMG_ICH;
     std::string img_och             = P_IMG_OCH;
+    std::string argmm_mode          = P_ARGMM_MODE;
+    /*Clear operator flag*/
+    resize_included = false;
+    crop_included = false;
+    normalize_included = false;
+    argmm_included = false;
+
     uint32_t data_in_size = 0;
     uint32_t data_out_size = 0;
     uint32_t in_size = 0;
@@ -644,7 +635,6 @@ uint8_t PreRuntime::LoadParamInfo()
             internal_param_val.pre_in_addr = (uint32_t) tmp_op->param_list[i].value;
         }
     }
-
     /*pre_in_format, pre_out_format*/
     tmp_op = &param_info[0];
     internal_param_val.pre_in_format = (uint16_t) FORMAT_UNKNOWN;
@@ -890,12 +880,13 @@ uint8_t PreRuntime::LoadParamInfo()
         if (cof_size <= i) break;
     }
 
-    /*pre_out_shape_w, pre_out_shape_h*/
+    /*pre_out_shape_w, pre_out_shape_h, argmm_mode*/
     for (i = 0; i<param_info.size(); i++)
     {
         tmp_op = &param_info[i];
         if (tmp_op->lib ==  lib_argminmax)
         {
+            argmm_included = true;
             for (j = 0; j<tmp_op->param_list.size(); j++)
             {
                 /*pre_out_shape_w*/
@@ -907,6 +898,11 @@ uint8_t PreRuntime::LoadParamInfo()
                 else if (tmp_op->param_list[j].name == img_oheight)
                 {
                     pre_out_shape_h = (uint16_t)tmp_op->param_list[j].value;
+                }
+                /*argmm_mode*/
+                else if (tmp_op->param_list[j].name == argmm_mode )
+                {
+                    internal_param_val.argmm_mode = (uint8_t) tmp_op->param_list[j].value;
                 }
                 else
                 {
@@ -974,6 +970,28 @@ uint32_t PreRuntime::GetStartAddress(uint32_t addr, drpai_data_t drpai_data)
 
 /*****************************************
 * Function Name : Load
+* Description   : Function to cast start address for Load().
+* Arguments     : pre_dir = folder name to be loaded.
+*               : start_addr = start address that object files are dynamically allocated.
+*                              default value is INVALID_ADDR.
+*               : mode       = pre or post mode.
+*                              default value is MODE_PRE.
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
+uint8_t PreRuntime::Load(const std::string pre_dir, uint64_t start_addr, uint8_t mode)
+{
+    /*If the start_addr is uint64_t, cast to uint32_t */
+    if (start_addr >> 32)
+    {
+        std::cerr << "[WARNING] start_addr casted to 32-bit: 0x"
+            << std::hex <<(uint32_t) start_addr <<std::endl;
+    }
+    return Load(pre_dir, (uint32_t) start_addr, mode);
+}
+
+/*****************************************
+* Function Name : Load
 * Description   : Loads PreRuntime Object data.
 * Arguments     : pre_dir = folder name to be loaded.
 *               : start_addr = start address that object files are dynamically allocated.
@@ -998,6 +1016,9 @@ uint8_t PreRuntime::Load(const std::string pre_dir, uint32_t start_addr, uint8_t
     uint32_t file_type = 0;
     const std::string drpai_param_file = dir + "/drp_param_info.txt";
 
+    param_info.clear();
+    s_preproc_param_t clear;
+    internal_param_val = clear;
     run_mode = mode;
 
     /* Delete unnecessary slush */
@@ -1635,6 +1656,44 @@ void PreRuntime::UpdateResizeAlg(const uint8_t val)
 }
 
 /*****************************************
+* Function Name : UpdateArgmmMode
+* Description   : Function to update argmm_mode in param data.
+* Arguments     : val = uint8_t number. New argminmax mode.
+* Return value  : -
+******************************************/
+void PreRuntime::UpdateArgmmMode(const uint8_t val)
+{
+    s_op_t* tmp_op;
+    s_op_param_t* tmp_param;
+    std::string argmm_mode_name = P_ARGMM_MODE;
+    std::string lib_argminmax = LIB_ARGMINMAX;
+    uint8_t i = 0, j = 0;
+    uint16_t offset = 0;
+
+    for (i = 0; i<param_info.size(); i++)
+    {
+        tmp_op = &param_info[i];
+        if (tmp_op->lib == lib_argminmax)
+        {
+            for (j = 0; j<tmp_op->param_list.size(); j++)
+            {
+                tmp_param = &tmp_op->param_list[j];
+                if ( tmp_param->name == argmm_mode_name )
+                {
+                    tmp_param->value = val;
+                    offset = tmp_op->offset + tmp_param->offset;
+                    WriteValue(offset, tmp_param->value, tmp_param->size);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    internal_param_val.argmm_mode = val;
+    return;
+}
+
+/*****************************************
 * Function Name : UpdateCoefficient
 * Description   : Function to update cof_add and cof_mul in weight data.
 * Arguments     : new_cof_add = float array. New cof_add.
@@ -1896,6 +1955,7 @@ int8_t PreRuntime::UpdateParamData(const s_preproc_param_t param)
     uint16_t new_crop_tl_y = param.crop_tl_y;
     uint16_t new_crop_w = param.crop_w;
     uint16_t new_crop_h = param.crop_h;
+    uint8_t new_argmm_mode = param.argmm_mode;
 
     /*--------------------------*
      * Input image size (shape) *
@@ -2102,6 +2162,44 @@ int8_t PreRuntime::UpdateParamData(const s_preproc_param_t param)
         }
 
     }
+    else
+    {
+        /*---------------------------------------*
+        * Argminmax mode                         *
+        * ------------------------------------- */
+        if (!argmm_included)
+        {
+            /* Argminmax is not used in loaded Pre-runtime Object files.*/
+            /* If there is any argminmax parameters in user input, print warning and ignore the user input. */
+            if ((INVALID_ARGMM_MODE != new_argmm_mode))
+            {
+                std::cerr<<"[WARNING] Argminmax parameters are specified in Pre(),"<<std::endl;
+                std::cerr<<"          but no argminmax operator used in loaded Pre-runtime Object files."<<std::endl;
+                std::cerr<<"          Specified argmm_mode is ignored."<<std::endl;
+            }
+        }
+        else
+        {
+            if (INVALID_ARGMM_MODE == new_argmm_mode)
+            {
+                /*param.argmm_mode not defined*/
+            }
+            else if ( 1 < new_argmm_mode)
+            {
+                std::cerr<<"[ERROR] Invalid parameter: argmm_mode="<<std::dec<<(int)new_argmm_mode<<std::endl;
+                return (int8_t)  PRE_ERROR_UI;
+            }
+            else if (new_argmm_mode != internal_param_val.argmm_mode)
+            {
+                UpdateArgmmMode(new_argmm_mode);
+                num_updated++;
+#ifdef DEBUG_LOG
+                std::cout<<"[INFO] Changed argmm_mode: "<<std::dec<<(int) new_argmm_mode<<std::endl;
+#endif
+            }
+        }
+    }
+
     if (0 == new_pre_out_shape_w) new_pre_out_shape_w = pre_out_shape_w;
     if (0 == new_pre_out_shape_h) new_pre_out_shape_h = pre_out_shape_h;
 
@@ -2209,11 +2307,6 @@ uint8_t PreRuntime::GetResult(unsigned long output_addr, unsigned long output_si
     drpai_data_t drpai_data;
     drpai_data.address = output_addr;
     drpai_data.size = output_size;
-#ifdef DEBUG_LOG
-    struct timespec start_time, end_time;
-    float diff = 0;
-    timespec_get(&start_time, TIME_UTC);
-#endif
 
     /*Free internal buffer if its memory is already allocated */
     if(internal_buffer != NULL )
@@ -2301,9 +2394,11 @@ uint8_t PreRuntime::Pre(s_preproc_param_t* param, void** out_ptr, uint32_t* out_
     {
         internal_param_val.pre_in_addr = param->pre_in_addr;
     }
+
 #ifdef DEBUG_LOG
     timespec_get(&ts_start, TIME_UTC);
 #endif
+
     param_modified = (int8_t) UpdateParamData(*param);
     if (PRE_ERROR_UI == param_modified)
     {
@@ -2375,7 +2470,6 @@ uint8_t PreRuntime::Pre(s_preproc_param_t* param, void** out_ptr, uint32_t* out_
     if (MODE_POST == run_mode)
     {
         print_preproc_param(internal_param_val, MODE_POST);
-
     }
     else
     {
@@ -2383,7 +2477,6 @@ uint8_t PreRuntime::Pre(s_preproc_param_t* param, void** out_ptr, uint32_t* out_
     }
     /*Debug Only: Save drp_param.bin data. Affect processing time.*/
 #endif
-
     /* Start DRP-AI */
     proc[DRPAI_INDEX_INPUT].address       = internal_param_val.pre_in_addr;
     proc[DRPAI_INDEX_INPUT].size          = drpai_obj_info.drpai_address.data_in_size;
@@ -2399,6 +2492,7 @@ uint8_t PreRuntime::Pre(s_preproc_param_t* param, void** out_ptr, uint32_t* out_
     proc[DRPAI_INDEX_WEIGHT].size         = drpai_obj_info.drpai_address.weight_size;
     proc[DRPAI_INDEX_OUTPUT].address      = drpai_obj_info.drpai_address.data_out_addr   + drpai_obj_info.data_inout.start_address;
     proc[DRPAI_INDEX_OUTPUT].size         = drpai_obj_info.drpai_address.data_out_size;
+
 
 #ifdef DEBUG_LOG
     /*Start Timer */
@@ -2417,7 +2511,7 @@ uint8_t PreRuntime::Pre(s_preproc_param_t* param, void** out_ptr, uint32_t* out_
     tv.tv_nsec = 0;
 
     ret_drpai = pselect(drpai_obj_info.drpai_fd +1, &rfds, NULL, NULL, &tv, &sigset);
-
+    
     if(0 == ret_drpai)
     {
         std::cerr << "[ERROR] DRP-AI timed out : errno=" << errno << std::endl;

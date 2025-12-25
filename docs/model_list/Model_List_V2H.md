@@ -2,13 +2,15 @@
 
 Below is a list of AI models that Renesas has verified for conversion with the DRP-AI TVM[^1] and actual operation on an evaluation board.
 
-| Item                       | RZ/V2H                    |
-| -------------------------- | ------------------------- |
-| DRP-AI TVM[^1]             | v2.4.0 / v2.5.0 [^2]      |
-| Evaluation Board           | RZ/V2H EVK                |
-| DRP-AI Translator          | i8 v1.03 / i8 v1.0.4 [^2] |
-| Linux Package[^3]          | AI SDK v5.00              |
-| DRP-AI Support Package[^3] | AI SDK v5.00              |
+| Item                       | RZ/V2H                                    |
+| -------------------------- | ----------------------------------------- |
+| DRP-AI TVM[^1]             | v2.4.0 / v2.5.0 [^2] /v2.7.0 [^3]         |
+| Evaluation Board           | RZ/V2H EVK                                |
+| DRP-AI Translator          | i8 v1.03 / i8 v1.0.4 [^2] / i8 v1.11 [^3] |
+| Linux Package[^4]          | AI SDK v5.00                              |
+| DRP-AI Support Package[^5] | AI SDK v5.00                              |   
+
+**[NOTE]** This benchmark show the results when only AI inference is running. When system operations such as camera input and display output are performed simultaneously, they may affect the inference time.   
 
 | AI model                                                                                                                               | Input Shape | Task                         | Format               | Inference time<br>(CPU only) | Inference time<br>(CPU+DRP-AI) |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|-------------------------------|----------------------|------------------------------|--------------------------------|
@@ -27,8 +29,8 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 | [YOLOv3](./how_to_convert/How_to_convert_yolov3_onnx_model_V2H.md)                                                                                                |(416,416)     | Object Detection              | ONNX                 | 4208ms|27ms|
 | [YOLOv5s](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 1454ms|19ms|
 | [YOLOv5m](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 4062ms|33ms|
-| [YOLOv5l](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2] [^4]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 7420ms|45ms|
-| [YOLOv5x](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2] [^4]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 13545ms|81ms|
+| [YOLOv5l](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2] [^5]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 7420ms|45ms|
+| [YOLOv5x](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2] [^5]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 13545ms|81ms|
 | [YOLOv6n](./how_to_convert/How_to_convert_yolov6_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 674ms|10ms|
 | [YOLOv6s](./how_to_convert/How_to_convert_yolov6_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 2404ms|16ms|
 | [YOLOv6m](./how_to_convert/How_to_convert_yolov6_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 4967ms|38ms|
@@ -39,15 +41,15 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 | [YOLOv7-e6](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 8649ms|65ms|
 | [YOLOv7-d6](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 11775ms|78ms|
 | [YOLOv7-e6e](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                       |(640,640)     | Object Detection              | ONNX                 | 13933ms|96ms|
-| [YOLOv8n](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 708ms|19ms|
-| [YOLOv8s](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 2017ms|28ms|
-| [YOLOv8m](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 5676ms|50ms|
-| [YOLOv8l](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 9599ms|68ms|
-| [YOLOv8x](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 14925ms|100ms|
-| [YOLOv9-t](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^2]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 777ms|23ms|
-| [YOLOv9-s](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^2]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 2084ms|29ms|
-| [YOLOv9-m](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^2]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 6326ms|58ms|
-| [YOLOv9-c](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^2] [^4]                                                                                    |(640,640)     | Object Detection              | ONNX                 | 6540ms|74ms|
+| [YOLOv8n](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 |  643ms|16ms|
+| [YOLOv8s](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 1820ms|22ms|
+| [YOLOv8m](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 5519ms|41ms|
+| [YOLOv8l](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 8587ms|54ms|
+| [YOLOv8x](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 15018ms|86ms|
+| [YOLOv9-t](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^3]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 699ms|20ms|
+| [YOLOv9-s](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^3]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 1905ms|24ms|
+| [YOLOv9-m](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^3]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 5972ms|47ms|
+| [YOLOv9-c](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^2] [^5]                                                                                    |(640,640)     | Object Detection              | ONNX                 | 6540ms|74ms|
 | [YOLOv10n](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 813ms|51ms|
 | [YOLOv10s](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 2043ms|82ms|
 | [YOLOv10m](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 5100ms|106ms|
@@ -65,13 +67,19 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 | [EdgeYOLO_Tiny](./how_to_convert/How_to_convert_edgeyolo_models_onnx_V2H.md)[^2]                                                                                  |(640,640)     | Object Detection              | ONNX                 | 2761ms|55ms|
 | [EdgeYOLO_S](./how_to_convert/How_to_convert_edgeyolo_models_onnx_V2H.md)[^2]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 3672ms|55ms|
 | [EdgeYOLO_M](./how_to_convert/How_to_convert_edgeyolo_models_onnx_V2H.md)[^2]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 5180ms|41ms|
-| [EdgeYOLO](./how_to_convert/How_to_convert_edgeyolo_models_onnx_V2H.md)[^2]                                                                                       |(640,640)     | Object Detection              | ONNX                 | 8045ms|47ms|
+| [YOLOv8n-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 |  741ms|16ms|
+| [YOLOv8s-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 | 2028ms|22ms|
+| [YOLOv8m-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 |  577ms|42ms|
+| [YOLOv8l-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 | 8820ms|55ms|
+| [YOLOv8x-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 |15275ms|87ms|
 | [HRNet](./how_to_convert/How_to_convert_hrnet_onnx_model_V2H.md)                                                                                                  |(256,192)     | Body Keypiont 2D              | ONNX                 | 5386ms|9ms|   
 | [YoloX_S-Pose](./how_to_convert/Translator_models.md) [^2]                                                                                                        |(640,640)     | Multi person pose estimation  | ONNX                 | 2558ms|18ms|   
 | [Yolo11_n-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models_V2H.md) [^2]                                                                               |(640,640)     | Multi person pose estimation  | ONNX                 | 936ms|48ms|   
 | [Yolo11_S-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models_V2H.md)  [^2]                                                                              |(640,640)     | Multi person pose estimation  | ONNX                 | 2360ms|80ms|   
 | [Yolo11_M-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models_V2H.md)[^2]                                                                                |(640,640)     | Multi person pose estimation  | ONNX                 | 5712ms|110ms|   
 | [Yolo11_L-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models_V2H.md)    [^2]                                                                            |(640,640)     | Multi person pose estimation  | ONNX                 | 7199ms|160ms|   
+| [face_landmark](https://github.com/renesas-rz/rzv_drp-ai_tvm/releases/download/v2.7.0/face_landmark_192.onnx)[^3]                                             |(192,192)     | Face landmark detection       | ONNX                 | 13ms|5ms|
+| [hand_landmark](https://github.com/renesas-rz/rzv_drp-ai_tvm/releases/download/v2.7.0/hand_landmark_256.onnx)[^3]                                             |(256,256)     | Hand landmark detection       | ONNX                 | 164ms|3ms|
 | [UNET-mobilenetV2](./how_to_convert/How_to_convert_UNET_onnx_models_V2H.md)    [^2]                                                                               |(256,256)     | Segmentation                  | ONNX                 | 739ms|13ms|   
 | [ResNet18](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                             |(224,224)     | Classification                | PyTorch              | 4451ms|3ms|
 | [ResNet34](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                             |(224,224)     | Classification                | PyTorch              | 10019ms|4ms|
@@ -90,6 +98,7 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 | [DeepPose](./how_to_convert/How_to_convert_mmpose_models_V2H.md)                                                                                                  |(256,192)     | Body Keypoint 2D              | PyTorch              | 6118ms|4ms|
 | [HRNetV2](./how_to_convert/How_to_convert_mmpose_models_V2H.md)                                                                                                   |(256,192)     | Face Detection 2D             | PyTorch              | 2731ms|8ms|
 | [HRNetV2 DarkPose](./how_to_convert/How_to_convert_mmpose_models_V2H.md)                                                                                          |(256,192)     | Face Detection 2D             | PyTorch              | 2750ms|8ms|
+| [InceptionResnetV1_vggface2](./how_to_convert/How_to_convert_facenet_pytorch_onnx_models_V2H.md)[^3]                                                              |(160,160)     | Face recognition              | ONNX                 |  T.B.D|4ms|
 | [Monodepth2 mono_640x192 encoder](./how_to_convert/How_to_convert_monodepth2_model_V2H.md)                                                                        |(640,192)     | Depth                         | PyTorch              | 7920ms|18ms|
 | [SC-Depth resnet18_depth_256 dispnet](./how_to_convert/How_to_convert_sc_depth_resnet_models_V2H.md)                                                              |(832,256)     | Depth                         | PyTorch              | 17539ms|313ms|
 | [SC-Depth resnet50_depth_256 dispnet](./how_to_convert/How_to_convert_sc_depth_resnet_models_V2H.md)                                                              |(416,128)     | Depth                         | PyTorch              | 9477ms|110ms|
@@ -248,16 +257,17 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 | [ResNeXt-50(32x4d)](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                          |(224,224)     | Classification                | pytorch-image-models | 7630ms|175ms|
 | [ResNeXt-50d(32x4d)](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(224,224)     | Classification                | pytorch-image-models | 7665ms|175ms|
 | [SelecSLS42_B](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                |(224,224)     | Classification                | pytorch-image-models | 2812ms|6ms|
-| [Vision Transformer(base)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)                                                                                |(224,224)     | Classification                | ONNX                 | 269936ms|790ms|
-| [Vision Transformer(small)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)                                                                               |(224,224)     | Classification                | ONNX                 | 68628ms|400ms|
-| [Vision Transformer(tiny)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)                                                                                |(224,224)     | Classification                | ONNX                 | 18704ms|226ms|
-| [Swin Transformer(small)](./how_to_convert/How_to_convert_swin_onnx_model_V2H.md)                                                                                |(224,224)     | Classification                | ONNX                 | 130646ms|1478ms|
-| [Swin Transformer(tiny)](./how_to_convert/How_to_convert_swin_onnx_model_V2H.md)                                                                                 |(224,224)     | Classification                | ONNX                 | 67137ms|1114ms|
+| [Vision Transformer(base)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)[^3]                                                                            |(224,224)     | Classification                | ONNX                 | 67317ms|484ms|
+| [Vision Transformer(small)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)[^3]                                                                           |(224,224)     | Classification                | ONNX                 | 17236ms|249ms|
+| [Vision Transformer(tiny)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)[^3]                                                                            |(224,224)     | Classification                | ONNX                 |  4798ms|138ms|
+| [Swin Transformer(small)](./how_to_convert/How_to_convert_swin_onnx_model_V2H.md)                                                                                 |(224,224)     | Classification                | ONNX                 | 130646ms|1478ms|
+| [Swin Transformer(tiny)](./how_to_convert/How_to_convert_swin_onnx_model_V2H.md)                                                                                  |(224,224)     | Classification                | ONNX                 | 67137ms|1114ms|
 | [MiDaS v2.1 Small](https://github.com/isl-org/MiDaS/releases/download/v2_1/midas_v21_small_256.pt)                                                                |(256,256)     | Depth Estimation              | ONNX                 | 3900ms|55ms|
 | [FCN HRNet W18](https://bj.bcebos.com/paddleseg/dygraph/pascal_voc12/fcn_hrnetw18_voc12aug_512x512_40k/model.pdparams)                                            |(512,512)     | Semantic Segmentation         | ONNX                 | 24510ms|229ms|   
 
 
 [^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.  
-[^2]: Linux Package Version AISDK v5.20,  DRP-AI Support Package Version AISDK v5.20,DRP-AI TVM Version v2.5.0, DRP-AI Translator Version i8 v1.04  
-[^3]: Linux Package Version AISDK v5.00,  DRP-AI Support Package Version AISDK v5.00  
-[^4]: [Expand DRP-AI memory area 512MB to 2GB](./how_to_expand_drpai_memory.md)
+[^2]: Linux Package Version AISDK v5.20,  DRP-AI Support Package Version AISDK v5.20,DRP-AI TVM Version v2.5.0, DRP-AI Translator Version i8 v1.04
+[^3]: Linux Package Version AISDK v5.20,  DRP-AI Support Package Version AISDK v5.20,DRP-AI TVM Version v2.7.0, DRP-AI Translator Version i8 v1.11
+[^4]: Linux Package Version AISDK v5.00,  DRP-AI Support Package Version AISDK v5.00  
+[^5]: [Expand DRP-AI memory area 512MB to 2GB](./how_to_expand_drpai_memory.md)

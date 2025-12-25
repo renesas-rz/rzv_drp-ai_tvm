@@ -30,7 +30,18 @@ def get_args():
     """
     usage = "usage: %prog [options] model_file"
     parser = OptionParser(usage)
-    parser.set_defaults(drp_compiler_dir='./drp-ai_translator_release', drp_compiler_version='100', toolchain_dir='/opt/poky/3.1.31', disable_concat = False, quantization_tool='./drpai_quant', qat=False, qat_type="pytorch", num_frame=1, cpu_data_type="float16")
+    parser.set_defaults(drp_compiler_dir='./drp-ai_translator_release', \
+                        drp_compiler_version='100', \
+                        toolchain_dir='/opt/poky/3.1.31', \
+                        disable_concat = False, \
+                        quantization_tool='./drpai_quant', \
+                        qat=False, \
+                        qat_type="pytorch", \
+                        num_frame=1, \
+                        cpu_data_type="float16", \
+                        cpu_only_mode=False, \
+                        acl_mode="acl_off", \
+                        mera1_mode=False)
     parser.add_option("-r", "--record_dir", dest="record_dir", help="Calibration data record directory", metavar="DIR")
     parser.add_option("-d", "--drp_compiler_dir", dest="drp_compiler_dir", help="DRP-AI Translator root directory", metavar="DIR")
     parser.add_option("-t", "--toolchain_dir", dest="toolchain_dir", help="Cross-compilation toolchain root directory", metavar="DIR")
@@ -43,11 +54,14 @@ def get_args():
     parser.add_option("-c", "--quantization_tool", dest="quantization_tool", help="Quantization tool directory", metavar="DIR")
     parser.add_option("-f", "--cpu_data_type", dest="cpu_data_type", default="float16", help="Specify cpu data type (float16/float32)", metavar="float16 or float32")
     parser.add_option("--images", dest="image_dir", help="Specifies the directory where calibration images are contained.", metavar="DIR")
-    parser.add_option("-v", "--drp_compiler_version", dest="drp_compiler_version", help="DRP-AI Translator version (091 or 100)", metavar="VERSION ID")
+    parser.add_option("-v", "--drp_compiler_version", dest="drp_compiler_version", help="[Deprecated Option] this option is no longer supported", metavar="VERSION ID")
     parser.add_option("-p", "--quantization_option", dest="quantization_option", default="", help="drpai quantization option, example -p \"-az\"", metavar="OPTION")
     parser.add_option("-a", "--qat", action="store_true", dest="qat", default=False, help="Option to select compile from exported QAT model", metavar="OPTION")
     parser.add_option("-m", "--qat_type", dest="qat_type", help="QAT type", metavar="QAT TYPE")
 
+    parser.add_option("--mera1", action="store_true", dest="mera1", default=False, help="Specify mera1 to build", metavar="OPTION")
+    parser.add_option("--mera2", action="store_true", dest="mera2", default=False, help="Specify mera2 to build", metavar="OPTION")
+    parser.add_option("-u", "--cpu_only_mode", action="store_true", dest="cpu_only_mode", default=False, help="Specify cpu mode only", metavar="OPTION")
 
     (options, args) = parser.parse_args()
     opts = vars(options)
@@ -90,6 +104,15 @@ def get_args():
     if(opts["level"]=="0" or opts["level"]==0):
         print("  Optimization level : LOW")
         opts["disable_concat"] = True
+    
+    # Set mera version
+    opts["mera1_mode"] = False
+    opts["mera2_mode"] = False
+    if(opts["mera1"]):
+        opts["mera1_mode"] = True       
+    elif(opts["mera2"]):
+        opts["mera2_mode"] = True
+
     
     return opts, model_file
 

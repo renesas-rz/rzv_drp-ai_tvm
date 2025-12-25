@@ -1,10 +1,13 @@
-# Extension package of TVM Deep Learning Compiler for Renesas DRP-AI accelerators powered by EdgeCortix MERA&trade; (DRP-AI TVM)
+# RUHMI (Robust Unified Heterogeneous Model Integration) for RZ/V series is a framework for AI model optimization and deployment, powered by EdgeCortix&reg; MERA.
 
-[TVM Documentation](https://tvm.apache.org/docs) |
-[TVM Community](https://tvm.apache.org/community) |
-[TVM github](https://github.com/apache/tvm) |
+Renesas [RUHMI](https://www.renesas.com/en/software-tool/ruhmi-framework)[^1] is the name of the AI framework provided by Renesas. RUHMI aims to provide a common AI tool 
+environment across MCU and MPU devices.
 
-[DRP-AI TVM](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai/ai-tool-drp-ai-tvm) [^1] is Machine Learning Compiler plugin for [Apache TVM](https://github.com/apache/tvm/) with AI accelerator [DRP-AI](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai) provided by Renesas Electronics Corporation.  
+----
+
+ - [DRP-AI TVM](https://www.renesas.com/application/key-technology/artificial-intelligence/ai-accelerator-drp-ai/ai-tool-drp-ai-tvm)[^2] has been integrated into the RUHMI Framework.
+ - For the integration, EdgeCortix MERA&trade; compiler has been upgraded to version 2.0, which is same as the MCU environment.
+ - For more information about MERA&trade;, please refer [About MERA&trade;](docs/About_mera.md).
 
 ## License
 
@@ -46,8 +49,7 @@ For more information on the features of DRP-AI TVM and various content (document
 
 ## Installation
 
-- [Installing DRP-AI TVM (RZ/V2L, RZ/V2M and RZ/V2MA)](./setup/README.md)
-- [Installing DRP-AI TVM (RZ/V2H and RZ/V2N)](./setup/SetupV2H.md)
+- [Installing DRP-AI TVM ](./setup/)
 
 ## Deploy AI models on DRP-AI
 
@@ -113,4 +115,6 @@ If error occurred at compile/runtime operation, please refer [error list](./docs
 ### Enquiries  
 If you have any questions, please contact [Renesas Technical Support](https://www.renesas.com/support).  
 
-[^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
+[^1]: RUHMI Framework is powered by EdgeCortix MERA&trade;.   
+[^2]: DRP-AI TVM is powered by EdgeCortix MERA&trade; Compiler Framework.   
+

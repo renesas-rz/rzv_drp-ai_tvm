@@ -1,6 +1,6 @@
 #
-#  Original code (C) Copyright EdgeCortix, Inc. 2022
-#  Modified Portion (C) Copyright Renesas Electronics Corporation 2023
+#  Original code (C) Copyright EdgeCortix, Inc. 2025
+#  Modified Portion (C) Copyright Renesas Electronics Corporation 2025
 #
 #   *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 # 
@@ -24,19 +24,16 @@
 from drpai_preprocess import * 
 import os
 import onnx
-import tvm
 import sys
 import numpy as np
 
-from tvm import relay, runtime
-from tvm.relay.mera import drp
-from tvm.contrib import graph_executor
+import mera2_ as mera2
+from mera2_ import runtime, graph_executor
+
 from google.protobuf.json_format import MessageToDict
-from optparse import OptionParser
+#from optparse import OptionParser
 
 from arg_parser import get_args
-
-import json
 
 PRODUCT= os.getenv("PRODUCT")
 if(PRODUCT == None):
@@ -75,7 +72,13 @@ if __name__ == "__main__":
     # 3.1 Run TVM Frontend
     print("-------------------------------------------------")
     print("   Run TVM frotend compiler ")
-    mod, params = relay.frontend.from_onnx(onnx_model, shape_dict)
+    #mod, params = relay.frontend.from_onnx(onnx_model, shape_dict)
+    mod, params = mera2.from_onnx(model_file, \
+                                  shape_dict, \
+                                  is_quant=False, \
+                                  cpu_data_type=opts["cpu_data_type"], \
+                                  use_mera2=opts["mera2_mode"]
+                                  )
 
     # 3.2 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")
@@ -88,13 +91,15 @@ if __name__ == "__main__":
         "sdk_root": opts["toolchain_dir"]
     }
     # 3.2.2 Run backend compiler
-    drp.build(mod, \
-                params, \
-                "arm", \
-                drp_config_runtime, \
-                   output_dir=output_dir, \
-                   disable_concat = opts["disable_concat"]
-                   )
+    json, params, lib_path = mera2.drp.build(mod, \
+                                             params, \
+                                             "arm", \
+                                             drp_config_runtime, \
+                                             output_dir=output_dir, \
+                                             disable_concat = opts["disable_concat"], \
+                                             cpu_data_type=opts["cpu_data_type"]
+                                             )
+
     print("[TVM compile finished]")
     print("   Please check {0} directory".format(output_dir))
 

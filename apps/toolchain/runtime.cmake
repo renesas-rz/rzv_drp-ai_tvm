@@ -1,6 +1,5 @@
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
-set(MERA_DRP_RUNTIME ON)
 set(CMAKE_SYSTEM_VERSION 1)
 
 if(EXISTS "$ENV{SDK}/sysroots/cortexa55-poky-linux")

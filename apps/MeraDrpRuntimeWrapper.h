@@ -1,55 +1,58 @@
 /*
- * Original Code (C) Copyright Edgecortix, Inc. 2022
- * Modified Code (C) Copyright Renesas Electronics Corporation 2023　
- *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
-*/
-#include <tvm/runtime/module.h>
+ * (C) Copyright EdgeCortix, Inc. 2024
+ */
+
+#ifndef MERA_DRP_RUNTIME_API_H_
+#define MERA_DRP_RUNTIME_API_H_
+
+#include <string>
+#include <memory>
+#include <ostream>
+#include <tvm/runtime/profiling.h>
 
 enum class InOutDataType {
   FLOAT32,
   FLOAT16,
+  INT32,
   INT64,
   OTHER
 };
 
 class MeraDrpRuntimeWrapper {
- public:
+public:
+  MeraDrpRuntimeWrapper(int device_type);
   MeraDrpRuntimeWrapper();
   ~MeraDrpRuntimeWrapper();
 
-  bool LoadModel(const std::string& model_dir, uint32_t start_address);
   bool LoadModel(const std::string& model_dir, uint64_t start_address);
-  template <typename T>
-  void SetInput(int input_index, const T* data_ptr);
-  void Run();
-  void Run(int freq_index);
-  void ProfileRun(const std::string& profile_table, const std::string& profile_csv);
-  void ProfileRun(const std::string& profile_table, const std::string& profile_csv, int freq_index);
+  uint64_t GetLastAddress();
+
+  void SetInput(int input_index, const float* data_ptr);
+  void SetInput(int input_index, const uint16_t* data_ptr);
   int GetNumInput(std::string model_dir);
   InOutDataType GetInputDataType(int index);
   int GetNumOutput();
-
   std::tuple<InOutDataType, void*, int64_t> GetOutput(int index);
 
- private:
-  int device_type;
-  int device_id;
-  tvm::runtime::Module mod;
+  // Zero copy api.
+  std::vector<std::tuple<std::string, size_t, InOutDataType>> GetInputInfo();
+  void* GetInputPtr(const std::string& name);
+  std::vector<std::tuple<std::string, size_t, InOutDataType>> GetOutputInfo();
+  void* GetOutputPtr(const std::string& name);
+
+  void Run(int freq_index);
+  void Run();
+
+  void ProfileRun(const std::string& profile_table, const std::string& profile_csv);
+  void ProfileRun(const std::string& profile_table, const std::string& profile_csv, int freq_index);
+
+  // new API to get MERA2 profile level.
+  void ProfileRunMera2(const std::string& profile_table, int freq_index);
+
+  class Impl;
+private:
+  std::unique_ptr<Impl> impl_;
+  int device_type_;
 };
+
+#endif /* MERA_DRP_RUNTIME_API_H_ */

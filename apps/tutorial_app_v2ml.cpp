@@ -1,7 +1,7 @@
 /*
  * Original Code (C) Copyright Edgecortix, Inc. 2022
- * Modified Code (C) Copyright Renesas Electronics Corporation 2023
- *　
+ * Modified Code (C) Copyright Renesas Electronics Corporation 2025
+ *
  *  *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -25,7 +25,7 @@
 
 /***********************************************************************************************************************
 * File Name    : tutorial_app.cpp
-* Version      : 1.1.0
+* Version      : 2.7.0
 * Description  : DRP-AI TVM[*1] Application Example
 ***********************************************************************************************************************/
 
@@ -270,7 +270,7 @@ uint32_t get_drpai_start_addr()
     fd = open("/dev/drpai0", O_RDWR);
     if (0 > fd )
     {
-        LOG(FATAL) << "[ERROR] Failed to open DRP-AI Driver : errno=" << errno;
+        std::cerr << "[ERROR] Failed to open DRP-AI Driver : errno=" << errno << std::endl;
         return (uint32_t)NULL;
     }
 
@@ -278,8 +278,19 @@ uint32_t get_drpai_start_addr()
     ret = ioctl(fd , DRPAI_GET_DRPAI_AREA, &drpai_data);
     if (-1 == ret)
     {
-        LOG(FATAL) << "[ERROR] Failed to get DRP-AI Memory Area : errno=" << errno ;
+        std::cerr << "[ERROR] Failed to get DRP-AI Memory Area : errno=" << errno << std::endl;
         return (uint32_t)NULL;
+    }
+
+    if (0 < fd)
+    {
+        errno = 0;
+        ret = close(fd);
+        if (0 != ret)
+        {
+            std::cerr << "[ERROR] Failed to close DRP-AI Driver: errno=" << errno << std::endl;
+            return (uint32_t)NULL;
+        }
     }
 
     return drpai_data.address;
@@ -375,18 +386,46 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    /*Load pre_dir object to DRP-AI */
-    ret = preruntime.Load(pre_dir);
+    /* Get DRP-AI memory start address */
+    drpaimem_addr_start = get_drpai_start_addr();
+    if (drpaimem_addr_start == (uint32_t)NULL) return 0;
+
+    /* Define memory allocation constants */
+    const uint32_t MEMORY_ALIGNMENT = 0x1000000; // 16MB alignment
+
+    /* First, load the runtime model at the start of DRP-AI memory */
+    uint32_t runtime_start_addr = drpaimem_addr_start;
+    /* Ensure runtime_start_addr is aligned to 16MB boundary */
+    runtime_start_addr = (runtime_start_addr + MEMORY_ALIGNMENT - 1) & ~(MEMORY_ALIGNMENT - 1);
+
+    /* Load the runtime model */
+    runtime.LoadModel(model_dir, runtime_start_addr);
+
+    /* Get the last address used by runtime */
+    uint64_t runtime_last_addr = runtime.GetLastAddress();
+    std::cout << "Runtime memory usage: " << std::hex 
+              << "start=0x" << runtime_start_addr 
+              << ", end=0x" << runtime_last_addr << std::dec << std::endl;
+
+    /* Calculate the start address for preruntime */
+    uint32_t preruntime_start_addr;
+    if (runtime_last_addr == 0) {
+        /* CPU-only model case - use the original DRP-AI memory start address */
+        preruntime_start_addr = drpaimem_addr_start;
+        std::cout << "Maybe CPU-only model. Using head of DRP-AI memory for preruntime." << std::endl;
+    } else {
+        /* DRP-AI model case - allocate memory after runtime */
+        preruntime_start_addr = (runtime_last_addr + MEMORY_ALIGNMENT - 1) & ~(MEMORY_ALIGNMENT - 1);
+    }
+    std::cout << "Preruntime memory allocation: start=0x" << std::hex << preruntime_start_addr << std::dec << std::endl;
+
+    /* Load pre_dir object to DRP-AI */
+    ret = preruntime.Load(pre_dir, preruntime_start_addr);
     if (0 < ret)
     {
         std::cerr << "[ERROR] Failed to run Pre-processing Runtime Load()." << std::endl;
         return 0;
     }
-
-    /*Load model_dir structure and its weight to runtime object */
-    drpaimem_addr_start = get_drpai_start_addr();
-    if (drpaimem_addr_start == (uint32_t)NULL) return 0;
-    runtime.LoadModel(model_dir, drpaimem_addr_start+0x38E0000);
 
     /*Get input data */
     auto input_data_type = runtime.GetInputDataType(0);
@@ -422,6 +461,7 @@ int main(int argc, char** argv)
             img_buffer[i] = 0;
         }
     }
+    
     /*Load input data */
     /*Input data type can be either FLOAT32 or FLOAT16, which depends on the model */
     if (InOutDataType::FLOAT32 == input_data_type)

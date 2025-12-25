@@ -31,7 +31,7 @@ python3 -m venv ${TVM_ROOT}/convert/venvs/yolo11-pose
 pip install ultralytics==8.3.146
 ```
 
-## 3. Convert PyTorch Model (.pth) files to ONNX (.onnx) files.
+## 3. Convert PyTorch Model (.pt) files to ONNX (.onnx) files.
 
 
 
@@ -42,7 +42,7 @@ cd ${TVM_ROOT}/convert/
 wget https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n-pose.pt
 
 #onnx file will be generated in the same folder
-python3 convert_yolo11pose_to_onnx.py yolo11n-pose.pt 
+python3 convert_yolo_pt_to_onnx.py yolo11n-pose.pt 
 
 ```
 
@@ -50,7 +50,7 @@ After the above command is executed, the file structure will be as follows.
 
 ```sh
 ${TVM_ROOT}/convert
- └── convert_yolo11pose_to_onnx.py
+ └── convert_yolo_pt_to_onnx.py
  └── yolo11n-pose.onnx
  └── yolo11n-pose.pt
 ```
@@ -97,7 +97,7 @@ After the above command is executed, the file structure will be as follows.
 
 ```sh
 ${TVM_ROOT}/convert
- └── convert_yolo11pose_to_onnx.py
+ └── convert_yolo_pt_to_onnx.py
  └── yolo11n-pose.onnx
  └── yolo11n-pose_wo_post.onnx
  └── yolo11n-pose.pt

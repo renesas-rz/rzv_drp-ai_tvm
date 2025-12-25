@@ -1,25 +1,3 @@
-#
-#  Original code (C) Copyright EdgeCortix, Inc. 2022
-#  Modified Portion (C) Copyright Renesas Electronics Corporation 2022
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-
 if [[ $# -ne 6 ]]; then
   echo "${0} expected 6 parameters:"
   echo "  <drp_toolchain_dir>"
@@ -82,21 +60,9 @@ for file in "${expected_result_files[@]}"; do
 done
 
 # RUN TRANSLATOR
-if [ -z "${PRODUCT}" ]; then
-  echo "Error: PRODUCT variable is not set"
-  exit 1
-fi
-if [ ${PRODUCT} = "V2MA" ] || [ ${PRODUCT} = "V2M" ]; then
-  PDIR="V2M"
-elif [ ${PRODUCT} = "V2L" ]; then
-  PDIR="V2L"
-else
-  echo "Error: Unsupported value ${PRODUCT} is set in PRODUCT variable"
-  exit 1
-fi
 python3 ${IDIR}/api_translator/scripts/run_translator.py \
   -f_in_hw_setting ${IDIR}/api_translator/input/hw_in.txt \
-  -dir_in_drplib ${IDIR}/drplib/${PDIR} \
+  -dir_in_drplib ${IDIR}/drplib/V2M \
   -f_in_addrmap ${ADDR_MAP_FILE} \
   -f_in_prepost ${PREPOST_FILE} \
   -f_in_onnx ${ONNX_FILE} \

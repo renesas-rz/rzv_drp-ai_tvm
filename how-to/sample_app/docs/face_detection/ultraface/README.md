@@ -6,6 +6,7 @@ Sample application code and its execution environment are provided in **[here](.
 ### Index
 - [Overview](#overview)  
 - [Model Information](#model-information)  
+- [How to compile the model](#how-to-compile-the-model)
 - [Processing Details](#processing-details)  
 
 ## Overview
@@ -19,15 +20,33 @@ Dataset: See [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated
 Input size: 1x3x240x320  
 Output size: 1x4420x2, 1x4420x4
 
-
-### How to compile the model
+## How to compile the model
 To run the Face Detection, `ultraface_onnx` Model Object is required.  
-Follow the instuction below to prepare the `ultraface_onnx` Model Object.  
+Follow the instructions below to prepare the `ultraface_onnx` Model Object.  
 
 1. Set the environment variables, i.e. `$TVM_HOME` etc., according to [Installation](../../../../../setup/).  
+
 2. Download the onnx file from [ONNX Model Zoo](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/ultraface).  
-3. Place the onnx file in `$TVM_HOME/../tutorials`.
-4. Change the pre-processing details as shown below.  
+   ```sh
+   # Create a working directory
+   mkdir -p $TVM_ROOT/tutorials/ultraface_work
+   cd $TVM_ROOT/tutorials/ultraface_work
+   
+   # Download the model
+   wget https://github.com/onnx/models/raw/main/validated/vision/body_analysis/ultraface/models/version-RFB-320.onnx
+   
+   # Copy the model to tutorials directory
+   cp version-RFB-320.onnx $TVM_ROOT/tutorials/
+   ```
+
+3. Change to the tutorials directory and reset the compilation script to its original state:
+   ```sh
+   cd $TVM_ROOT/tutorials
+   git checkout -- compile_onnx_model.py
+   ```
+
+4. Change the pre-processing details in `compile_onnx_model.py` as shown below.  
+
 Before
 ```py
 #L105~128
@@ -83,18 +102,43 @@ After
         op.Normalize(cof_add, cof_mul)
     ]
 ```
-5. Run the script with the command below.  
+
+You can use the following sed commands to automatically make these changes:
+
 ```sh
-$ python3 compile_onnx_model.py \
--i input \
--s 1,3,240,320 \
--o ultraface_onnx \
-version-RFB-320.onnx
+# Modify input shape and format
+sed -i 's/config.shape_in     = \[1, 480, 640, 3\]/config.shape_in     = [1, 480, 640, 2]/' compile_onnx_model.py
+sed -i 's/config.format_in    = drpai_param.FORMAT.BGR/config.format_in    = drpai_param.FORMAT.YUYV_422/' compile_onnx_model.py
+
+# Modify mean values
+sed -i 's/mean    = \[0.485, 0.456, 0.406\]/mean         = [127.0, 127.0, 127.0]/' compile_onnx_model.py
+
+# Modify stdev to scale_factor
+sed -i 's/stdev   = \[0.229, 0.224, 0.225\]/scale_factor = [1.0\/128.0, 1.0\/128.0, 1.0\/128.0]/' compile_onnx_model.py
+
+# Modify cof_add and cof_mul calculations - replace entire lines
+sed -i '/cof_add =/ c\    cof_add = [-m for m in mean]' compile_onnx_model.py
+sed -i '/cof_mul =/ c\    cof_mul = scale_factor' compile_onnx_model.py
 ```
+
+5. Run the script with the command below:  
+```sh
+cd $TVM_ROOT/tutorials
+python3 compile_onnx_model.py \
+  -i input \
+  -s 1,3,240,320 \
+  -o ultraface_onnx \
+  version-RFB-320.onnx
+```
+
 6. Confirm that `ultraface_onnx` directory is generated and it contains `deploy.json`, `deploy.so` and `deploy.params` files and `preprocess` directory.  
 
 7. Before running the application, make sure to copy the `ultraface_onnx` directory into the execution environment directory `exe` where the compiled sample application `sample_app_drpai_tvm_usbcam_http` is located.  
 
+```sh
+mkdir -p $TVM_ROOT/tutorials/exe
+cp -r ultraface_onnx $TVM_ROOT/tutorials/exe/
+```
 
 ## Processing Details
 ### DRP-AI mode

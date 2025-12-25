@@ -38,7 +38,7 @@ if [ -z $OPTIMIZER_ENABLE ] ; then
   echo "RUN Optimizer again"
   ONNX_PATH=${work_dir}/${ONNX_FILE}
   PREOPTIMIZE=${ONNX_PATH//model_quantization.onnx/pre_optimize_model.onnx}
-  python3 ${TOOL_DIR}../translator/DRP-AI_Translator/onnx_optimizer/run_onnx_optimizer.py\
+  python3 ${TOOL_DIR}/../translator/DRP-AI_Translator/onnx_optimizer/run_onnx_optimizer.py\
     --file_in $PREOPTIMIZE --file_out ${work_dir}/_tmp_model.onnx \
     --prepost ${work_dir}/${PREPOST_FILE}
 else
@@ -46,7 +46,7 @@ else
     echo "RUN Optimizer again"
     ONNX_PATH=${work_dir}/${ONNX_FILE}
     PREOPTIMIZE=${ONNX_PATH//model_quantization.onnx/pre_optimize_model.onnx}
-    python3 ${TOOL_DIR}../translator/DRP-AI_Translator/onnx_optimizer/run_onnx_optimizer.py\
+    python3 ${TOOL_DIR}/../translator/DRP-AI_Translator/onnx_optimizer/run_onnx_optimizer.py\
       --file_in $PREOPTIMIZE --file_out ${work_dir}/_tmp_model.onnx \
       --prepost ${work_dir}/${PREPOST_FILE}
   fi
@@ -90,7 +90,6 @@ python3 DRP-AI_Translator/run.py ${CNAME} \
   --onnx ${work_dir}/${ONNX_FILE} \
   --prepost ${work_dir}/${PREPOST_FILE} \
   --s_addr ${START_ADDR} ${SPARSE_OPT} \
-  --device ${PRODUCT} \
   --disable_onnxsim \
   --check_operator False
 

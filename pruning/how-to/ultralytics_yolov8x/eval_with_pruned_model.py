@@ -1,0 +1,48 @@
+#######################################################################################################################
+# DISCLAIMER
+# This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
+# other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
+# applicable laws, including copyright laws.
+# THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING
+# THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED. TO THE MAXIMUM
+# EXTENT PERMITTED NOT PROHIBITED BY LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES
+# SHALL BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO
+# THIS SOFTWARE, EVEN IF RENESAS OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+# Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability of
+# this software. By using this software, you agree to the additional terms and conditions found by accessing the
+# following link:
+# http://www.renesas.com/disclaimer
+#
+# Copyright (C) 2025 Renesas Electronics Corporation. All rights reserved.
+#######################################################################################################################
+from drpai_compaction_tool.pytorch import make_pruning_layer_list, \
+                                                            Pruner, \
+                                                            get_model_info
+import torch
+from ultralytics import YOLO
+import argparse
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--weight", default= "yolov8x.pt", help=".pt file of the model")
+    parser.add_argument('--dataset', default = "coco.yaml",
+                    help='Using dataset to eval, please specify this option')
+    parser.add_argument('--imgsz', type=int, default=640, help='Image size')
+    parser.add_argument('--is_pruned_weight', action='store_true',
+                    help='When testing the model with pruned weight, please specify this option')
+    args = parser.parse_args()
+    
+    # Load a model
+    model = YOLO(args.weight)  
+    
+    if args.is_pruned_weight:
+        input_data = torch.rand(1,3,args.imgsz,args.imgsz)
+        pruning_layer_list = make_pruning_layer_list(model.model, input_data=[input_data])
+        _ = Pruner(model.model, pruning_layer_list,  final_pr=0.0)
+        
+        # Confirming the result of loading weights correctly
+        print(get_model_info(model.model, input_data=[input_data]))
+    
+    # Evaluate accuracy of the model
+    metrics = model.val(data=args.dataset)

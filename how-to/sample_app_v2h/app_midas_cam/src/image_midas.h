@@ -23,11 +23,7 @@ class Image
         uint8_t* overlay_buffer[WL_BUF_NUM];
         uint8_t get_buf_id();
         void write_string_rgb(std::string str, uint32_t align_type, uint32_t x, uint32_t y, float scale, uint32_t color);
-        #ifdef V2N
         int8_t draw_depth_map(uint8_t* buffer, Camera *capture, size_t depth_w, size_t depth_h, int resize_w, int resize_h);
-        #else /* not V2N */
-        int8_t draw_depth_map(uint8_t* buffer, Camera *capture, size_t depth_w, size_t depth_h, size_t resize_w, size_t resize_h);
-        #endif
         int8_t create_side_by_side(int resized_w, int resized_h, bool is_padding);
 
         uint32_t get_H();

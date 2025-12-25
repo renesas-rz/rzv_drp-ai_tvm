@@ -1,0 +1,117 @@
+#######################################################################################################################
+# DISCLAIMER
+# This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
+# other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
+# applicable laws, including copyright laws.
+# THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING
+# THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED. TO THE MAXIMUM
+# EXTENT PERMITTED NOT PROHIBITED BY LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES
+# SHALL BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO
+# THIS SOFTWARE, EVEN IF RENESAS OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+# Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability of
+# this software. By using this software, you agree to the additional terms and conditions found by accessing the
+# following link:
+# http://www.renesas.com/disclaimer
+#
+# Copyright (C) 2025 Renesas Electronics Corporation. All rights reserved.
+#######################################################################################################################
+from ..hooks.hook import HOOKS, Hook
+from ...parallel import is_module_wrapper
+from typing import Optional, Union
+DATA_BATCH = Optional[Union[dict, tuple, list]]
+from drpai_compaction_tool.pytorch import make_pruning_layer_list, Pruner, get_model_info, load_pruned_state_dict
+from mmcv.utils import Registry, is_method_overridden
+import torch
+import os
+from mmcv import Config
+import numpy as np
+@HOOKS.register_module()
+class PruningHook(Hook):
+    stages = ('before_run', 'before_train_epoch', 'before_train_iter',
+              'after_train_iter', 'after_train_epoch', 'before_val_epoch',
+              'before_val_iter', 'after_val_iter', 'after_val_epoch',
+              'after_run')
+    def demo_mm_inputs(self, input_shape, num_classes):
+        """Create a superset of inputs needed to run test or train batches.
+
+        Args:
+            input_shape (tuple):
+                input batch dimensions
+            num_classes (int):
+                number of semantic classes
+        """
+        (N, C, H, W) = input_shape
+        rng = np.random.RandomState(0)
+        imgs = rng.rand(*input_shape)
+        segs = rng.randint(
+            low=0, high=num_classes - 1, size=(N, 1, H, W)).astype(np.uint8)
+        img_metas = [{
+            'img_shape': (H, W, C),
+            'ori_shape': (H, W, C),
+            'pad_shape': (H, W, C),
+            'filename': '<demo>.png',
+            'scale_factor': 1.0,
+            'flip': False,
+        } for _ in range(N)]
+        mm_inputs = {
+            'img': torch.FloatTensor(imgs).requires_grad_(True),
+            'img_metas': img_metas,
+            'gt_semantic_seg': torch.LongTensor(segs)
+        }
+        return mm_inputs
+   
+    def before_run(self, runner) -> None:
+        """ Preparing for pruning the model
+        Args:
+            runner (Runner): The runner of the training process.
+        """
+        model = runner.model.module if is_module_wrapper(runner.model) else runner.model
+        
+        # To resume training from saved pruned weights,
+        # the following code block loads the pruned weight from "load_from".
+        IS_PRUNED_WEIGHT = os.getenv("IS_PRUNED_WEIGHT", None)
+        if IS_PRUNED_WEIGHT is not None:
+            checkpoint_meta = getattr(runner, 'meta', None)
+            if checkpoint_meta is not None:
+                cfg_str = checkpoint_meta.get('config', None)
+                if cfg_str:
+                    from mmcv import Config
+                    cfg = Config.fromstring(cfg_str, file_format='.py')
+                    checkpoint_file = getattr(cfg, 'load_from', None)
+                    print("Load_from trong config:", getattr(cfg, 'load_from', None))
+            
+            #Load the pruned weight
+            runner.logger.info('Loading the pruned weight to model.')
+            device, = list(set(p.device for p in model.parameters()))
+            ckpt = torch.load(checkpoint_file, map_location=torch.device(device))
+            load_pruned_state_dict(model, ckpt['state_dict'])
+        
+        PRUNING_RATE = os.getenv("PRUNING_RATE", None)
+        if PRUNING_RATE is None:
+            raise RuntimeError("No environment variable. "
+                               "Before running this script, "
+                               "Please set environment variable(PRUNING_RATE) "
+                               "to the pruning rate. e.g. $export PRUNING_RATE=0.7")
+        else:
+            PRUNING_RATE = float(PRUNING_RATE)    
+
+        demo_inputs =  self.demo_mm_inputs((1,3,512,512), num_classes=150)
+        data = {
+            'img': demo_inputs['img'].cuda(),
+            'img_metas': demo_inputs['img_metas'],
+            'gt_semantic_seg': demo_inputs['gt_semantic_seg'].cuda()
+        }
+        pruning_layer_list = make_pruning_layer_list(model, input_data=data)
+        self.pruner = Pruner(model, pruning_layer_list=pruning_layer_list, final_pr=PRUNING_RATE) 
+        print(get_model_info(model, input_data=data))
+        
+    def before_train_iter(self, runner) -> None:
+        """ Updating the pruning parameters
+
+        Args:
+            runner (Runner): The runner of the training process.
+            batch_idx (int): The index of the current batch in the train loop.
+            data_batch (dict or tuple or list, optional): Data from dataloader.
+        """
+        self.pruner.update()

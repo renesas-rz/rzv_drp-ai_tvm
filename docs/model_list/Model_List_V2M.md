@@ -8,7 +8,9 @@ Below is a list of AI models that Renesas has verified for conversion with the D
 | Evaluation Board       | RZ/V2M EVK |
 | DRP-AI Translator      | v1.85      |
 | Linux Package          | v3.0.6     |
-| DRP-AI Support Package | v7.50      |
+| DRP-AI Support Package | v7.50      |   
+
+**[NOTE]** This benchmark show the results when only AI inference is running. When system operations such as camera input and display output are performed simultaneously, they may affect the inference time.   
 
 | AI model                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |Input Shape    | Task              | Format               | Inference time<br>(CPU only) | Inference time<br>(CPU+DRP-AI)   |
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-------------------|----------------------|------------------------------|----------------------------------|

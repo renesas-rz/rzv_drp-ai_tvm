@@ -1,6 +1,6 @@
 /*
  * Original Code (C) Copyright Renesas Electronics Corporation 2023
- *　
+ *
  *  *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,7 +24,7 @@
 
 /***********************************************************************************************************************
 * File Name    : PreRuntime.h
-* Version      : 1.1.0
+* Version      : 2.7.0
 * Description  : PreRuntime Header file
 ***********************************************************************************************************************/
 #pragma once
@@ -61,10 +61,12 @@
 #include <cmath>
 
 #include <builtin_fp16.h>
+
 /***********************************************************************************************************************
 * Macro
 ***********************************************************************************************************************/
 #define BUF_SIZE        (1024)
+#define NUM_OBJ_FILE_V2H (10)
 #define NUM_OBJ_FILE    (6)
 #define INDEX_I         (0)
 #define INDEX_D         (1)
@@ -72,7 +74,15 @@
 #define INDEX_P         (3)
 #define INDEX_A         (4)
 #define INDEX_W         (5)
+#define INDEX_O         (6)
+#define INDEX_APC       (7)
+#define INDEX_APD       (8)
+#define INDEX_AC        (9)
 #define DRPAI_TIMEOUT   (5)
+#define LOWER_24BITS        (0xFFFFFF)
+#define LOWER_24BITS_MASK   (0xFF000000)
+#define DRPAI_DRV_USED_MIN  (0xFC000000)
+#define DRPAI_DRV_USED_MAX  (0xFFFFFFFF)
 
 /*Uncomment to enable displaying the debug console log*/
 // #define DEBUG_LOG
@@ -124,6 +134,7 @@
 #define P_DOUT_RGB_FORMAT   ("DOUT_RGB_FORMAT")
 #define P_IMG_ICH           ("IMG_ICH")
 #define P_IMG_OCH           ("IMG_OCH")
+#define P_ARGMM_MODE        ("ARG_MODE")
 
 /* Other related values */
 #define FORMAT_YUYV_422     (0x0000)
@@ -205,6 +216,9 @@ static const std::unordered_map<uint16_t, std::string> format_string_table =
 #define INVALID_SHAPE       (0xFFFF)
 #define INVALID_FORMAT      (FORMAT_UNKNOWN)
 #define INVALID_RESIZE_ALG  (0xFF)
+#define INVALID_ARGMM_MODE  (0xFF)
+#define ARGMAX              (0)
+#define ARGMIN              (1)
 
 #define MIN_INPUT_W_BOUND   (0)
 #define MIN_INPUT_H_BOUND   (0)
@@ -217,6 +231,7 @@ static const std::unordered_map<uint16_t, std::string> format_string_table =
 
 #define MODE_PRE            (0)
 #define MODE_POST           (1)
+
 /***********************************************************************************************************************
 * Struct and related function
 ***********************************************************************************************************************/
@@ -285,6 +300,8 @@ typedef struct
     uint16_t crop_tl_y      = INVALID_SHAPE;
     uint16_t crop_w         = INVALID_SHAPE;
     uint16_t crop_h         = INVALID_SHAPE;
+    uint8_t argmm_mode      = INVALID_ARGMM_MODE;
+    bool input_copy_enabled = true; /*Only for PreRuntimeV2H.cpp*/
 } s_preproc_param_t;
 
 typedef struct
@@ -358,6 +375,10 @@ static void print_preproc_param(const s_preproc_param_t data, uint8_t mode=MODE_
         std::cout <<"  crop_w         = "<<std::setw(8)<<std::dec <<(int) data.crop_w <<std::endl;
         std::cout <<"  crop_h         = "<<std::setw(8)<<std::dec <<(int) data.crop_h <<std::endl;
     }
+    else
+    {
+        std::cout <<"  argmm_mode     = "<<std::setw(8)<<std::dec <<(int) data.argmm_mode <<std::endl;
+    }
 }
 
 /***********************************************************************************************************************
@@ -368,11 +389,10 @@ class PreRuntime {
         PreRuntime();
         ~PreRuntime();
 
-        uint8_t Load(const std::string pre_dir, uint64_t start_addr);
-        uint8_t Load(const std::string pre_dir, uint32_t start_addr = INVALID_ADDR, uint8_t mode = MODE_PRE);
+        uint8_t Load(const std::string pre_dir, uint64_t start_addr = INVALID_ADDR, uint8_t mode = MODE_PRE);
+        uint8_t Load(const std::string pre_dir, uint32_t start_addr, uint8_t mode);
         int     SetInput(void *indata);
         uint8_t Pre(s_preproc_param_t* param, void** out_ptr, uint32_t* out_size);
-        uint8_t Pre(void** out_ptr, uint32_t* out_size, uint64_t phyaddr);
         int     Occupied_size;
 
     private:
@@ -384,6 +404,7 @@ class PreRuntime {
         uint32_t internal_buffer_size = 0;
         /*DRP-AI Driver dynamic allocation function*/
         drpai_handle_t drpai_obj_info;
+        /*Address and size of DRP-AI memory area*/
         drpai_data_t drpai_data0;
         std::string obj_prefix = "pp";
         /*Buffer to store drp_param.bin data*/
@@ -404,6 +425,7 @@ class PreRuntime {
         bool crop_included      = false;
         bool resize_included    = false;
         bool normalize_included = false;
+        bool argmm_included    = false;
         
         /*Since ADRCONV cannot delete just any entry, a means to reconfigure everything became necessary.*/
         uint64_t start_addr_v2h;
@@ -441,9 +463,10 @@ class PreRuntime {
         uint8_t WritePrerunData(const std::string dir);
         uint8_t LoadFileToMemDynamic(std::string data, unsigned long offset, unsigned long size, uint32_t file_type);
         uint8_t LoadFileToMemDynamic(std::string data, unsigned long offset, unsigned long size);
-        uint8_t LoadDataToMem(std::vector<uint8_t> *data, unsigned long from, unsigned long size);
-        uint8_t LoadDataToMem(std::vector<uint8_t> data, unsigned long from, unsigned long size);
-        uint8_t ReadFileData(std::vector<uint8_t> *data, std::string file, unsigned long size);
+        uint8_t SetConvAddress(uint64_t start_addr,  drpai_data_t drpai_data);
+        uint8_t SetInputAddress(uint64_t in_addr);
+        uint8_t LoadFileToMem(std::string data, unsigned long offset, unsigned long size);
+        uint8_t LoadDataToMem(std::vector<uint8_t> &data, unsigned long from, unsigned long size);
         uint8_t ReadFileData(std::vector<uint8_t> &data, std::string file, unsigned long size);
         uint8_t GetResult(unsigned long output_addr, unsigned long output_size);
         uint8_t ParseParamInfo(const std::string info_file);
@@ -456,6 +479,7 @@ class PreRuntime {
         void    UpdateInputShape(const uint16_t w, const uint16_t h);
         void    UpdateResizeShape(const uint16_t w, const uint16_t h);
         void    UpdateResizeAlg(const uint8_t val);
+        void    UpdateArgmmMode(const uint8_t val);
         void    UpdateFormat(const uint16_t input_val, const uint16_t output_val);
         uint8_t UpdateCoefficient(const float* cof_add, const float* cof_mul);
         void    UpdateCropParam(const uint16_t tl_x, const uint16_t tl_y, const uint16_t w, const uint16_t h);
@@ -465,7 +489,7 @@ class PreRuntime {
         bool    IsInSupportedList(uint16_t format, uint8_t is_input);
         bool    IsSupportedFormat(const s_preproc_param_t param, uint16_t format_in, uint16_t format_out);
         uint32_t GetStartAddress(uint32_t addr, drpai_data_t drpai_data);
-        uint64_t GetStartAddress(uint64_t addr, drpai_data_t drpai_data);
+        uint64_t GetStartAddress(uint64_t addr, drpai_data_t drpai_data, uint64_t org_addr);
         bool    StartsWith(std::string str, std::string prefix);
         double  timedifference_msec(struct timespec t0, struct timespec t1);
 };

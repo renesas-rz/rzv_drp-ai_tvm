@@ -17,7 +17,7 @@
 # Copyright (C) 2022, 2023, 2024, 2025 Renesas Electronics Corporation. All rights reserved.
 #######################################################################################################################
 # Description : Dockerfile for DRP-AI Extension Pack for PyTorch
-# Version     : 1.2.0
+# Version     : 1.3.0
 FROM ubuntu:22.04 as base
 
 ENV NVARCH x86_64
@@ -162,7 +162,7 @@ ENV PYENV_ROOT /usr/local/pyenv
 ENV ENVIRONMENT_SETUP_PYENV /root/.environment-setup-pyenv
 ENV VENV /py310
 ENV DRPAI_EXT_ROOT /usr/local/drpai_ext
-ENV PYTHONPATH $DRPAI_EXT_ROOT:$PYTHONPATH
+#ENV PYTHONPATH $DRPAI_EXT_ROOT:$PYTHONPATH
 ENV TF_USE_LEGACY_KERAS 1
 
 # Install package to build python source
@@ -205,6 +205,7 @@ RUN . $ENVIRONMENT_SETUP_PYENV && \
 COPY ./drpai-extension-pack_ver*.tar.gz /tmp
 RUN mkdir $DRPAI_EXT_ROOT && \
     tar xvf /tmp/drpai-extension-pack_ver*.tar.gz -C $DRPAI_EXT_ROOT && \
+    $VENV/bin/pip install $DRPAI_EXT_ROOT/drpai_extension_pack_pt-*.whl && \
     rm /tmp/drpai-extension-pack_ver*.tar.gz
 
 # Test installing drpai extension pack

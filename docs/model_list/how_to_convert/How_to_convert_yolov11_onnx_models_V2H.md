@@ -125,7 +125,7 @@ To compile the models, enter the ONNX (.onnx) files into the compilation script 
 Run the script in the tutorials with the following command. For YOLOv11n, as the following.
 
 ```sh
-python3 compile_onnx_model_quant.py ../convert/output/convert/output/yolov11n_ultralytics_onnx/yolov11n_cut.onnx -o yolov11n_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
+python3 compile_onnx_model_quant.py ../convert/output/yolov11n_ultralytics_onnx/yolov11n_cut.onnx -o yolov11n_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ----

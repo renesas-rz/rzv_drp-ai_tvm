@@ -24,9 +24,54 @@
 
 struct WaylandGlobals {
     struct wl_compositor* compositor;
-    struct wl_shell* shell;
+    struct xdg_wm_base* wm_base;
 };
 
+/*****************************************
+ * Function Name : xdg_wm_base_ping
+ * Description   : xdg_wm_base_listener callback
+ *                 Notifies the compositor that the client is responsive.
+ * Arguments     : data    = User data passed when adding the listener.
+ *                 wm_base = The xdg_wm_base interface that received the ping event.
+ *                 serial         = Identification ID is notified.
+ * Return value  : -
+ ******************************************/
+
+static void xdg_wm_base_ping(void* data,
+                            struct xdg_wm_base* wm_base,
+                            uint32_t serial)
+{
+    xdg_wm_base_pong(wm_base, serial);
+}
+
+static const struct xdg_wm_base_listener xdg_wm_base_listener = {
+    .ping = xdg_wm_base_ping,
+};
+
+/*****************************************
+ * Function Name : xdg_surface_configure
+ * Description   : xdg_surface_listener callback
+ *                 Acknowledges a configure event from the compositor.
+ * Arguments     : data    = User data passed when adding the listener.
+ *                 surface = The xdg_surface interface that received the configure event.
+ *                 serial  = Identification ID is notified.
+ * Return value  : -
+ ******************************************/
+static void xdg_surface_configure(void* data, struct xdg_surface* surface, uint32_t serial) {
+    xdg_surface_ack_configure(surface, serial);
+}
+
+static const struct xdg_surface_listener xdg_surface_listener = {
+    .configure = xdg_surface_configure,
+};
+
+Wayland::Wayland()
+{
+}
+
+Wayland::~Wayland()
+{
+}
 /*****************************************
  * Function Name : registry_global
  * Description   : wl_registry_listener callback
@@ -46,42 +91,14 @@ static void registry_global(void *data,
     if (strcmp(interface, "wl_compositor") == 0) {
         globals->compositor = (struct wl_compositor*)wl_registry_bind(registry, id, &wl_compositor_interface, 1);
     }
-    else if (strcmp(interface, "wl_shell") == 0) {
-        globals->shell = (struct wl_shell*)wl_registry_bind(registry, id, &wl_shell_interface, 1);
+    else if (strcmp(interface, "xdg_wm_base") == 0) {
+        globals->wm_base = (struct xdg_wm_base*)wl_registry_bind(registry, id, &xdg_wm_base_interface, 1);
+        xdg_wm_base_add_listener(globals->wm_base, &xdg_wm_base_listener, NULL);
     }
 }
 
 /* registry callback for listener */
 static const struct wl_registry_listener registry_listener = { registry_global, NULL };
-
-/*****************************************
- * Function Name : shell_surface_ping
- * Description   : wl_shell_surface_listener callback
- *                 compositer check hungup
- * Arguments     : data           = The third argument of wl_shell_surface_add_listener() is notified.
- *                 shell_surface  = The first argument of wl_shell_surface_add_listener() is notified.
- *                 serial         = Identification ID is notified.
- * Return value  : -
- ******************************************/
-static void shell_surface_ping(void *data,
-                               struct wl_shell_surface *shell_surface,
-                               uint32_t serial)
-{
-    wl_shell_surface_pong(shell_surface, serial);
-}
-
-static const struct wl_shell_surface_listener shell_surface_listener = 
-{
-    .ping = shell_surface_ping,
-};
-
-Wayland::Wayland()
-{
-}
-
-Wayland::~Wayland()
-{
-}
 
 /*****************************************
  * Function Name : LoadShader
@@ -251,7 +268,7 @@ static int8_t initWaylandDisplay(struct wl_display** wlDisplay, struct wl_surfac
 
     wl_display_dispatch(*wlDisplay);
     wl_display_roundtrip(*wlDisplay);
-    if (globals.compositor == NULL || globals.shell == NULL)
+    if (globals.compositor == NULL || globals.wm_base == NULL)
     {
         return -1;
     }
@@ -262,8 +279,20 @@ static int8_t initWaylandDisplay(struct wl_display** wlDisplay, struct wl_surfac
         return -1;
     }
 
-    struct wl_shell_surface* shellSurface = wl_shell_get_shell_surface(globals.shell, *wlSurface);
-    wl_shell_surface_set_toplevel(shellSurface);
+    struct xdg_surface* xdg_surface = xdg_wm_base_get_xdg_surface(globals.wm_base, *wlSurface);
+    if (xdg_surface == NULL)
+    {
+        return -1;
+    }
+
+    struct xdg_toplevel* xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
+    if (xdg_toplevel == NULL) {
+        return -1;
+    }
+
+    xdg_surface_add_listener(xdg_surface, &xdg_surface_listener, NULL);
+
+    wl_surface_commit(*wlSurface);
     return 0;
 }
 
@@ -368,7 +397,26 @@ uint8_t Wayland::exit()
         pShader->nAttrPos = -1;
         pShader->nAttrColor = -1;
     }
-    wl_display_disconnect(display);
+
+    if (xdg_toplevel) {
+        xdg_toplevel_destroy(xdg_toplevel);
+        xdg_toplevel = NULL;
+    }
+
+    if (xdg_surface) {
+        xdg_surface_destroy(xdg_surface);
+        xdg_surface = NULL;
+    }
+
+    if (wm_base) {
+        xdg_wm_base_destroy(wm_base);
+        wm_base = NULL;
+    }
+
+    if (display) {
+        wl_display_disconnect(display);
+        display = NULL;
+    }
     return 0;
 }
 

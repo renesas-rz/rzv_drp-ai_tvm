@@ -5,10 +5,9 @@ There are three types of sample scripts to compile an AI model.
 1. Compile script with onnx model \[CPU and DRP-AI accelerator\]
 2. Compile script with pytorch model \[CPU and DRP-AI accelerator\]
 3. Compile script with tensorflow model \[CPU and DRP-AI accelerator\]
-4. Compile script with onnx model \[Only CPU\]
 
 All scripts use the DRP-AI Pre-processing Runtime Compile Module to generate object files for pre-processing, which are located in the `preprocess` directory in the output directory.
-For more details on DRP-AI Pre-processing Runtime, please refer to its [Documentation](../docs/PreRuntime.md).  
+For more details on DRP-AI Pre-processing Runtime, please refer to its [Documentation](../docs/PreRuntime.md).
 
 Additionally, if you want to know how to accelerate the AI model by pruning, you need to introduce the DRP-AI Extension Pack. The DRP-AI Extension Pack is pruning tools for accelerating the AI model. [See here for more information.](../pruning/how-to/torchvision_resnet50/README.md)
 
@@ -18,16 +17,18 @@ Additionally, if you want to know how to accelerate the AI model by pruning, you
 
 ```sh
 cd $TVM_ROOT/tutorials/
+
 # Download onnx model from official ONNX model zoo
-wget https://github.com/onnx/models/raw/main/validated/vision/classification/resnet/model/resnet50-v1-7.onnx
+wget https://github.com/onnx/models/raw/main/validated/vision/classification/resnet/model/resnet18-v1-7.onnx
 
 python3 compile_onnx_model_quant.py \
-    ./resnet50-v1-7.onnx \
-    -o resnet50_v1_onnx \
+    ./resnet18-v1-7.onnx \
+    -o resnet18_onnx \
     -t $SDK \
     -d $TRANSLATOR \
     -c $QUANTIZER \
     --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ 
+
 ```
 
 <!--
@@ -56,7 +57,6 @@ python3 compile_pytorch_model_quant.py ./resnet18.pt -o resnet18_torch -t $SDK \
         -d $TRANSLATOR -c $QUANTIZER \
         --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
         -s 1,3,224,224
-
 ```
 
 **Note**: Only TorchScripted model is supported. See [here for reference](https://tvm.apache.org/docs/how_to/compile_models/from_pytorch.html).
@@ -78,19 +78,36 @@ python3 sample_save_tflite_model.py
 python3 compile_tflite_model_quant.py ./resnet50-v1.tflite -o resnet50_tflite \
         -t $SDK -d $TRANSLATOR -c $QUANTIZER \
         --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
-        -s 1,224,224,3
+        -s1,224,224,3
 
 ```
 
-## 4. Compile using CPU-only deploy mode
+## 4. Compile Execu Torch models
 
-### 4.1. Example using Resnet from the official ONNX model zoo
+### 4.1. Example command for Execu Torch models
+
+```bash
+cd $TVM_ROOT/tutorials/
+# [NOTE] Please prepare Execu Troch model(.pte)
+
+# Run DRP-AI TVM Compiler script
+python3 compile_exir_model_quant.py \
+./resnet50.pte \
+-o resnet50_pte_v2h \
+-s 1,3,224,224 \
+-t $SDK -d $TRANSLATOR -c $QUANTIZER \
+--images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
+```
+
+## 5. Compile using CPU-only deploy mode
+
+### 5.1. Example using Resnet from the official ONNX model zoo
 
 Same as [Here](./README.md#41-example-using-resnet-from-the-official-onnx-model-zoo).
 
 ```bash
 cd $TVM_ROOT/tutorials/
-python3 compile_cpu_only_onnx_model.py ./resnet50-v1-7.onnx -o resnet50_v1_onnx_cpu -s 1,3,224,224 -i data
+python3 compile_cpu_only_onnx_model.py ./resnet18-v1-7.onnx -o resnet18_onnx_cpu -s 1,3,224,224 -i data
 ```
 
 ----

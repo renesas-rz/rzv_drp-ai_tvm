@@ -1,16 +1,16 @@
 # DRP-AI TVM[^1] Application Example (RZ/V2H, RZ/V2N)
 
-This page explains how to use the application provided in this directory, which is the example to run ResNet18 inference on the target board.
+This page explains how to use the application provided in this directory, which is the example to run ResNet inference (ResNet18 ONNX or ResNet50 TensorFlow) on the target board.
 
 ## Overview
 
 To run inference with the AI model data compiled by DRP-AI TVM[^1], an inference application is necessary.  
 At this point, this application must be written in C++ for the DRP-AI TVM[^1] Runtime Library.  
-Here, we explain how to compile and deploy the application example for ResNet-18, which has already been compiled in the [Compile with Sample Scripts (RZ/V2H)](../tutorials/tutorial_RZV2H.md).
+Here, we explain how to compile and deploy the application example for ResNet models, which have already been compiled in the [Compile with Sample Scripts (RZ/V2H)](../tutorials/tutorial_RZV2H.md).
 
 ## Set environment variables
 
-Same as [Installation](../setup/SetupV2H.md#4-set-environment-variables).  
+Same as [Installation](../setup/README.md#4-set-environment-variables).  
 
 ## How to Build the Application
 
@@ -52,31 +52,46 @@ Copy the following files to the rootfs of Boot Environment.
 
 | Name            | Path                                                                                        | Details                                                                                                                                                                   |
 |:--------------- |:------------------------------------------------------------------------------------------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime Library | `drp-ai_tvm/obj/build_runtime/${PRODUCT}/libtvm_runtime.so`                                 | Binary provided under [obj](../obj/build_runtime) directory.<br>You should use the `libtvm_runtime.so` in the directory with the corresponding product name.              |
+| Runtime Library | `drp-ai_tvm/obj/build_runtime/${PRODUCT}/lib/*`  | Binary provided under [obj](../obj/build_runtime) directory.<br>You should use the libraries in the directory with the corresponding product name.              |
 | Model Data      | `drp-ai_tvm/tutorials/resnet*`                                                              | Model compiled in the [Compile AI models](../tutorials). DRP-AI Preprocessing Runtime Object files, (`preprocess` directory) are also included.                           |
 | Input Data      | `drp-ai_tvm/apps/exe/sample.bmp`                                                            | Windows Bitmap file, which is input data for image classification.                                                                                                        |
-| Label List      | `drp-ai_tvm/apps/exe/synset_words_imagenet.txt`<br>`drp-ai_tvm/apps/exe/ImageNetLabels.txt` | `synset_words_imagenet.txt`:Label list for ResNet18 post-processing.<br>`ImageNetLabels.txt`:Label list for ResNet50 post-processing when compiling Tensorflow Hub model. |
+| Label List      | `drp-ai_tvm/apps/exe/synset_words_imagenet.txt`<br>`drp-ai_tvm/apps/exe/ImageNetLabels.txt` | `synset_words_imagenet.txt`: Label list for ResNet18 post-processing.<br>`ImageNetLabels.txt`: Label list for ResNet50 post-processing when compiling TensorFlow Hub model. |
 | Application     | `drp-ai_tvm/apps/build/tutorial_app`                                                        | Compiled in this [page](#how-to-compile-the-application).                                                                                                                 |
 
 The rootfs should look like below.  
-**Note that if you compiled the model in Tensorflow Hub, rename the label list `ImageNetLabels.txt` to `synset_words_imagenet.txt` and use it.**  
 
 ```sh
 /
 └── home
     └── root
         └── tvm
-            ├── libtvm_runtime.so
-            ├── resnet50_v1_onnx
-            │   ├── deploy.json
-            │   ├── deploy.params
-            │   ├── deploy.so
+            ├── lib            
+            │   ├── libacl_rt.so
+            │   ├── libarm_compute.so
+            │   ├── libarm_compute_core.so
+            │   ├── libarm_compute_graph.so
+            │   ├── libdrp_rt.so
+            │   ├── libdrp_tvm_rt.so
+            │   ├── libmera2_plan_io.so
+            │   ├── libmera2_runtime.so
+            │   ├── log_out.bin
+            │   ├── softmax_out.bin
+            │   └── split_out.bin
+            ├── resnet18_onnx
+            │   ├── mera.plan
+            │   ├── model_subgraphs.json
+            │   ├── project.mdp
+            │   ├── sub_0000__CPU_DRP_TVM
+            │   │   ├── deploy.json
+            │   │   ├── deploy.params
+            │   │   └── deploy.so
             │   └── preprocess
             │       ├── aimac_desc.bin
             │       ...
             │       └── weight.bin
             ├── sample.bmp
             ├── synset_words_imagenet.txt
+            ├── ImageNetLabels.txt
             └── tutorial_app
 ```
 
@@ -84,17 +99,16 @@ As a working example, a series of commands is described below.
 
 ```bash
 cd $TVM_ROOT/../
-mkdir tvm
-cp $TVM_ROOT/obj/build_runtime/$PRODUCT/libtvm_runtime.so tvm/
+mkdir -p tvm/lib
+cp $TVM_ROOT/obj/build_runtime/v2h/lib/* tvm/lib/.
 cp $TVM_ROOT/apps/exe/sample.bmp tvm/
 cp $TVM_ROOT/apps/exe/ImageNetLabels.txt tvm/
 cp $TVM_ROOT/apps/exe/synset_words_imagenet.txt tvm/
 cp $TVM_ROOT/apps/build/tutorial_app* tvm/
-cp -r $TVM_ROOT/tutorials/resnet50_v1_onnx tvm/
-cp -r $TVM_ROOT/tutorials/resnet18_torch/  tvm/
-cp -r $TVM_ROOT/tutorials/resnet50_tflite/  tvm/
-cp -r $TVM_ROOT/tutorials/resnet50_v1_onnx_cpu/  tvm/
-
+cp -r $TVM_ROOT/tutorials/resnet18_onnx tvm/
+cp -r $TVM_ROOT/tutorials/resnet18_torch tvm/
+cp -r $TVM_ROOT/tutorials/resnet50_tflite tvm/
+cp -r $TVM_ROOT/tutorials/resnet18_onnx_cpu tvm/
 tar cvfz tvm.tar.gz tvm/
 ```
 
@@ -106,26 +120,9 @@ After boot-up the board, move to the directory you stored the application and ru
 cd ~
 tar xvfz tvm.tar.gz
 cd ~/tvm
-export LD_LIBRARY_PATH=.
-cp -r resnet50_v1_onnx resnet18_onnx
+export LD_LIBRARY_PATH=./lib/.
 ./tutorial_app
 #./tutorial_app 5 #The way run DRP-AI with 315Mhz@V2H
-
-
-rm -r resnet18_onnx
-cp -r resnet18_torch resnet18_onnx
-./tutorial_app
-
-rm -r resnet18_onnx
-cp -r resnet50_v1_onnx_cpu resnet18_onnx
-./tutorial_app
-
-rm -r resnet18_onnx
-cp synset_words_imagenet.txt synset_words_imagenet.txt.bak
-cp ImageNetLabels.txt synset_words_imagenet.txt
-cp -r resnet50_tflite resnet18_onnx
-./tutorial_app
-cp synset_words_imagenet.txt.bak synset_words_imagenet.txt
 ```
 
 The application runs the ResNet inference on [sample.bmp](exe/sample.bmp).
@@ -140,8 +137,48 @@ export TVM_NUM_THREADS=1
 
 This is particularly effective in cases where there are very few operators being inferred on the CPU.
 
-<!-- <img src="./exe/sample.bmp" width=350>   -->
-<!-- GitLabだとBMP画像が表示されない。GitHubならOK -->
+## Important Notes for Using Different Model Types
+
+The application is configured to work with the default ONNX ResNet18 model in a directory named `resnet18_onnx`. If you're using a different model type or directory name, you'll need to make some adjustments.
+
+### Using Different Model Types
+
+The application expects the model to be in a directory named `resnet18_onnx`. To use different model types, create a symbolic link from your model directory to `resnet18_onnx` and run the application:
+
+```sh
+# For PyTorch model
+ln -sf resnet18_torch resnet18_onnx
+./tutorial_app
+
+# For CPU-only ONNX model
+ln -sf resnet18_onnx_cpu resnet18_onnx
+./tutorial_app
+```
+
+### TensorFlow Models Label File
+
+When using TensorFlow models (such as ResNet50 from TensorFlow Hub), you need to replace the label file with the TensorFlow-compatible version in addition to creating the symbolic link:
+
+```sh
+# Create symbolic link for TensorFlow model
+ln -sf resnet50_tflite resnet18_onnx
+
+# Backup the original label file
+cp synset_words_imagenet.txt synset_words_imagenet.txt.bak
+
+# Use the TensorFlow-compatible label file
+cp ImageNetLabels.txt synset_words_imagenet.txt
+
+# Run the application
+./tutorial_app
+
+# Restore the original label file when done
+cp synset_words_imagenet.txt.bak synset_words_imagenet.txt
+```
+
+This label file replacement is necessary because TensorFlow models use a different label format than the default one provided for ONNX and PyTorch models. The application expects the label file to be named `synset_words_imagenet.txt`, so we temporarily replace it with the TensorFlow-compatible version.
+
+**Note**: This label file replacement is required for both RZ/V2H/V2N and RZ/V2L/V2M/V2MA platforms when using TensorFlow models.
 
 ## Application Specification
 
@@ -175,10 +212,12 @@ Run the `bitbake` command as explained in the DRP-AI Support Package.
 ## Build benchmark runtime
 "benchmark.cpp" is a sample program that measures only the inference time. This benchmark program can measure the inference time of various models, such as Classification, Detection and so on without runtime program modification.    
 
-### 1. Build 
+### 1. Build
 
 The build procedure is as follows.
+
 ```sh
+cd $TVM_ROOT/apps
 mkdir build
 cd build
 cmake -DCMAKE_TOOLCHAIN_FILE=./toolchain/runtime.cmake \
@@ -196,11 +235,11 @@ An example of a folder structure is shown below.
 ```sh
 /
 └── tvm
-    ├── libtvm_runtime.so
+    ├── lib
+    |   ├── *.so
+    |   ├── *.bin
     ├── model_dir_onnx
-    │   ├── deploy.json
-    │   ├── deploy.params
-    │   ├── deploy.so
+    │   ├── * ... Compiled model data
     └── benchmark
 ```
 As shown below, the inference time is displayed on the console.
@@ -218,13 +257,13 @@ Profile data is saved as ./profile_table.txt & profile.csv
 
 ## Build inference runtime
 
-In this section, we will introduce a runtime program that performs only inference processing. 
-This sample program read binary data as input and saves the inference results as binary data. 
-Combining this program with pre- and post-processing written in Python code makes debugging easier. 
-If you have python code that run inference evaluation on the host PC, please use that code. 
-The sample usage is described below.   
+In this section, we will introduce a runtime program that performs only inference processing.
+This sample program read binary data as input and saves the inference results as binary data.
+Combining this program with pre- and post-processing written in Python code makes debugging easier.
+If you have python code that run inference evaluation on the host PC, please use that code.
+The sample usage is described below.
 
-1. Build runtime 
+1. Build runtime
 2. Perform pre-processing and prepare input data in binary format by Python code
 3. Execute inference on the RZ/V board
 4. Verify the results by Python code
@@ -232,19 +271,24 @@ The sample usage is described below.
 When developing an actual application, it is recommended to implement the pre- and post-processing into a C runtime program.
 
 ### 1. Build
+
 The build procedure is as follows. Please add **-DINFERENCE=ON** option.
+
 ```sh
+cd $TVM_ROOT/apps
 mkdir build
 cd build
 cmake -DCMAKE_TOOLCHAIN_FILE=./toolchain/runtime.cmake -DV2H=ON -DINFERENCE=ON ..
 make -j$(nproc)
 ```
-The runtime program (**run_inference**) is generated. 
+
+The runtime program (**run_inference**) is generated.
 
 ### 2. Prepare input bin file by Python
-By saving the pre-processing results as binary file, it is possible to use them as input data for inference on the board.    
 
-Below is an example of pre-processing in Python. Reading bmp image file, running pre-processing, then saving the results as binary data.   
+By saving the pre-processing results as binary file, it is possible to use them as input data for inference on the board.
+
+Below is an example of pre-processing in Python. Reading bmp image file, running pre-processing, then saving the results as binary data.
 
 ```py
 from PIL import Image
@@ -272,17 +316,20 @@ The execution command on the V2H/N board is as follows. Specify the model direct
 
 > ./run_inference [modle directory]
 
-An example of a folder structure is shown below.   
+An example of a folder structure is shown below.
+
 ```sh
 /
 └── tvm
+    ├── lib
+    |   ├── *.so
+    |   ├── *.bin
     ├── resnet50_onnx
     │   ├── input_0.bin ... input data generated Python code
-    │   ├── deploy.json
-    │   ├── deploy.params
-    │   └── deploy.so
+    │   ├── * ... Compiled model data
     └── run_inference 
 ```
+
 As shown below, the inference result is saved as a binary file(data_out_0_fp16.bin).
 
 ```sh
@@ -290,11 +337,12 @@ As shown below, the inference result is saved as a binary file(data_out_0_fp16.b
 ...
 /
 └── tvm
+    ├── lib
+    |   ├── *.so
+    |   ├── *.bin
     ├── resnet50_onnx
     │   ├── input_0.bin ... input data generated Python code
-    │   ├── deploy.json
-    │   ├── deploy.params
-    │   ├── deploy.so
+    │   ├── * ... Compiled model data
     │   ├── data_out_0_fp16.bin ... output dat. dtype is fp16. 
     └── run_inference 
 ```

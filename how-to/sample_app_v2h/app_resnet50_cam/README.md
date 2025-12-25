@@ -6,11 +6,12 @@
 
     ```bash
     cd $TVM_ROOT/how-to/sample_app_v2h/app_resnet50_cam/src
+    cp $TVM_ROOT/how-to/sample_app_v2h/app_deeplabv3_cam/src/CMakeLists.txt CMakeLists.txt
     mkdir build
     cd build
 
-    cmake -DCMAKE_TOOLCHAIN_FILE=$TVM_ROOT/apps/toolchain/runtime.cmake  ..
-   sed -i -e 's/INPUT_CAM_TYPE 0/INPUT_CAM_TYPE 1/g' ../define.h # Not executed when using a USB camera.
+    cmake -DCMAKE_TOOLCHAIN_FILE=$TVM_ROOT/apps/toolchain/runtime.cmake -DAPP_NAME=app_resnet50_cam ..
+    sed -i -e 's/INPUT_CAM_TYPE 0/INPUT_CAM_TYPE 1/g' ../define.h # Not executed when using a USB camera.
     make
     ```
 
@@ -33,6 +34,7 @@ sed -i -e '/os.path.join(ref_result_output_dir, "input_"/d' compile_onnx_model_q
 sed -i -e 's/ref_result_output_dir/output_dir/g' compile_onnx_model_quant.py
 sed -i -e 's/_fp32//g' compile_onnx_model_quant.py 
 sed -i -e 's/_fp16//g' compile_onnx_model_quant.py
+sed -i -e 's/_int64//g' compile_onnx_model_quant.py
 sed -i -e 's/FORMAT.BGR/FORMAT.YUYV_422/g' compile_onnx_model_quant.py
 sed -i -e 's/480, 640, 3/1080, 1920, 2/g' compile_onnx_model_quant.py
 ```
@@ -65,7 +67,7 @@ $TRANSLATOR/../onnx_models/Resnet50v1_sparse90.onnx \
 ```bash
 cd $TVM_ROOT/../
 rm -r sample_resnet50_cam ; mkdir sample_resnet50_cam
-cp $TVM_ROOT/obj/build_runtime/$PRODUCT/libtvm_runtime.so sample_resnet50_cam/
+cp $TVM_ROOT/obj/build_runtime/v2h/lib/* sample_resnet50_cam/
 cp $TVM_ROOT/apps/exe/synset_words_imagenet.txt sample_resnet50_cam/
 cp $TVM_ROOT/how-to/sample_app_v2h/app_resnet50_cam/src/build/app_resnet50_cam sample_resnet50_cam/
 cp -r $TVM_ROOT/tutorials/resnet50_cam sample_resnet50_cam/
@@ -81,9 +83,20 @@ tar cvfz sample_resnet50.tar.gz sample_resnet50_cam/
 	  - Please refer to the [e-con Systems product page](https://www.e-consystems.com/renesas/sony-starvis-imx462-ultra-low-light-camera-for-renesas-rz-v2h.asp) for information on obtaining e-CAM22_CURZH
 	  - Please connect e-con Systems e-CAM22_CURZH to the MIPI connector (CN7) on the EVK board
       <img src=../../img/connect_e-cam22_curzh_to_rzv2h_evk.png width=700>
+
   - Use a USB camera:
     - Please connect USB camera as shown below on the EVK board
-      <img src=./img/hw_conf_v2h.png width=700>
+      <table>
+        <tr>
+          <th>RZ/V2H EVK</th>
+          <th>RZ/V2N EVK</th>
+        </tr>
+        <tr>
+          <td><img src=../../img/hw_conf_v2h.png width=600></td>
+          <td><img src=../../img/hw_conf_v2n.png width=600></td>
+        </tr>
+      </table>
+
 - Display: Please connect to the HDMI port on the EVK board
 
 ### 2. **(On RZ/V Board)** Copy and Try it  
@@ -94,9 +107,16 @@ For example, as follows.
 scp <yourhost>:sample_resnet50.tar.gz .
 tar xvfz sample_resnet50.tar.gz 
 cd sample_resnet50_cam/
+su
 export LD_LIBRARY_PATH=.
 ./app_resnet50_cam
+exit # After terminating the application.
 ```
+
+  > **Note1:** For RZ/V2H and RZ/V2N AI SDK v6.00 and later, you need to switch to the root user with the `su` command when running an application.  
+  This is because when you run an application from a weston-terminal, you are switched to the "weston" user, which does not have permission to run the `/dev/xxx` device used in the application.
+  
+  > **Note2:** The chmod +x <filename> command is necessary if the *.tar.gz file or the application file does not have execution permission.
 
 ### 3. Following window shows up on HDMI screen
 
@@ -114,7 +134,7 @@ On application window, following information is displayed.
 
 ### 4. How Terminate Application
 
-To terminate the application, press `Enter` key on the Linux console terminal of RZ/V2H Evaluation Board Kit.
+To terminate the application, press `Super(Window) + Tab` keys to display the Linux console terminal of RZ/V2H or RZ/V2N Evaluation Board Kit and press `Enter` key on there.
 
 ### 5. Logs
 

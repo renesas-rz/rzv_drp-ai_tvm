@@ -76,17 +76,11 @@ ${TVM_ROOT}/convert
 Yolox models have redundant post-processing part, so cut part from onnx.
 Please delete the following six nodes common to all yolox onnxs by looking at the example script below.
 
-| cut point  | node name                       |
-| ---        | ---                             |
-| 1/8 scale  | /head/Sigmoid_1_output_0        |
-| 1/8 scale  | /head/reg_preds.0/Conv_output_0 |
-| 1/8 scale  | /head/Sigmoid_output_0          |
-| 1/16 scale | /head/Sigmoid_3_output_0        |
-| 1/16 scale | /head/reg_preds.1/Conv_output_0 |
-| 1/16 scale | /head/Sigmoid_2_output_0        |
-| 1/32 scale | /head/Sigmoid_5_output_0        |
-| 1/32 scale | /head/reg_preds.2/Conv_output_0 |
-| 1/32 scale | /head/Sigmoid_4_output_0        |
+| cut point  | node name               |
+| ---        | ---                     |
+| 1/8 scale  | /head/Concat_output_0   |
+| 1/16 scale | /head/Concat_1_output_0 |
+| 1/32 scale | /head/Concat_2_output_0 |
 
 <center><img src=./img/cut_yolox.png></center>
 
@@ -104,7 +98,7 @@ Python 3.10.12 (main, Aug 15 2025, 14:32:43)
 [GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
->>> onnx.utils.extract_model("yolox-s.onnx", "yolox-s_cut.onnx", ["images"], ["/head/Sigmoid_1_output_0", "/head/reg_preds.0/Conv_output_0", "/head/Sigmoid_output_0", "/head/Sigmoid_3_output_0", "/head/reg_preds.1/Conv_output_0", "/head/Sigmoid_2_output_0", "/head/Sigmoid_5_output_0", "/head/reg_preds.2/Conv_output_0", "/head/Sigmoid_4_output_0"])
+>>> onnx.utils.extract_model("yolox-s.onnx", "yolox-s_cut.onnx", ["images"], ["/head/Concat_output_0", "/head/Concat_1_output_0", "/head/Concat_2_output_0",])
 >>> exit()
 ```
 
