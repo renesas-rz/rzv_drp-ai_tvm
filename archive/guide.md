@@ -1,7 +1,7 @@
 ---
 layout: tutorial
 title: "How to compile Your Own Model"
-permalink: /compile_your_own_model.html
+permalink: /compile_your_own_model_v230.html
 ---
 
 The following is an example of how to implement RZ/V2H implementation, but it can be the same way in RZ/V2N.

@@ -1,7 +1,7 @@
 ---
 title : How to Compile Sample Model
 layout: tutorial
-permalink: /compile_sample_model.html
+permalink: /compile_sample_model_v230.html
 ---
 
 The following is an example of how to implement RZ/V2H implementation, but it can be the same way in RZ/V2N.

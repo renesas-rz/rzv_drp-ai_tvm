@@ -1,7 +1,7 @@
 ---
 layout: tutorial
 title: "How to Prune Your Own Model"
-permalink: /pruning.html
+permalink: /pruning_v230.html
 ---
 
 The following is an example of how to implement RZ/V2H implementation, but it can be the same way in RZ/V2N.
