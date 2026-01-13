@@ -35,7 +35,7 @@ RUN yes | DEBIAN_FRONTEND=noninteractive /opt/DRP-AI_Translator*-Linux*-x86_64-I
 RUN pip3 install psutil numpy==1.26.4
 RUN pip3 install cython==3.0.11
 RUN pip3 install decorator attrs
-RUN pip3 install tensorflow==2.18.1 tflite tqdm
+RUN pip3 install tensorflow==2.18.1 tensorflow-hub tflite tqdm
 
 
 # Clone repository

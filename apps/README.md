@@ -3,6 +3,12 @@
 This page explains how to use the application provided in this directory, which is the example to run ResNet inference (ResNet18 ONNX or ResNet50 TensorFlow) on the target board.
 If you would like to build an application for **RZ/V2H and RZ/V2N** [see here](./build_appV2H.md).
 
+> **Note (Model Dependency)**<br>
+> This application contains **pre-processing and post-processing specifically designed for ResNet models**.  
+> If you want to validate inference results using a **different model**, you must **modify the pre/post-processing** according to that model’s input/output specifications.  
+> Simply replacing the model directory will **not** produce correct results.
+
+
 ## Overview
 
 To run the inference with the AI model data compiled by DRP-AI TVM[^1], inference application is necessary.  

@@ -12,26 +12,26 @@ Requirements are listed below.
 - Related Software Version:
   - DRP-AI Translator
     - RZ/V2L, RZ/V2M, RZ/V2MA
-      - [DRP-AI Translator V1.90 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
+      - [DRP-AI Translator v1.90 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
       - DRP-AI_Translator-v1.90-Linux-x86_64-Install
     - RZ/V2H or RZ/V2N
-      - [DRP-AI_Translator_i8 V1.11 or later](https://www.renesas.com/software-tool/drp-ai-translator-i8)
+      - [DRP-AI_Translator_i8 v1.11 or later](https://www.renesas.com/software-tool/drp-ai-translator-i8)
       - DRP-AI_Translator_i8-v1.11-Linux-x86_64-Install
   - SDK
     - RZ/V2L
-      - [RZ/V2L AI SDK v5.00 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
+      - [RZ/V2L AI SDK v5.00 or later](https://www.renesas.com/us/en/software-tool/rzv2l-ai-software-development-kit)
       - RTK0EF0160F05000SJ.zip
     - RZ/V2M
-      - [RZ/V Verified Linux Package V3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package)
-      - [DRP-AI Support Package V7.51 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package)
+      - [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package)
+      - [DRP-AI Support Package v7.51 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package)
       - SDK Installer (generated from the above packages)
     - RZ/V2MA
-      - [RZ/V Verified Linux Package V3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package)
-      - [DRP-AI Support Package V7.50 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
+      - [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package)
+      - [DRP-AI Support Package v7.50 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
       - SDK Installer (generated from the above packages)
     - RZ/V2H
-      - [RZ/V2H AI SDK v5.20 or later](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
-      - RTK0EF0180F05200SJ.zip
+      - [RZ/V2H AI SDK v6.00 or later](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
+      - RTK0EF0180F06000SJ.zip
     - RZ/V2N
       - [RZ/V2N AI SDK v6.00 or later](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
       - RTK0EF0189F06000SJ.zip
@@ -97,11 +97,11 @@ fi
 #### Install SDK for RZ/V
 
 1. Download the appropriate SDK for your board:
-   - RZ/V2L: [RZ/V2L AI SDK](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
-   - RZ/V2M: [RZ/V Verified Linux Package V3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package V7.51 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package)
-   - RZ/V2MA: [RZ/V Verified Linux Package V3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package V7.50 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
-   - RZ/V2H: [RZ/V2H AI SDK](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
-   - RZ/V2N: [RZ/V2N AI SDK](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
+   - RZ/V2L: [RZ/V2L AI SDK v5.00 or later](https://www.renesas.com/us/en/software-tool/rzv2l-ai-software-development-kit)
+   - RZ/V2M: [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package v7.51 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package)
+   - RZ/V2MA: [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package v7.50 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
+   - RZ/V2H: [RZ/V2H AI SDK v6.00 or later](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
+   - RZ/V2N: [RZ/V2N AI SDK v6.00 or later](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
 
 2. Install the SDK:
 
@@ -124,7 +124,7 @@ elif [ "$PRODUCT" = "V2N" ]; then
   
 else
   # For RZ/V2H
-  SDK_FILE="/path/to/RTK0EF0180F05200SJ.zip"
+  SDK_FILE="/path/to/RTK0EF0180F06000SJ.zip"
 fi
 
 # Extract toolchain script for all boards except RZ/V2M and RZ/V2MA
@@ -153,7 +153,7 @@ pip3 install --upgrade pip
 pip3 install psutil numpy==1.26.4
 pip3 install cython==3.0.11
 pip3 install decorator attrs
-pip3 install tensorflow==2.18.1 tflite tqdm
+pip3 install tensorflow==2.18.1 tensorflow-hub tflite tqdm
 ```
 
 ### 3. Clone the Repository
@@ -173,20 +173,18 @@ git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git ${TVM_ROO
 echo 'export SDK="'$(find /opt/ -name "sysroots")/../'"' >> ~/.bashrc
 
 # Set DRP-AI Translator paths
-if [ "$PRODUCT" = "V2L" ] || [ "$PRODUCT" = "V2M" ] || [ "$PRODUCT" = "V2MA" ]; then
-  # For RZ/V2L, RZ/V2M, or RZ/V2MA
-  echo 'export TRANSLATOR="/opt/DRP-AI_Translator/translator/"' >> ~/.bashrc
-  echo 'export QUANTIZER="/opt/DRP-AI_Translator/drpAI_Quantizer/"' >> ~/.bashrc
-else
-  # For RZ/V2H or RZ/V2N
+echo 'export TRANSLATOR="`find /opt/ -name "python_api"`/../../"' >> ~/.bashrc
+
+# Set QUANTIZER for RZ/V2H or RZ/V2N only
+if [ "$PRODUCT" = "V2H" ] || [ "$PRODUCT" = "V2N" ]; then
   echo 'export PYTHONPATH="/opt/DRP-AI_Translator_i8/drpAI_Quantizer/"' >> ~/.bashrc
-  echo 'export TRANSLATOR="/opt/DRP-AI_Translator_i8/translator/"' >> ~/.bashrc
   echo 'export QUANTIZER="/opt/DRP-AI_Translator_i8/drpAI_Quantizer/"' >> ~/.bashrc
 fi
 
 echo 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$LIBRARY_PATH"' >> ~/.bashrc
 echo 'export LIBRARY_PATH="$LD_LIBRARY_PATH"' >> ~/.bashrc
 echo 'export PRODUCT="'${PRODUCT}'"' >> ~/.bashrc
+echo 'export TVM_ROOT=${HOME}/drp-ai_tvm' >> ~/.bashrc
 
 # Apply changes to current shell
 source ~/.bashrc
@@ -241,9 +239,9 @@ Before proceeding, ensure you have the following files in your working directory
    - For RZ/V2L, RZ/V2M, or RZ/V2MA: Download from [DRP-AI Translator page](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
    - For RZ/V2H or RZ/V2N: Download from [DRP-AI Translator i8 page](https://www.renesas.com/software-tool/drp-ai-translator-i8)
 2. SDK package (appropriate version for your board)
-   - For RZ/V2L: Download from [RZ/V2L AI SDK page](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
-   - For RZ/V2M: Build SDK using [RZ/V Verified Linux Package V3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package V7.51 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package)
-   - For RZ/V2MA: Build SDK using [RZ/V Verified Linux Package V3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package V7.50 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
+   - For RZ/V2L: Download from [RZ/V2L AI SDK page](https://www.renesas.com/us/en/software-tool/rzv2l-ai-software-development-kit)
+   - For RZ/V2M: Build SDK using [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package v7.51 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package)
+   - For RZ/V2MA: Build SDK using [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package v7.50 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
    - For RZ/V2H: Download from [RZ/V2H AI SDK page](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
    - For RZ/V2N: Download from [RZ/V2N AI SDK page](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
 3. Dockerfile for your board
@@ -267,7 +265,7 @@ if [ "$PRODUCT" = "V2L" ]; then
 elif [ "$PRODUCT" = "V2N" ]; then
   SDK_FILE="RTK0EF0189F06000SJ.zip"
 elif [ "$PRODUCT" = "V2H" ]; then
-  SDK_FILE="RTK0EF0180F05200SJ.zip"
+  SDK_FILE="RTK0EF0180F06000SJ.zip"
 fi
 
 # Extract toolchain script for all boards except RZ/V2M and RZ/V2MA

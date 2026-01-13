@@ -6,10 +6,11 @@
 
    ```bash
    cd $TVM_ROOT/how-to/sample_app_v2h/app_yolox_hrnet_cam/src
+   cp $TVM_ROOT/how-to/sample_app_v2h/app_deeplabv3_cam/src/CMakeLists.txt CMakeLists.txt
    mkdir build
    cd build
    
-   cmake -DCMAKE_TOOLCHAIN_FILE=$TVM_ROOT/apps/toolchain/runtime.cmake ..
+   cmake -DCMAKE_TOOLCHAIN_FILE=$TVM_ROOT/apps/toolchain/runtime.cmake -DAPP_NAME=app_yolox_hrnet_cam ..
    sed -i -e 's/INPUT_CAM_TYPE 0/INPUT_CAM_TYPE 1/g' ../define.h # Not executed when using a USB camera.
    make -j$(nproc)
    ```

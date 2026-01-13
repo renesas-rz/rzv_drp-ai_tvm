@@ -67,6 +67,7 @@ python3 compile_pytorch_model_quant.py ./resnet18.pt -o resnet18_torch -t $SDK \
 
 ```bash
 cd $TVM_ROOT/tutorials/
+
 # Download resnet50 model from TensorFlow Hub
 mkdir resnet50-v1
 wget https://tfhub.dev/google/imagenet/resnet_v1_50/classification/5?tf-hub-format=compressed -O resnet50-v1.tar.gz

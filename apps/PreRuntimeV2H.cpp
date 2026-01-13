@@ -2460,10 +2460,6 @@ uint8_t PreRuntime::SetInputAddress(uint64_t in_addr)
             return PRE_ERROR;
         }
     }
-    else{
-        std::cerr << "[ERROR] param->pre_in_addr not valid: pre_in_addr=0x" << std::hex << in_addr << std::endl;
-        return PRE_ERROR;
-    }
     return PRE_SUCCESS;
 }
 /*****************************************
