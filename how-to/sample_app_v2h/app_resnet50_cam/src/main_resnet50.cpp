@@ -437,6 +437,8 @@ void *R_Inf_Thread(void *threadid)
             usleep(WAIT_TIME);
         }
         in_param.pre_in_addr    = (uintptr_t) capture_address;
+        in_param.input_copy_enabled = false;
+
         /*Gets Pre-process starting time*/
         ret = timespec_get(&pre_start_time, TIME_UTC);
         if (0 == ret)

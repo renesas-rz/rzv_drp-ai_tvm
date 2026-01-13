@@ -58,7 +58,7 @@ The applications for the following models are available.
 - [Pose Estimation: YOLOX-S+HRNet](./sample_app_v2h/app_yolox_hrnet_cam)
 
 These sample applications are compatible with RZ/V2H AI SDK v6.00, RZ/V2N AI SDK v6.00 or later versions. <br>
-The RZ/V2H AI SDK v6.00 will be available in January 2026, and the RZ/V2N AI SDK v6.00 is already available in the links below.
+The RZ/V2H AI SDK v6.00 and the RZ/V2N AI SDK v6.00 are already available in the links below.
 
 * [RZ/V2H AI SDK](https://www.renesas.com/ja/software-tool/rzv2h-ai-software-development-kit)
 * [RZ/V2N AI SDK](https://www.renesas.com/ja/software-tool/rzv2n-ai-software-development-kit)
@@ -80,15 +80,15 @@ git clone https://github.com/renesas-rz/sample_app_v2h_gpl.git
 
 The applications for the following models are available.
 
-- [Object Detection: YOLOv5](https://github.com/renesas-rz/sample_app_v2h_gpl/app_yolov5_cam/)
-- [Object Detection: YOLOv6](https://github.com/renesas-rz/sample_app_v2h_gpl/app_yolov6_cam/)
-- [Object Detection: YOLOv7](https://github.com/renesas-rz/sample_app_v2h_gpl/app_yolov7_cam/)
-- [Object Detection: YOLOv8](https://github.com/renesas-rz/sample_app_v2h_gpl/app_yolov8_cam/)
-- [Object Detection: YOLOv9](https://github.com/renesas-rz/sample_app_v2h_gpl/app_yolov9_cam/)
-- [Object Detection: YOLOv11](https://github.com/renesas-rz/sample_app_v2h_gpl/app_yolov11_cam/)
+- [Object Detection: YOLOv5](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov5_cam/)
+- [Object Detection: YOLOv6](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov6_cam/)
+- [Object Detection: YOLOv7](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov7_cam/)
+- [Object Detection: YOLOv8](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov8_cam/)
+- [Object Detection: YOLOv9](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov9_cam/)
+- [Object Detection: YOLOv11](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov11_cam/)
 
 These sample applications are compatible with RZ/V2H AI SDK v6.00, RZ/V2N AI SDK v6.00 or later versions. <br>
-The RZ/V2H AI SDK v6.00 will be available in January 2026, and the RZ/V2N AI SDK v6.00 is already available in the links below.
+The RZ/V2H AI SDK v6.00 and the RZ/V2N AI SDK v6.00 are already available in the links below.
 
 * [RZ/V2H AI SDK](https://www.renesas.com/ja/software-tool/rzv2h-ai-software-development-kit)
 * [RZ/V2N AI SDK](https://www.renesas.com/ja/software-tool/rzv2n-ai-software-development-kit)
