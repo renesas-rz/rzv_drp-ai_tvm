@@ -12,18 +12,7 @@ Users can select the AI model applications on the GUI menu by using the USB mous
 This package supports the following AI models.
 
 * Object Detection
-  * YOLOv8-S, M, L (Dense model only)
-  * YOLOv5-S, M, L (Dense model only)
-  * YOLOX-S (Dense model and 70% sparse model)
-* Pose Estimation
-  * YOLOX-S Pose (Dense model only)
-  * YOLOX-S + HRNet (70% sparse model + 90% sparse model)
-* Classification
-  * ResNet50 (Dense model and 90% sparse model)
-* Depth Estimation
-  * MiDaS (Dense model only)
-* Semantic Segmentation
-  * TopFormer-Tiny (Dense model only)
+  * YOLOv8-X (Dense model and 90% sparse model)
 
 Sparse models are created by the pruning tool in DRP-AI extension package, and realize faster performance and lower foot print than Dense model.
 
@@ -162,13 +151,6 @@ Users can select and start the AI model applications on the GUI menu by using th
 
 # 5. Version History
 
-* v1.00 issued on 26th June 2024. 
-  * First version based on RZ/V2H AI SDK v4.00 and DRP-AI TVM 2.3.1.
-* v1.10 issued on 29th November 2024.
-  * Update for RZ/V2H AI SDK v5.00 and DRP-AI TVM v2.4.1.
-* v1.20 issued on 6th December 2024
-  * Update for USB Camera version.
-* v1.30 issued on 11th March 2025
-  * Update for RZ/V2H AI SDK v5.20 and DRP-AI TVM v2.5.0.
-* v1.40 issued on 13th January 2026
-  * Update for RZ/V2H AI SDK v5.20 and DRP-AI TVM v2.6.0.
+* v1.00 issued on 13th January 2025. 
+  * First version based on RZ/V2H AI SDK v5.20 and DRP-AI TVM v2.6.0.
+

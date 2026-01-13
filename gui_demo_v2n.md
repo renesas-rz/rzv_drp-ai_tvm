@@ -1,7 +1,7 @@
 ---
 layout: tutorial
 title: How to Use Guide
-permalink: /gui_demo_v2n.html
+permalink: /gui_demo.html
 ---
 # 1. Overview
 
@@ -11,17 +11,19 @@ Users can select the AI model applications on the GUI menu by using the USB mous
 
 This package supports the following AI models.
 
+* Object Detection
+  * YOLOv8-S, M, L (Dense model only)
+  * YOLOv5-S, M, L (Dense model only)
+  * YOLOX-S (Dense model and 70% sparse model)
+* Pose Estimation
+  * YOLOX-S Pose (Dense model only)
+  * YOLOX-S + HRNet (70% sparse model + 90% sparse model)
+* Classification
+  * ResNet50 (Dense model and 90% sparse model)
 * Depth Estimation
   * MiDaS (Dense model only)
 * Semantic Segmentation
   * TopFormer-Tiny (Dense model only)
-* Object Detection
-  * YOLOX-S (Dense model and 70% sparse model)
-  * YOLOv2 (Dense model and 90% sparse model)
-* Pose Estimation
-  * HRNet (Dense model and 90% sparse model)
-* Classification
-  * ResNet50 (Dense model and 90% sparse model)
 
 Sparse models are created by the pruning tool in DRP-AI extension package, and realize faster performance and lower foot print than Dense model.
 
@@ -70,7 +72,7 @@ Sparse models are created by the pruning tool in DRP-AI extension package, and r
 
 | Item                 | Note                                                         |
 | -------------------- | ------------------------------------------------------------ |
-| Linux PC             | This package is tested on the Linux PC with Ubuntu OS 20.04. |
+| Linux PC             | This package is tested on the Linux PC with Ubuntu OS 22.04. |
 | micro SD card reader | Required if the Linux PC does NOT equip any micro SD card reader. |
 
 # 4. How to use this package
@@ -162,4 +164,6 @@ Users can select and start the AI model applications on the GUI menu by using th
 # 5. Version History
 
 * v1.00 issued on 11th March 2025.
-  * First version based on DRP-AI TVM v2.5.0.
+  * First version based on RZ/V2N AI SDK v5.00 and DRP-AI TVM v2.5.0.
+* v1.10 issued on 13th January 2026
+  * Update for RZ/V2N AI SDK v5.00 and DRP-AI TVM v2.6.0.
