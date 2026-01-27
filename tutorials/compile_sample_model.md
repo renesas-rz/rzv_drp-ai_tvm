@@ -200,7 +200,7 @@ tvm tvm.tar.gz
 
 ### 4-1. Setup the target board
 Please refer to the following pages to set up your board.  
-First, follow the step on [this page](https://renesas-rz.github.io/rzv_ai_sdk/3.00/getting_started_v2h.html).  
+First, follow the step on [this page](https://renesas-rz.github.io/rzv_ai_sdk/latest/getting_started_v2h.html).  
 Next, follow only step11 for ip address setting on [this page](https://tool-support.renesas.com/tool-support/Zoo/boot_boad_guide/RZV2H_board_setup_e2studio.html).
 
 <img src="./img/board_setting.png" width="50%">
