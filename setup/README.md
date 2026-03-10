@@ -17,7 +17,7 @@ Requirements are listed below.
 - Related Software Version:
   - [DRP-AI Translator V1.90 or lator](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/drp-ai-translator)
   - RZ/V2L
-    - [RZ/V2L AI SDK v5.00](https://www.renesas.com/software-tool/rzv2l-ai-software-development-kit)
+    - [RZ/V2L AI SDK v7.00](https://www.renesas.com/software-tool/rzv2l-ai-software-development-kit)
   - RZ/V2M, RZ/V2MA
     - [RZ/V Verified Linux Package V3.0.4 or lator](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package)
     - DRP-AI Support Package V7.40 or lator [RZ/V2L](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2l-drp-ai-support-package) [RZ/V2M](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package) [RZ/V2MA](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
@@ -51,7 +51,7 @@ export TRANSLATOR=${PWD}/drp-ai_translator_release/
   ```sh
   apt update
   apt install -y unzip file
-  unzip RTK0EF0160F0*SJ.zip */poky*sh
+  unzip RTK0EF0160F0*SJ.zip */*toolchain*sh
   mv */*toolchain*sh .
   chmod a+x *toolchain*sh
   ```
@@ -126,7 +126,7 @@ DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake llvm-14-dev 
 
 pip3 install decorator psutil scipy attrs
 pip3 install torchvision==0.12.0 --index-url https://download.pytorch.org/whl/cpu
-pip3 install tensorflow==2.18.1 tflite
+pip3 install tensorflow==2.18.1 tensorflow-hub tflite
 
 # Install onnx runtime
 wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz -O /tmp/onnxruntime.tar.gz

@@ -35,134 +35,49 @@
 
 Camera::Camera()
 {
-    camera_width = 0;
-    camera_height = 0;
-    camera_color = 0;
+    camera_width    = 0;
+    camera_height   = 0;
+    camera_color    = 0;
 }
 
 Camera::~Camera()
 {
 }
 
-/**
- * @brief ceil3
- * @details ceil num specifiy digit
- * @param num number
- * @param base ceil digit
- * @return int32_t result
- */
-static int32_t ceil3(int32_t num, int32_t base)
-{
-    double x = (double)(num) / (double)(base);
-    double y = ceil(x) * (double)(base);
-    return (int32_t)(y);
-}
-
-/**
- * @brief calc_udmabuf_addr
- * @details calclate u-dma-buf address
- * @return uint64_t u-dma-buf address
- */
-static uint64_t calc_udmabuf_addr()
-{
-    uint64_t ret_address = 0;
-
-    /* Obtain udmabuf memory area starting address */
-    int8_t fd = 0;
-    char addr[1024];
-    int32_t read_ret = 0;
-    errno = 0;
-    fd = open("/sys/class/u-dma-buf/udmabuf0/phys_addr", O_RDONLY);
-    if (0 > fd)
-    {
-        fprintf(stderr, "[ERROR] Failed to open udmabuf0/phys_addr : errno=%d\n", errno);
-        return -1;
-    }
-    read_ret = read(fd, addr, 1024);
-    if (0 > read_ret)
-    {
-        fprintf(stderr, "[ERROR] Failed to read udmabuf0/phys_addr : errno=%d\n", errno);
-        close(fd);
-        return -1;
-    }
-    sscanf(addr, "%lx", &ret_address);
-    close(fd);
-    /* Filter the bit higher than 32 bit */
-    ret_address &= 0xFFFFFFFF;
-
-    return ret_address;
-}
-
-/**
- * @brief start_camera
- * @details  Function to initialize USB camera capture
- * @return int8_t  0 if succeeded
- *                 not 0 otherwise
- */
+/*****************************************
+* Function Name : start_camera
+* Description   : Function to initialize USB/MIPI camera capture
+* Arguments     : -
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::start_camera()
 {
     int8_t ret = 0;
-    int32_t i = 0;
-    int32_t n = 0;
 
     printf("Camera width = %d\n", camera_width);
     printf("Camera height = %d\n", camera_height);
     printf("Camera channel = %d\n", camera_color);
 
     ret = open_camera_device();
-    if (0 != ret) return ret;
+    if (0 != ret) 
+    {
+        printf("failed to open_camera_device\n");
+        return ret;
+    }
 
     ret = init_camera_fmt();
-    if (0 != ret) return ret;
-
-    ret = init_buffer();
-    if (0 != ret) return ret;
-
-    udmabuf_address = calc_udmabuf_addr();
-
-    udmabuf_file = open("/dev/udmabuf0", O_RDWR);
-    if (0 > udmabuf_file)
+    if (0 != ret) 
     {
-        printf("[ERROR] /dev/udmabuf0 open Failed...\n");
-        return -1;
+        printf("failed to init_camera_fmt\n");
+        return ret;
     }
-    /* page size alignment.*/
-    int32_t offset = ceil3(imageLength, sysconf(_SC_PAGE_SIZE));
-    _offset = offset;
-    for (n = 0; n < CAP_BUF_NUM; n++)
+    
+    ret = init_buffer();
+    if (0 != ret) 
     {
-        /* fit to page size.*/
-        buffer[n] = (uint8_t*)mmap(NULL, imageLength, PROT_READ | PROT_WRITE, MAP_SHARED, udmabuf_file, n * offset);
-
-        if (MAP_FAILED == buffer[n])
-        {
-            printf("print error string by strerror: %s\n", strerror(errno));
-            return -1;
-        }
-
-        /* Write once to allocate physical memory to u-dma-buf virtual space.
-        * Note: Do not use memset() for this.
-        *       Because it does not work as expected. */
-        {
-            uint8_t* word_ptr = buffer[n];
-            for (i = 0; i < _offset; i++)
-            {
-                word_ptr[i] = 0;
-            }
-        }
-
-        memset(&buf_capture, 0, sizeof(buf_capture));
-        buf_capture.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf_capture.memory = V4L2_MEMORY_USERPTR;
-        buf_capture.index = n;
-        /* buffer[i] must be casted to unsigned long type in order to assign it to V4L2 buffer */
-        buf_capture.m.userptr = reinterpret_cast<unsigned long>(buffer[n]);
-        buf_capture.length = imageLength;
-        ret = xioctl(m_fd, VIDIOC_QBUF, &buf_capture);
-        if (-1 == ret)
-        {
-            return -1;
-        }
+        printf("failed to init_buffer\n");
+        return ret;
     }
 
     ret = start_capture();
@@ -172,12 +87,13 @@ int8_t Camera::start_camera()
 }
 
 
-/**
- * @brief close_capture
- * @details Close camera and free buffer
- * @return int8_t  0 if succeeded
- *                 not 0 otherwise
- */
+/*****************************************
+* Function Name : close_capture
+* Description   : Close camera and free buffer
+* Arguments     : -
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::close_camera()
 {
     int8_t ret = 0;
@@ -186,24 +102,27 @@ int8_t Camera::close_camera()
     ret = stop_capture();
     if (0 != ret) return ret;
 
-    for (i = 0; i < CAP_BUF_NUM; i++)
+    for (i = 0;i<CAP_BUF_NUM;i++)
     {
-        munmap(buffer[i], _offset);
+        video_buffer_free_dmabuf(dma_buf[i]);
+        free(dma_buf[i]);
+        dma_buf[i] = NULL;
     }
-    close(udmabuf_file);
+
     close(m_fd);
     return 0;
 }
 
-/**
- * @brief xioctl
- * @details  ioctl calling
- * @param fd V4L2 file descriptor
- * @param request V4L2 control ID defined in videodev2.h
- * @param arg set value
- * @return int8_t output parameter
- */
-int8_t Camera::xioctl(int8_t fd, int32_t request, void* arg)
+
+/*****************************************
+* Function Name : xioctl
+* Description   : ioctl calling
+* Arguments     : fd = V4L2 file descriptor
+*                 request = V4L2 control ID defined in videodev2.h
+*                 arg = set value
+* Return value  : int = output parameter
+******************************************/
+int8_t Camera::xioctl(int8_t fd, int32_t request, void * arg)
 {
     int8_t r;
     do r = ioctl(fd, request, arg);
@@ -211,12 +130,13 @@ int8_t Camera::xioctl(int8_t fd, int32_t request, void* arg)
     return r;
 }
 
-/**
- * @brief start_capture
- * @details Set STREAMON
- * @return int8_t 0 if succeeded
- *                 not 0 otherwise
- */
+/*****************************************
+* Function Name : start_capture
+* Description   : Set STREAMON
+* Arguments     : -
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::start_capture()
 {
     int8_t ret = 0;
@@ -228,19 +148,20 @@ int8_t Camera::start_capture()
     ret = xioctl(m_fd, VIDIOC_STREAMON, &buf.type);
     if (-1 == ret)
     {
+    	perror("VIDIOC_STREAMON");
         return -1;
     }
     return 0;
 }
 
-
-/**
- * @brief capture_qbuf
- * @details Function to enqueue the buffer.
- *                 (Call this function after capture_image() to restart filling image data into buffer)
- * @return int8_t  0 if succeeded
- *                 not 0 otherwise
- */
+/*****************************************
+* Function Name : capture_qbuf
+* Description   : Function to enqueue the buffer.
+*                 (Call this function after capture_image() to restart filling image data into buffer)
+* Arguments     : -
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::capture_qbuf()
 {
     int8_t ret = 0;
@@ -253,13 +174,15 @@ int8_t Camera::capture_qbuf()
     return 0;
 }
 
-/**
- * @brief capture_image
- * @details  Function to capture image and return the physical memory address where the captured image stored.
- *                 Must call capture_qbuf after calling this function.
- * @return uint32_t the physical memory address where the captured image stored.
- */
-uint32_t Camera::capture_image()
+
+/*****************************************
+* Function Name : capture_image
+* Description   : Function to capture image and return the physical memory address where the captured image stored.
+*                 Must call capture_qbuf after calling this function.
+* Arguments     : -
+* Return value  : the physical memory address where the captured image stored.
+******************************************/
+uint64_t Camera::capture_image()
 {
     int8_t ret = 0;
     fd_set fds;
@@ -268,67 +191,68 @@ uint32_t Camera::capture_image()
     /*Add m_fd to file descriptor set fds*/
     FD_SET(m_fd, &fds);
 
-
     /* Check when a new frame is available */
     while (1)
     {
         ret = select(m_fd + 1, &fds, NULL, NULL, NULL);
         if (0 > ret)
         {
-            if (EINTR == errno)
-            {
-                cout << "capture select error!" << endl;
-                continue;
-            }
+            if (EINTR == errno) continue;
             return 0;
         }
         break;
     }
 
     /* Get buffer where camera stored data */
-
     ret = xioctl(m_fd, VIDIOC_DQBUF, &buf_capture);
     if (-1 == ret)
     {
-        cout << "capture select error!" << endl;
         return 0;
     }
-    return udmabuf_address + buf_capture.index * _offset;
+
+    ret = video_buffer_flush_dmabuf(dma_buf[buf_capture.index]->idx, dma_buf[buf_capture.index]->size);
+    if (0 != ret)
+    {
+        return 0;
+    }
+    return  dma_buf[buf_capture.index]->phy_addr;
 }
 
-/**
- * @brief stop_capture
- * @details Set STREAMOFF
- * @return int8_t 0 if succeeded
- *                 not 0 otherwise
- */
+/*****************************************
+* Function Name : stop_capture
+* Description   : Set STREAMOFF
+* Arguments     : -
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::stop_capture()
 {
-    //printf("stop_capture");
     int8_t ret = 0;
     struct v4l2_buffer buf;
     memset(&buf, 0, sizeof(buf));
 
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buf.memory = V4L2_MEMORY_USERPTR;
+    buf.memory = V4L2_MEMORY_DMABUF;
 
     ret = xioctl(m_fd, VIDIOC_STREAMOFF, &buf.type);
     if (-1 == ret)
     {
+    	perror("VIDIOC_STREAMOFF");
         return -1;
     }
     return 0;
 }
 
-/**
- * @brief open_camera_device
- * @details Function to open camera *called by start_camera
- * @return int8_t 0 if succeeded
- *                 not 0 otherwise
- */
+/*****************************************
+* Function Name : open_camera_device
+* Description   : Function to open camera *called by start_camera
+* Arguments     : -
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::open_camera_device()
 {
-    char dev_name[4096] = { 0 };
+    char dev_name[4096] = {0};
     int32_t i = 0;
     int8_t ret = 0;
     struct v4l2_capability fmt;
@@ -337,7 +261,7 @@ int8_t Camera::open_camera_device()
     {
         snprintf(dev_name, sizeof(dev_name), "/dev/video%d", i);
         m_fd = open(dev_name, O_RDWR);
-        if (m_fd == -1)
+        if (-1 == m_fd)
         {
             continue;
         }
@@ -360,30 +284,30 @@ int8_t Camera::open_camera_device()
         close(m_fd);
     }
 
-    if (i >= 15)
+    if (15 <= i)
     {
         return -1;
     }
     return 0;
 }
 
-/**
- * @brief init_camera_fmt
- * @details Function to request format *called by start_camera
- * @return int8_t  0 if succeeded
- *                 not 0 otherwise
- */
+/*****************************************
+* Function Name : init_camera_fmt
+* Description   : Function to request format *called by start_camera
+* Arguments     : -
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::init_camera_fmt()
 {
     int8_t ret = 0;
     struct v4l2_format fmt;
     memset(&fmt, 0, sizeof(fmt));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmt.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
     fmt.fmt.pix.width = camera_width;
     fmt.fmt.pix.height = camera_height;
     fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
     fmt.fmt.pix.field = V4L2_FIELD_NONE;
-
 
     ret = xioctl(m_fd, VIDIOC_S_FMT, &fmt);
     if (-1 == ret)
@@ -391,7 +315,6 @@ int8_t Camera::init_camera_fmt()
         printf("[ERROR] VIDIOC_S_FMT Failed: %d\n", ret);
         return -1;
     }
-
     struct v4l2_streamparm* setfps;
     setfps = (struct v4l2_streamparm*)calloc(1, sizeof(struct v4l2_streamparm));
     memset(setfps, 0, sizeof(struct v4l2_streamparm));
@@ -402,25 +325,26 @@ int8_t Camera::init_camera_fmt()
     {
         perror("VIDIOC_S_PARM");
     }
-
     return 0;
 }
 
-/**
- * @brief init_buffer
- * @details  Initialize camera buffer *called by start_camera
- * @return  0 if succeeded
- *                 not 0 otherwise
- */
+/*****************************************
+* Function Name : init_buffer
+* Description   : Initialize camera buffer *called by start_camera
+* Arguments     : -
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::init_buffer()
 {
     int8_t ret = 0;
+    int32_t n = 0;
     int32_t i = 0;
     struct v4l2_requestbuffers req;
     memset(&req, 0, sizeof(req));
     req.count = CAP_BUF_NUM;
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    req.memory = V4L2_MEMORY_USERPTR;
+    req.memory = V4L2_MEMORY_DMABUF;
 
     /*Request a buffer that will be kept in the device*/
     ret = xioctl(m_fd, VIDIOC_REQBUFS, &req);
@@ -431,11 +355,11 @@ int8_t Camera::init_buffer()
     }
 
     struct v4l2_buffer buf;
-    for (i = 0; i < CAP_BUF_NUM; i++)
+    for (i =0; i < CAP_BUF_NUM; i++)
     {
         memset(&buf, 0, sizeof(buf));
         buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf.memory = V4L2_MEMORY_USERPTR;
+        buf.memory = V4L2_MEMORY_DMABUF;
         buf.index = i;
 
         /* Extract buffer information */
@@ -447,29 +371,53 @@ int8_t Camera::init_buffer()
         }
 
     }
-    imageLength = buf.length;
+
+    for (n =0; n < CAP_BUF_NUM; n++)
+    {
+        dma_buf[n] = (camera_dma_buffer*)malloc(sizeof(camera_dma_buffer[n]));
+        ret = video_buffer_alloc_dmabuf(dma_buf[n],CAPTUREBUF);
+        if (-1 == ret)
+        {
+            fprintf(stderr, "[ERROR] Failed to Allocate DMA buffer for the dma_buf\n");
+            return ret;
+        }
+        memset(&buf_capture, 0, sizeof(buf_capture));
+        buf_capture.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        buf_capture.memory = V4L2_MEMORY_DMABUF;
+        buf_capture.index = n;
+        buf_capture.m.fd = (unsigned long) dma_buf[n]->dbuf_fd;
+        buf_capture.length = dma_buf[n]->size;
+        ret = xioctl(m_fd, VIDIOC_QBUF, &buf_capture);
+        if (-1 == ret)
+        {
+            return -1;
+        }
+    }
+
 
     return 0;
 }
 
-/**
- * @brief save_bin
- * @details  Get the capture image from buffer and save it into binary file
- * @param filename binary file name to be saved
- * @return int8_t  0 if succeeded
- *                 not 0 otherwise
- */
+
+/*****************************************
+* Function Name : save_bin
+* Description   : Get the capture image from buffer and save it into binary file
+* Arguments     : filename = binary file name to be saved
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
 int8_t Camera::save_bin(std::string filename)
 {
     int8_t ret = 0;
-    FILE* fp = fopen(filename.c_str(), "wb");
+    FILE * fp = fopen(filename.c_str(), "wb");
     if (!fp)
     {
         return -1;
     }
 
     /* Get data from buffer and write to binary file */
-    ret = fwrite(buffer[buf_capture.index], sizeof(uint8_t), imageLength, fp);
+    ret = fwrite((uint8_t *)dma_buf[buf_capture.index]->mem, sizeof(uint8_t), dma_buf[buf_capture.index]->size, fp);
+
     if (!ret)
     {
         fclose(fp);
@@ -479,7 +427,6 @@ int8_t Camera::save_bin(std::string filename)
     fclose(fp);
     return 0;
 }
-
 
 /**
  * @brief get_buf_capture_index
@@ -535,93 +482,153 @@ int8_t Camera::inference_capture_qbuf()
     return 0;
 }
 
-
-/**
- * @brief get_img
- * @details Function to return the camera buffer
- * @return uint8_t* camera buffer
- */
-uint8_t* Camera::get_img()
+/*****************************************
+* Function Name : video_buffer_alloc_dmabuf
+* Description   : Allocate a DMA buffer for the camera
+* Arguments     : buffer = pointer to the camera_dma_buffer struct
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
+int8_t Camera::video_buffer_alloc_dmabuf(struct camera_dma_buffer *buffer,int buf_size)
 {
-    return buffer[buf_capture.index];
+    MMNGR_ID id;
+    uint32_t phard_addr;
+    void *puser_virt_addr;
+    int m_dma_fd;
+
+    buffer->size = buf_size;
+    mmngr_alloc_in_user_ext(&id, buffer->size, &phard_addr, &puser_virt_addr, MMNGR_VA_SUPPORT_CACHED, NULL);
+    memset((void*)puser_virt_addr, 0, buffer->size);
+    buffer->idx = id;
+    buffer->mem = (void *)puser_virt_addr;
+    buffer->phy_addr = phard_addr;
+    if (!buffer->mem)
+    {
+        return -1;
+    }
+    mmngr_export_start_in_user_ext(&id, buffer->size, phard_addr, &m_dma_fd, NULL);
+    buffer->dbuf_fd = m_dma_fd;
+    return 0;
+}
+
+/*****************************************
+* Function Name : video_buffer_free_dmabuf
+* Description   : free a DMA buffer for the camera
+* Arguments     : buffer = pointer to the camera_dma_buffer struct
+* Return value  : -
+******************************************/
+void Camera::video_buffer_free_dmabuf(struct camera_dma_buffer *buffer)
+{
+    mmngr_free_in_user_ext(buffer->idx);
+    return;
 }
 
 
-/**
- * @brief get_size
- * @details Function to return the camera buffer size (W x H x C)
- * @return int32_t camera buffer size (W x H x C )
- */
+/*****************************************
+* Function Name : video_buffer_flush_dmabuf
+* Description   : flush a DMA buffer for the camera
+* Arguments     : buffer = pointer to the camera_dma_buffer struct
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
+int Camera::video_buffer_flush_dmabuf(uint32_t idx, uint32_t size)
+{
+    int mm_ret = 0;
+    
+    /* Flush capture image area cache */
+    mm_ret = mmngr_flush(idx, 0, size);
+    
+    return mm_ret;
+}
+
+/*****************************************
+* Function Name : get_img
+* Description   : Function to return the camera buffer
+* Arguments     : -
+* Return value  : camera buffer
+******************************************/
+uint8_t * Camera::get_img()
+{
+    return (uint8_t *)dma_buf[buf_capture.index]->mem;
+}
+
+
+/*****************************************
+* Function Name : get_size
+* Description   : Function to return the camera buffer size (W x H x C)
+* Arguments     : -
+* Return value  : camera buffer size (W x H x C )
+******************************************/
 int32_t Camera::get_size()
 {
-    return imageLength;
+    return dma_buf[buf_capture.index]->size;
 }
 
-
-/**
- * @brief get_w
- * @details Get camera_width. This function is currently NOT USED.
- * @return int32_t width of camera capture image.
- */
+/*****************************************
+* Function Name : get_w
+* Description   : Get camera_width. This function is currently NOT USED.
+* Arguments     : -
+* Return value  : camera_width = width of camera capture image.
+******************************************/
 int32_t Camera::get_w()
 {
     return camera_width;
 }
 
-
-/**
- * @brief set_w
- * @details Set camera_width. This function is currently NOT USED.
- * @param w new camera capture image width
- */
+/*****************************************
+* Function Name : set_w
+* Description   : Set camera_width. This function is currently NOT USED.
+* Arguments     : w = new camera capture image width
+* Return value  : -
+******************************************/
 void Camera::set_w(int32_t w)
 {
-    camera_width = w;
+    camera_width= w;
     return;
 }
 
-
-/**
- * @brief get_h
- * @details Get camera_height. This function is currently NOT USED.
- * @return int32_t height of camera capture image.
- */
+/*****************************************
+* Function Name : get_h
+* Description   : Get camera_height. This function is currently NOT USED.
+* Arguments     : -
+* Return value  : camera_height = height of camera capture image.
+******************************************/
 int32_t Camera::get_h()
 {
     return camera_height;
 }
 
-
-/**
- * @brief set_h
- * @details Set camera_height. This function is currently NOT USED.
- * @param h new camera capture image height
- */
+/*****************************************
+* Function Name : set_h
+* Description   : Set camera_height. This function is currently NOT USED.
+* Arguments     : w = new camera capture image height
+* Return value  : -
+******************************************/
 void Camera::set_h(int32_t h)
 {
     camera_height = h;
     return;
 }
 
-
-/**
- * @brief get_c
- * @details Get camera_color. This function is currently NOT USED.
- * @return int32_t color channel of camera capture image.
- */
+/*****************************************
+* Function Name : get_c
+* Description   : Get camera_color. This function is currently NOT USED.
+* Arguments     : -
+* Return value  : camera_color = color channel of camera capture image.
+******************************************/
 int32_t Camera::get_c()
 {
     return camera_color;
 }
 
-
-/**
- * @brief set_c
- * @details Set camera_color. This function is currently NOT USED.
- * @param c new camera capture image color channel
- */
+/*****************************************
+* Function Name : set_c
+* Description   : Set camera_color. This function is currently NOT USED.
+* Arguments     : c = new camera capture image color channel
+* Return value  : -
+******************************************/
 void Camera::set_c(int32_t c)
 {
-    camera_color = c;
+    camera_color= c;
     return;
 }

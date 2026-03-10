@@ -48,5 +48,9 @@
 
 /*Camera Capture Image Information*/
 #define CAP_BUF_NUM                 (4)
+#define CAM_IMAGE_WIDTH             (640)
+#define CAM_IMAGE_HEIGHT            (480)
+#define CAM_IMAGE_CHANNEL_YUY2      (2)
+#define CAPTUREBUF      (CAM_IMAGE_WIDTH * CAM_IMAGE_HEIGHT * CAM_IMAGE_CHANNEL_YUY2)
 
 #endif

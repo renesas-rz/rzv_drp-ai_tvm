@@ -77,7 +77,7 @@ pip3 install --upgrade pip
 pip3 install psutil numpy==1.26.4
 pip3 install cython==3.0.11
 pip3 install decorator attrs
-pip3 install tensorflow==2.18.1 tflite tqdm
+pip3 install tensorflow==2.18.1 tensorflow-hub tflite tqdm
 
 # Install onnx runtime
 wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz -O /tmp/onnxruntime.tar.gz

@@ -26,6 +26,7 @@ include_directories(SYSTEM $ENV{OECORE_NATIVE_SYSROOT} $ENV{SDK}/sysroots/aarcch
 TARGET_LINK_LIBRARIES(${EXE_NAME} pthread)
 TARGET_LINK_LIBRARIES(${EXE_NAME} turbojpeg)
 TARGET_LINK_LIBRARIES(${EXE_NAME} jpeg)
+TARGET_LINK_LIBRARIES(${EXE_NAME} mmngr mmngrbuf) 
 
 find_package(OpenCV REQUIRED)
 if(OpenCV_FOUND)

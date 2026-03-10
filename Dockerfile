@@ -34,7 +34,7 @@ RUN rm /opt/DRP-AI_Translator-v*-Linux-x86_64-Install
 # Install Python packages
 RUN pip3 install decorator psutil scipy attrs
 RUN pip3 install torchvision==0.12.0 --index-url https://download.pytorch.org/whl/cpu
-RUN pip3 install tensorflow==2.18.1 tflite
+RUN pip3 install tensorflow==2.18.1 tensorflow-hub tflite
 
 
 # Clone repository
