@@ -1,4 +1,4 @@
-# Object Detection: YOLOX + HRNet
+# Pose Estimation: YOLOX + HRNet
 
 ## Build the application
 

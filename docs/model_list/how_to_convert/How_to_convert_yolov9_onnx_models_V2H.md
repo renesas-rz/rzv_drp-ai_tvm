@@ -51,10 +51,10 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/wongkinyiu_yolov9
-python3 export.py --weights ./weights/$model --imgsz $imgsz --batch-size 1 --include onnx --simplify
 
 # The following is an example for YOLOv9-t.
-python3 export.py --weights ./weights/yolov9-t-converted.pt --imgsz 640 --batch-size 1 --include onnx --simplify
+wget https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-t-converted.pt
+python3 export.py --weights ./yolov9-t-converted.pt --imgsz 640 --batch-size 1 --include onnx --simplify
 
 mkdir -p ${TVM_ROOT}/convert/output/yolov9-t_wongkinyiu_onnx
 mv yolov9-t-converted.onnx ${TVM_ROOT}/convert/output/yolov9-t_wongkinyiu_onnx/yolov9-t.onnx
@@ -117,7 +117,7 @@ To compile the models, enter the ONNX (.onnx) files into the compilation script 
 Run the script in the tutorials with the following command. For YOLOv9-t, as the following.
 
 ```sh
-python3 compile_onnx_model_quant.py ../convert/output/convert/output/yolov9-t_wongkinyiu_onnx/yolov9-t_cut.onnx -o yolov9-t_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
+python3 compile_onnx_model_quant.py ../convert/output/yolov9-t_wongkinyiu_onnx/yolov9-t_cut.onnx -o yolov9-t_onnx -t $SDK -d $TRANSLATOR -c $QUANTIZER --images -s 1,3,640,640 $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
 ```
 
 ----

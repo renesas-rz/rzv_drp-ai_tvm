@@ -27,6 +27,7 @@
 * Includes
 ******************************************/
 #include "system_analyzer.h"
+#include <cstdint>
 
 LinuxSystemAnalyzer::LinuxSystemAnalyzer()
 {

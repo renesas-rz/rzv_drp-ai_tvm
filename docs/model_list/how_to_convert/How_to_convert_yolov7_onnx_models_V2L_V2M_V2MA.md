@@ -52,7 +52,6 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/wongkinyiu_yolov7
-python3 export.py --weights ${torch_file} --img-size ${image_size} --batch 1 --grid --simplify
 
 # The following is an example for YOLOv7
 python3 export.py --weights yolov7.pt --img-size 320 --batch 1 --grid --simplify

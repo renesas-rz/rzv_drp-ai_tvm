@@ -53,11 +53,6 @@ Set the options refer to the following table.
 ```sh
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov11
 
-# execute below python sctiprs
->>> from ultralytics import YOLO
->>> model = YOLO("${model}")
->>> _ = model.export(format="onnx", opset=13, imgsz=${img_size})
-
 # The following is an example for YOLOv11n
 # execute below python sctiprs
 >>> from ultralytics import YOLO

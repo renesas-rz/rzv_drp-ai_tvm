@@ -51,7 +51,6 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov5
-python export.py --weights ${torch_file} --include onnx --opset 12 --imgsz ${image_size}
 
 # The following is an example for YOLOv5l.
 python export.py --weights yolov5l.pt --include onnx --opset 12 --imgsz 320

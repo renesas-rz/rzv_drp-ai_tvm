@@ -53,9 +53,9 @@ WORKDIR ${TVM_ROOT}/obj/pip_package
 RUN apt-get -y purge python3-yaml
 RUN pip3 install --upgrade pip
 #RUN pip3 install *.whl
-RUN pip3 install mera2_r*
-RUN pip3 install tvm-*
-RUN pip3 install mera2_c*
+RUN find . -name "mera2_r*.whl" -exec pip3 install {} \;
+RUN find . -name "tvm-*.whl" -exec pip3 install {} \;
+RUN find . -name "mera2_c*.whl" -exec pip3 install {} \;
 #RUN pip3 install tensorflow-cpu==2.9.0
 
 WORKDIR $TVM_ROOT/package

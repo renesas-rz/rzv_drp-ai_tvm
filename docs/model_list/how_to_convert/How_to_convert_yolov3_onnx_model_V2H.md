@@ -46,7 +46,6 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov3
-python export.py --weights yolov3.pt --img ${image_size} --batch 1
 
 # The following is an example for YOLOv3 that input shape is 416.
 python export.py --weights yolov3.pt --img 416 --batch 1

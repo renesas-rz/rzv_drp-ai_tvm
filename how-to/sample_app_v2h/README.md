@@ -7,3 +7,4 @@
 - [Object Detection: Re-trained YOLOX-s by VOC dataset](./app_yolox_cam/)
 - [Pose Estimation: YOLOX-S Pose](./app_yolox_pose_cam)
 - [Pose Estimation: YOLOX-S+HRNet](./app_yolox_hrnet_cam)
+- [Face Landmark Detection: Face Landmarker](./app_face_landmarker_cam)
