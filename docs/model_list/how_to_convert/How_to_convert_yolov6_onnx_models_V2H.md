@@ -49,9 +49,9 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/meituan_yolov6
-python ./deploy/ONNX/export_onnx.py --weights ${torch_file} --simplify --img ${image_size}
 
 # The following is an example for YOLOv6N.
+wget https://github.com/meituan/YOLOv6/releases/download/0.4.0/yolov6n.pt
 python ./deploy/ONNX/export_onnx.py --weights yolov6n.pt --simplify --img 640
 
 mkdir -p ${TVM_ROOT}/convert/output/yolov6n_meituan_onnx
@@ -111,7 +111,7 @@ Python 3.10.12 (main, Aug 15 2025, 14:32:43)
 [GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import onnx
->>> onnx.utils.extract_model("yolov6s.onnx", "yolov6s_cut.onnx", ["images"],
+>>> onnx.utils.extract_model("yolov6n.onnx", "yolov6n_cut.onnx", ["images"],
 ["/detect/Sigmoid_output_0", "/detect/reg_preds.0/Conv_output_0", "/detect/Sigmoid_1_output_0", "/detect/reg_preds.1/Conv_output_0", "/detect/Sigmoid_2_output_0", "/detect/reg_preds.2/Conv_output_0"])
 >>> exit()
 ```

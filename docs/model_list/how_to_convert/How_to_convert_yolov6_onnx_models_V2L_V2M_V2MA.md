@@ -49,9 +49,9 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/meituan_yolov6
-python ./deploy/ONNX/export_onnx.py --weights ${torch_file} --simplify --img ${image_size}
 
 # The following is an example for YOLOv6N.
+wget https://github.com/meituan/YOLOv6/releases/download/0.4.0/yolov6n.pt
 python ./deploy/ONNX/export_onnx.py --weights yolov6n.pt --simplify --img 640
 
 mkdir -p ${TVM_ROOT}/convert/output/yolov6n_meituan_onnx

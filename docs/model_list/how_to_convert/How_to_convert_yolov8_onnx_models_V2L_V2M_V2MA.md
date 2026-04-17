@@ -51,7 +51,6 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov8
-yolo mode=export model=${torch_file} format=onnx opset=12 imgsz=${image_size}
 
 # The following is an example for YOLOv8n.
 yolo mode=export model=yolov8n.pt format=onnx opset=12 imgsz=640

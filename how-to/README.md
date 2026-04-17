@@ -56,6 +56,7 @@ The applications for the following models are available.
 - [Object Detection: Re-trained YOLOX-s by VOC dataset](./sample_app_v2h/app_yolox_cam/)
 - [Pose Estimation: YOLOX-S Pose](./sample_app_v2h/app_yolox_pose_cam)
 - [Pose Estimation: YOLOX-S+HRNet](./sample_app_v2h/app_yolox_hrnet_cam)
+- [Face Landmark Detection: Face Landmarker](./app_face_landmarker_cam)
 
 These sample applications are compatible with RZ/V2H AI SDK v6.00, RZ/V2N AI SDK v6.00 or later versions. <br>
 The RZ/V2H AI SDK v6.00 and the RZ/V2N AI SDK v6.00 are already available in the links below.
@@ -86,6 +87,7 @@ The applications for the following models are available.
 - [Object Detection: YOLOv8](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov8_cam/)
 - [Object Detection: YOLOv9](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov9_cam/)
 - [Object Detection: YOLOv11](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov11_cam/)
+- [Pose Estimation: YOLOv8 Pose](https://github.com/renesas-rz/sample_app_v2h_gpl/tree/main/app_yolov8_pose_cam/)
 
 These sample applications are compatible with RZ/V2H AI SDK v6.00, RZ/V2N AI SDK v6.00 or later versions. <br>
 The RZ/V2H AI SDK v6.00 and the RZ/V2N AI SDK v6.00 are already available in the links below.

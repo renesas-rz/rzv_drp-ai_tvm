@@ -51,7 +51,6 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/ultralytics_yolov5
-python models/export.py --weights ${torch_file} --img-size ${image_size}
 
 # The following is an example for YOLOv5l.
 python models/export.py --weights yolov5l.pt --img-size 640 640

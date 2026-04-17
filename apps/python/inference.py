@@ -27,6 +27,18 @@ import numpy as np
 import os
 import time
 
+
+def get_drp_ai_start_addr():
+    """
+    Get address of DRP-AI memory area
+    """
+    dtree_path = "/proc/device-tree/reserved-memory"
+    dtree_list = os.listdir(dtree_path)
+    drp_ai_addr = [s for s in dtree_list if "DRP-AI" in s] 
+    addr = int(drp_ai_addr[0].split("@")[-1],16) # DRP-AI@D0000000 -> D0000000
+    print(f"  DRP-AI Address : {addr}")
+    return addr
+
 def load_model(args):
     """
     Load runtime model data and retunr its runnner    
@@ -39,14 +51,18 @@ def load_model(args):
         device_target = mera.mera_deployment.DeviceTarget.DRPAI_BUILTIN_MEM
     else:
         device_target = mera.mera_deployment.DeviceTarget.DRPAI_CPU_MEM
+    # Check start addr
+    if(args.start_address==0):
+        s_addr = get_drp_ai_start_addr()
+    else:
+        s_addr = args.start_address
     # Load MERA model from pre-compiled binary
     dep_obj = mera.load_mera_deployment(args.model_path, target=target)
     # Get the runner(model) object that will do the prediction
     runner = dep_obj.get_runner(device_target=device_target, \
-                                start_address=args.start_address, \
+                                start_address=s_addr, \
                                 frequency_index=args.frequency_index)
     return runner
-
 
 def get_args():
     """
@@ -60,8 +76,8 @@ def get_args():
     parser.add_argument("--model_path", default="deploy_resnet50/")
     parser.add_argument("--device", default="DRPAI_BUILTIN_MEM", type=str)
     parser.add_argument("--start_address", type=lambda x: int(x, 0), \
-                         default=0x240000000, \
-                         help="Address in hex or decimal (e.g., 0x240000 or 2359296)")
+                         default=0x0, \
+                         help="Address in hex or decimal (e.g., 0x240000000 or 9663676416)")
     parser.add_argument("--frequency_index", type=int, default=1,
                         help="Set Frequency Index (1:1000MHz,  3:630MHz, 4:420MHz, 5:315MHz, \
                                                    6:252MHz, 7:210MHz, 8:180MHz, 9:158MHz, \
@@ -70,12 +86,10 @@ def get_args():
     parser.add_argument("--input_shape", default="1,3,224,224", help="User specified input shape. e.g. 1,3,224,224")
     parser.add_argument("--input_bin_file", default="None", help="Input binary file.")
     parser.add_argument("--input_dtype", default="float32", help="Input data type.")
-    parser.add_argument("--loop", default=10, help="Number of loop iterations to evaluate inference time")
+    parser.add_argument("--loop", default=10, type=int, help="Number of loop iterations to evaluate inference time")
 
     args = parser.parse_args()
-    #print(f"Device target: {args.device}")
     print(f"  Runtime model data path: {args.model_path}")
-    print(f"  Start address: {args.start_address:#x} (decimal: {args.start_address})")
     
     return args
 

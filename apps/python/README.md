@@ -1,18 +1,26 @@
 # How to install python API and run sample
 
-[Note] This release version(V2.7.0) supports for V2H/V2N only. In addition, only the runtime model compiled in mera2 mode are supported.
+**[Note]**   
+The Python runtime feature is supported by RUHMI (DRP-AI TVM) version V2.7.0 and later. The target devices are V2H or V2N. In addition, only the runtime model compiled in mera2 mode is supported.
+
+| Device | AI-SDK | [Compile mode](../../docs/About_mera.md) | Status |
+| ---- | ---- | ---- | ---- |
+| V2H |[RZ/V2H AI SDK v6.00 or later](https://www.renesas.com/en/software-tool/rzv2h-ai-software-development-kit) | mera2 | :white_check_mark: SUPPORTED |
+| V2N |[RZ/V2N AI SDK v6.00 or later](https://www.renesas.com/en/software-tool/rzv2n-ai-software-development-kit) | mera2| :white_check_mark: SUPPORTED |
+
+If you are using the Dunfell AI-SDK (earlier than v5.x), please use  installers (*.whl) from a [previous RUHMI version](https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/v2.7.0/apps/python). 
 
 ## Install python API
-To run pyhon API, python3-pip and numpy packages are requried. Please refer the [appendix](#appendix).   
+To run python API, python3-pip and numpy packages are required. Please refer the [appendix](#appendix).   
 
-### Copy python directory to V2H board
-Please copy this "python" directory to V2H(V2N) board including following python script and *.whl files.
+### Copy python directory to V2H/V2N board
+Please copy this "python" directory to V2H(V2N) board, including the following python script and *.whl files.
 ```
 python/
 ├── inference.py
-├── mera-*-cp38-cp38-linux_aarch64.whl
-├── mera2_runtime-*-cp38-cp38-linux_aarch64.whl
-└── tvm-*-cp38-cp38-linux_aarch64.whl
+├── mera-*-cp312-cp312-linux_aarch64.whl
+├── mera2_runtime-*-cp312-cp312-linux_aarch64.whl
+└── tvm-*-cp312-cp312-linux_aarch64.whl
 ```   
 
 ### Install python libraries   
@@ -23,7 +31,7 @@ root@rzv2h-evk:~# python3 -m pip install *.whl
 ```
 
 ## Run sample python script
-Please compile ONNX Resnet model to run the sample python script. For details, refer to the [tutorials](../../tutorials/tutorial_RZV2H.md). After successful compilation, copy the output directory(e.g. resnet18_onnx) to V2H(V2N) board, and run it on the board like below.
+Please compiled ONNX Resnet model to run the sample python script. For details, refer to the [tutorials](../../tutorials/tutorial_RZV2H.md). After successful compilation, copy the output directory (e.g. resnet18_onnx) to V2H(V2N) board, and run it on the board like below.
 ```
 root@rzv2h-evk:~# python3 inference.py --model_path resnet18_onnx
 Load arguments
@@ -39,7 +47,7 @@ Save output data
   Saved output result : ./resnet18_onnx/output_0_fp32.bin
 ```
 
-In this sample program, the inference results are saved as a binary file(e.g. "output_0_fp32.bin"). You can verify the  inference results. 
+In this sample program, the inference results are saved as a binary file (e.g. "output_0_fp32.bin"). You can verify the  inference results. 
 
 The default input size is set to 1,3,224,224. The input shape can be changed using the "--input_shape" argument. It is also possible to specify the input data saved in binary format as an argument("--input_bin_file"). If you want to change the input setting, execute the command as shown below. 
 ```

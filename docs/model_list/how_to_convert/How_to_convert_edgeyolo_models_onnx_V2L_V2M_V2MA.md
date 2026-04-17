@@ -51,8 +51,6 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/lsh9832_edgeyolo
-python export.py --weights ${torch_file} --onnx-only --opset 12 --no-fp16 --input-size ${image_size}
-mv ${TVM_ROOT}/convert/repos/lsh9832_edgeyolo/output/export/${model_base}_coco/*.onnx "${model_base}.onnx"
 
 # The following is an example for EdgeYOLO
 python export.py --weights edgeyolo_coco.pth --onnx-only --opset 12 --no-fp16 --input-size 320

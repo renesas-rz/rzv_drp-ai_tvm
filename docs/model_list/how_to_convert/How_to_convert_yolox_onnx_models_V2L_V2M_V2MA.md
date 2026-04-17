@@ -52,8 +52,6 @@ Set the options refer to the following table.
 
 ```sh
 cd ${TVM_ROOT}/convert/repos/yolox
-python tools/export_onnx.py --output-name ./${onnx_file} -n ${arg_name} -c ./${torch_file} \
-    --decode_in_inference test_size ${image_size}
 
 # The following is an example for YOLOX_s
 python tools/export_onnx.py --output-name ./yolox-s.onnx -n yolox-s -c ./yolox_s.pth --decode_in_inference test_size 640,640

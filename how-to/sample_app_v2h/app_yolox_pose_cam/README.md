@@ -1,4 +1,4 @@
-# Object Detection: YOLOX Pose
+# Pose Estimation: YOLOX Pose
 
 ## Build the application
 
@@ -20,7 +20,6 @@
 ## AI models
 
 This sample only uses [yolox_pose](https://github.com/open-mmlab/mmpose/tree/main/projects/yolox_pose).
-[The ready-to-use onnx file is here.](./yolox-pose_s_sample.onnx)
 
 ```bash
 cd $TVM_ROOT/tutorials
