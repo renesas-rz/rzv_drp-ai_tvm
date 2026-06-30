@@ -24,9 +24,9 @@
  */
 
 /***********************************************************************************************************************
-* File Name    : tutorial_app.cpp
-* Version      : 2.7.0
-* Description  : DRP-AI TVM[*1] Application Example
+* File Name    : tutorial_app_v2ml.cpp
+* Version      : 2.8.0
+* Description  : DRP-AI TVM[*1] Application Example for RZ/V2M, RZ/V2MA, and RZ/V2L
 ***********************************************************************************************************************/
 
 /*****************************************
@@ -40,6 +40,11 @@
 
 #include "MeraDrpRuntimeWrapper.h"
 #include "PreRuntime.h"
+
+extern "C" {
+#include "mmngr_user_public.h"
+}
+
 /*****************************************
 * Macro
 ******************************************/
@@ -51,12 +56,21 @@
 #define MODEL_IN_H          (224)
 #define MODEL_IN_W          (224)
 #define MODEL_IN_C          (3)
-/* Image buffer (u-dma-buf) */
-unsigned char * img_buffer;
 
 /*BMP Header size for Windows Bitmap v3*/
 #define FILEHEADERSIZE          (14)
 #define INFOHEADERSIZE_W_V3     (40)
+
+/*****************************************
+* Image buffer
+******************************************/
+typedef struct
+{
+    uint8_t* virt_addr;
+    uint32_t phy_addr;
+    uint32_t size;
+    MMNGR_ID mmngr_id;
+} image_buffer_t;
 
 /* Edgecortex Functions */
 std::ostream& operator<<(std::ostream& os, InOutDataType type)
@@ -87,40 +101,6 @@ std::ostream& operator<<(std::ostream& os, InOutDataType type)
 float float16_to_float32(uint16_t a)
 {
     return __extendXfYf2__<uint16_t, uint16_t, 10, float, uint32_t, 23>(a);
-}
-
-/*****************************************
-* Function Name     : LoadBinary
-* Description       : Function by Edgecortex. Load bin file into std::vector.
-* Arguments         : bin_file = *.bin filename to be read
-* Return value      : std::vector<T> = file content
-******************************************/
-template <typename T>
-static std::vector<T> LoadBinary(const std::string& bin_file)
-{
-    std::ifstream file(bin_file.c_str(), std::ios::in | std::ios::binary);
-    if (!file.is_open())
-    {
-        LOG(FATAL) << "unable to open file " + bin_file;
-    }
-
-    file.seekg(0, file.end);
-    const uint32_t file_size = static_cast<uint32_t>(file.tellg());
-    file.seekg(0, file.beg);
-
-    const auto file_buffer = std::unique_ptr<char>(new char[file_size]);
-    file.read(file_buffer.get(), file_size);
-
-    if (file.bad() || file.fail())
-    {
-        LOG(FATAL) << "error occured while reading the file";
-    }
-
-    file.close();
-
-    auto ptr = reinterpret_cast<T*>(file_buffer.get());
-    const auto num_elements = file_size / sizeof(T);
-    return std::vector<T>(ptr, ptr + num_elements);
 }
 
 /*****************************************
@@ -187,17 +167,18 @@ void softmax(float* val, int32_t size)
 
 /*****************************************
 * Function Name : read_bmp
-* Description   : Function to load BMP file into img_buffer
+* Description   : Function to load BMP file into buffer
 * NOTE          : This is just the simplest example to read Windows Bitmap v3 file.
 *                 This function does not have header check.
 * Arguments     : filename = name of BMP file to be read
 *                 width  = BMP image width
 *                 height = BMP image height
 *                 channel = BMP image color channel
+*                 buffer = pointer to buffer to store image data
 * Return value  : 0 if succeeded
 *                 not 0 otherwise
 ******************************************/
-int8_t read_bmp(std::string filename, uint32_t width, uint32_t height, uint32_t channel)
+int8_t read_bmp(std::string filename, uint32_t width, uint32_t height, uint32_t channel, uint8_t* buffer)
 {
     int32_t i = 0;
     FILE *fp = NULL;
@@ -245,7 +226,7 @@ int8_t read_bmp(std::string filename, uint32_t width, uint32_t height, uint32_t 
             fclose(fp);
             return -1;
         }
-        memcpy(img_buffer+i*width*channel, bmp_line_data, sizeof(uint8_t)*width*channel);
+        memcpy(buffer+i*width*channel, bmp_line_data, sizeof(uint8_t)*width*channel);
     }
 
     free(bmp_line_data);
@@ -297,40 +278,6 @@ uint32_t get_drpai_start_addr()
 }
 
 /*****************************************
-* Function Name : get_udmabuf_addr
-* Description   : Function to obtain the u-dma-buf start address.
-* Arguments     : -
-* Return value  : uint32_t = u-dma-buf start address in 32-bit.
-******************************************/
-uint32_t get_udmabuf_addr()
-{
-    int     fd = 0;
-    char    addr[1024];
-    int32_t read_ret = 0;
-    uint32_t udmabuf_addr_start = 0;
-    errno = 0;
-
-    fd = open("/sys/class/u-dma-buf/udmabuf0/phys_addr", O_RDONLY);
-    if (0 > fd)
-    {
-        std::cerr << "[ERROR] Failed to open udmabuf phys_addr " << std::endl;
-        return 0;
-    }
-    read_ret = read(fd, addr, 1024);
-    if (0 > read_ret)
-    {
-        std::cerr << "[ERROR] Failed to read udmabuf phys_addr " << std::endl;
-        close(fd);
-        return 0;
-    }
-    sscanf(addr, "%lx", &udmabuf_addr_start);
-    close(fd);
-    /* Filter the bit heigher than 32 bit */
-    udmabuf_addr_start &=0xFFFFFFFF;
-    return udmabuf_addr_start;
-}
-
-/*****************************************
 * Function Name : timedifference_msec
 * Description   : Function to compute the processing time in mili-seconds
 * Arguments     : t0 = processing start time
@@ -340,6 +287,109 @@ uint32_t get_udmabuf_addr()
 static double timedifference_msec(struct timespec t0, struct timespec t1)
 {
     return (t1.tv_sec - t0.tv_sec) * 1000.0 + (t1.tv_nsec - t0.tv_nsec) / 1000.0 / 1000.0;
+}
+
+/*****************************************
+* Function Name : alloc_image_buffer
+* Description   : Allocate image buffer using mmngr.
+* Arguments     : buffer = pointer to image buffer struct
+*                 size   = requested size
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
+static int8_t alloc_image_buffer(image_buffer_t* buffer, uint32_t size)
+{
+    if (nullptr == buffer)
+    {
+        return -1;
+    }
+
+#ifdef MMNGR_PHYS_ADDR_64BIT
+    unsigned long phard_addr = 0;
+#else
+    unsigned int  phard_addr = 0;
+#endif
+    void* puser_virt_addr = nullptr;
+
+    buffer->virt_addr = nullptr;
+    buffer->phy_addr  = 0;
+    buffer->size      = 0;
+    buffer->mmngr_id  = 0;
+
+    int ret = mmngr_alloc_in_user_ext(&buffer->mmngr_id,
+                                      size,
+                                      &phard_addr,
+                                      &puser_virt_addr,
+                                      MMNGR_VA_SUPPORT_CACHED,
+                                      NULL);
+    if (0 != ret)
+    {
+        std::cerr << "[ERROR] Failed to allocate mmngr memory: ret=" << ret << std::endl;
+        return -1;
+    }
+
+    if (nullptr == puser_virt_addr)
+    {
+        std::cerr << "[ERROR] mmngr_alloc_in_user_ext returned null virtual address" << std::endl;
+        mmngr_free_in_user_ext(buffer->mmngr_id);
+        return -1;
+    }
+
+    memset(puser_virt_addr, 0, size);
+
+    /* On RZ/V2M/V2MA the mmngr reserved region may be above 4GB.
+     * DRP-AI input path uses the lower 32 bits of the physical address. */
+    buffer->virt_addr = static_cast<uint8_t*>(puser_virt_addr);
+    buffer->phy_addr  = static_cast<uint32_t>(phard_addr & 0xFFFFFFFFUL);
+    buffer->size      = size;
+
+    return 0;
+}
+
+/*****************************************
+* Function Name : flush_image_buffer
+* Description   : Flush image buffer cache.
+* Arguments     : buffer = pointer to image buffer struct
+* Return value  : 0 if succeeded
+*                 not 0 otherwise
+******************************************/
+static int8_t flush_image_buffer(image_buffer_t* buffer)
+{
+    if (nullptr == buffer)
+    {
+        return -1;
+    }
+
+    int ret = mmngr_flush(buffer->mmngr_id, 0, buffer->size);
+    if (0 != ret)
+    {
+        std::cerr << "[ERROR] Failed to flush mmngr cache: ret=" << ret << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+/*****************************************
+* Function Name : free_image_buffer
+* Description   : Free image buffer.
+* Arguments     : buffer = pointer to image buffer struct
+******************************************/
+static void free_image_buffer(image_buffer_t* buffer)
+{
+    if (nullptr == buffer)
+    {
+        return;
+    }
+
+    if (buffer->virt_addr != nullptr)
+    {
+        mmngr_free_in_user_ext(buffer->mmngr_id);
+        buffer->virt_addr = nullptr;
+        buffer->phy_addr  = 0;
+        buffer->size      = 0;
+        buffer->mmngr_id  = 0;
+    }
 }
 
 int main(int argc, char** argv)
@@ -368,16 +418,12 @@ int main(int argc, char** argv)
     /* Input image file */
     std::string filename = "sample.bmp";
 
-    /* About u-dma-buf
-        Pre-processing Runtime requires the input buffer to be allocated in continuous memory area.
-        This application uses imagebuf (u-dma-buf) memory area.
-        Refer to RZ/V2MA DRP-AI Support Package for imagebuf details. */
-    /*File descriptor for u-dma-buf*/
-    int udmabuf_fd = 0;
-    /* u-dma-buf start addres */
-    uint64_t udmabuf_addr_start = 0;
+    /* Image buffer */
+    image_buffer_t img_buffer_obj = {};
+    
     uint32_t drpaimem_addr_start = 0;
-    uint32_t udmabuf_size = INPUT_IMAGE_H*INPUT_IMAGE_W*INPUT_IMAGE_C;
+    uint32_t img_buffer_size = INPUT_IMAGE_H*INPUT_IMAGE_W*INPUT_IMAGE_C;
+    
     /* Load Label list */
     label_file_map = load_label_file(labels);
     if (label_file_map.empty())
@@ -430,55 +476,45 @@ int main(int argc, char** argv)
     /*Get input data */
     auto input_data_type = runtime.GetInputDataType(0);
 
-    /*Obtain u-dma-buf memory area starting address*/
-    udmabuf_addr_start = get_udmabuf_addr();
-    if (0 == udmabuf_addr_start)
+    /* Allocate image buffer using mmngr */
+    std::cout << "Allocating image buffer..." << std::endl;
+    ret = alloc_image_buffer(&img_buffer_obj, img_buffer_size);
+    if (0 != ret)
     {
-        std::cerr << "[ERROR] Failed to get u-dma-buf." << std::endl;
+        std::cerr << "[ERROR] Failed to allocate image buffer." << std::endl;
         return 0;
-    }
-    /* Allocate image buffer in u-dma-buf memory area */
-    udmabuf_fd = open("/dev/udmabuf0", O_RDWR );
-    if (0 > udmabuf_fd)
-    {
-        std::cerr << "[ERROR] Failed to open udmabuf " << std::endl;
-        return 0;
-    }
-    img_buffer =(unsigned char*) mmap(NULL, udmabuf_size ,PROT_READ|PROT_WRITE, MAP_SHARED,  udmabuf_fd, 0);
-    if (MAP_FAILED == img_buffer)
-    {
-        std::cerr << "[ERROR] Failed to run mmap: udmabuf " << std::endl;
-        close(udmabuf_fd);
-        return 0;
-    }
-
-    /* Write once to allocate physical memory to u-dma-buf virtual space.
-    * Note: Do not use memset() for this.
-    *       Because it does not work as expected. */
-    {
-        for(int i = 0 ; i < udmabuf_size; i++)
-        {
-            img_buffer[i] = 0;
-        }
     }
     
+    std::cout << "Image buffer allocated successfully" << std::endl;
+    std::cout << "  Virtual address: " << (void*)img_buffer_obj.virt_addr << std::endl;
+    std::cout << "  Physical address: 0x" << std::hex << img_buffer_obj.phy_addr << std::dec << std::endl;
+
     /*Load input data */
     /*Input data type can be either FLOAT32 or FLOAT16, which depends on the model */
     if (InOutDataType::FLOAT32 == input_data_type)
     {
         /* Pre-processing */
         /* Read image data from file */
-        ret = read_bmp(filename, INPUT_IMAGE_W, INPUT_IMAGE_H, INPUT_IMAGE_C);
+        ret = read_bmp(filename, INPUT_IMAGE_W, INPUT_IMAGE_H, INPUT_IMAGE_C, img_buffer_obj.virt_addr);
         if (ret > 0)
         {
             std::cerr << "[ERROR] Failed to read image :"<<filename << std::endl;
-            munmap(img_buffer, udmabuf_size);
-            close(udmabuf_fd);
+            free_image_buffer(&img_buffer_obj);
             return 0;
         }
+        
+        /* Flush cache to ensure data is written to physical memory */
+        ret = flush_image_buffer(&img_buffer_obj);
+        if (0 != ret)
+        {
+            std::cerr << "[ERROR] Failed to flush cache." << std::endl;
+            free_image_buffer(&img_buffer_obj);
+            return 0;
+        }
+        
         /*Define parameter to be changed in Pre-processing Runtime*/
         s_preproc_param_t in_param;
-        in_param.pre_in_addr    = udmabuf_addr_start;
+        in_param.pre_in_addr    = img_buffer_obj.phy_addr;
         in_param.pre_in_shape_w = INPUT_IMAGE_W;
         in_param.pre_in_shape_h = INPUT_IMAGE_H;
         in_param.pre_in_format  = FORMAT_BGR;
@@ -520,8 +556,7 @@ int main(int argc, char** argv)
         if (0 < ret)
         {
             std::cerr << "[ERROR] Failed to run Pre-processing Runtime Pre()." << std::endl;
-            munmap(img_buffer, udmabuf_size);
-            close(udmabuf_fd);
+            free_image_buffer(&img_buffer_obj);
             return 0;
         }
         timespec_get(&end_time, TIME_UTC);
@@ -536,15 +571,13 @@ int main(int argc, char** argv)
     {
         std::cerr << "[ERROR] Input data type : FP16." << std::endl;
         /*If your model input data type is FP16, use std::vector<uint16_t> for reading input data. */
-        munmap(img_buffer, udmabuf_size);
-        close(udmabuf_fd);
+        free_image_buffer(&img_buffer_obj);
         return 0;
     }
     else
     {
         std::cerr << "[ERROR] Input data type : neither FP32 nor FP16." << std::endl;
-        munmap(img_buffer, udmabuf_size);
-        close(udmabuf_fd);
+        free_image_buffer(&img_buffer_obj);
         return 0;
     }
 
@@ -562,8 +595,7 @@ int main(int argc, char** argv)
     if(output_num != 1)
     {
         std::cerr << "[ERROR] Output size : not 1." << std::endl;
-        munmap(img_buffer, udmabuf_size);
-        close(udmabuf_fd);
+        free_image_buffer(&img_buffer_obj);
         return 0;
     }
 
@@ -605,8 +637,7 @@ int main(int argc, char** argv)
     {
         std::cerr << "[ERROR] Output data type : not floating point type." << std::endl;
         /*End application*/
-        munmap(img_buffer, udmabuf_size);
-        close(udmabuf_fd);
+        free_image_buffer(&img_buffer_obj);
         return 0;
     }
 
@@ -631,7 +662,6 @@ int main(int argc, char** argv)
             <<"%] : [" << label_file_map[(*it).second] << "]" <<std::endl;
     }
 
-    munmap(img_buffer, udmabuf_size);
-    close(udmabuf_fd);
+    free_image_buffer(&img_buffer_obj);
     return 0;
 }

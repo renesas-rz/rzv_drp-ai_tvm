@@ -1,4 +1,4 @@
-# Installation
+﻿# Installation
 
 ## Requirements
 
@@ -19,8 +19,8 @@ Requirements are listed below.
       - DRP-AI_Translator_i8-v1.11-Linux-x86_64-Install
   - SDK
     - RZ/V2L
-      - [RZ/V2L AI SDK v5.00 or later](https://www.renesas.com/us/en/software-tool/rzv2l-ai-software-development-kit)
-      - RTK0EF0160F05000SJ.zip
+      - [RZ/V2L AI SDK v7.00 or later](https://www.renesas.com/us/en/software-tool/rzv2l-ai-software-development-kit)
+      - RTK0EF0160F07000SJ.zip
     - RZ/V2M
       - [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package)
       - [DRP-AI Support Package v7.51 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package)
@@ -33,8 +33,8 @@ Requirements are listed below.
       - [RZ/V2H AI SDK v6.00 or later](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
       - RTK0EF0180F06000SJ.zip
     - RZ/V2N
-      - [RZ/V2N AI SDK v6.00 or later](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
-      - RTK0EF0189F06000SJ.zip
+      - [RZ/V2N AI SDK v6.30 or later](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
+      - RTK0EF0189F06300SJ.zip
 
 You can install DRP-AI TVM[^1] either [directly on your host system](#installing-drp-ai-tvm1-mera2) or [using Docker](#installing-drp-ai-tvm1-with-docker-mera2).
 
@@ -97,43 +97,31 @@ fi
 #### Install SDK for RZ/V
 
 1. Download the appropriate SDK for your board:
-   - RZ/V2L: [RZ/V2L AI SDK v5.00 or later](https://www.renesas.com/us/en/software-tool/rzv2l-ai-software-development-kit)
+   - RZ/V2L: [RZ/V2L AI SDK v7.00 or later](https://www.renesas.com/us/en/software-tool/rzv2l-ai-software-development-kit)
    - RZ/V2M: [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package v7.51 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpusl/rzv2m-drp-ai-support-package)
    - RZ/V2MA: [RZ/V Verified Linux Package v3.0.7 or later](https://www.renesas.com/us/en/software-tool/rzv-verified-linux-package) and [DRP-AI Support Package v7.50 or later](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rz-arm-based-high-end-32-64-bit-mpus/rzv2ma-drp-ai-support-package)
    - RZ/V2H: [RZ/V2H AI SDK v6.00 or later](https://www.renesas.com/us/en/software-tool/rzv2h-ai-software-development-kit)
-   - RZ/V2N: [RZ/V2N AI SDK v6.00 or later](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
+   - RZ/V2N: [RZ/V2N AI SDK v6.30 or later](https://www.renesas.com/us/en/software-tool/rzv2n-ai-software-development-kit)
 
 2. Install the SDK:
 
 ```bash
-# Set SDK file path and prepare toolchain script based on product type
-if [ "$PRODUCT" = "V2L" ]; then
-  # For RZ/V2L
-  SDK_FILE="/path/to/RTK0EF0160F05000SJ.zip"
-  
-elif [ "$PRODUCT" = "V2M" ] || [ "$PRODUCT" = "V2MA" ]; then
-  # For RZ/V2M or RZ/V2MA
-  # For RZ/V2M and RZ/V2MA, the SDK is built from DRP-AI Support Package and Linux Package
-  # Use the SDK installer you generated according to the DRP-AI Support Package Release Note
-  TOOLCHAIN_SCRIPT="/path/to/sdk-installer.sh"
-  chmod +x ${TOOLCHAIN_SCRIPT}
-  
-elif [ "$PRODUCT" = "V2N" ]; then
-  # For RZ/V2N
-  SDK_FILE="/path/to/RTK0EF0189F06000SJ.zip"
-  
-else
-  # For RZ/V2H
-  SDK_FILE="/path/to/RTK0EF0180F06000SJ.zip"
-fi
+# Set SDK file path
+# For RZ/V2L, RZ/V2H, or RZ/V2N: specify the downloaded ZIP file
+# For RZ/V2M or RZ/V2MA: specify the SDK installer script (.sh file)
+SDK_FILE="/path/to/downloaded_sdk_file"
 
-# Extract toolchain script for all boards except RZ/V2M and RZ/V2MA
-if [ "$PRODUCT" != "V2M" ] && [ "$PRODUCT" != "V2MA" ]; then
+# Extract toolchain script for ZIP files, or use directly for .sh files
+if [[ "$SDK_FILE" == *.zip ]]; then
   cd /tmp
   unzip $SDK_FILE
-  TOOLCHAIN_SCRIPT=$(find ./ -name "*toolchain*${PRODUCT,,}*sh" -o -name "*${PRODUCT,,}*toolchain*.sh" | head -n 1)
-  chmod +x ${TOOLCHAIN_SCRIPT}
+  TOOLCHAIN_SCRIPT=$(find ./ -name "*toolchain*.sh" | head -n 1)
+else
+  # For RZ/V2M and RZ/V2MA, SDK_FILE is already the toolchain script
+  TOOLCHAIN_SCRIPT=${SDK_FILE}
 fi
+
+chmod +x ${TOOLCHAIN_SCRIPT}
 
 # Install SDK
 sudo ${TOOLCHAIN_SCRIPT}
@@ -153,7 +141,7 @@ pip3 install --upgrade pip
 pip3 install psutil numpy==1.26.4
 pip3 install cython==3.0.11
 pip3 install decorator attrs
-pip3 install tensorflow==2.18.1 tensorflow-hub tflite tqdm
+pip3 install tensorflow==2.19.0 tensorflow-hub tflite tqdm
 ```
 
 ### 3. Clone the Repository
@@ -259,21 +247,17 @@ wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/Dockerfile
 ### 3. Prepare SDK Files
 
 ```sh
-# Determine SDK filename based on product
-if [ "$PRODUCT" = "V2L" ]; then
-  SDK_FILE="RTK0EF0160F05000SJ.zip"
-elif [ "$PRODUCT" = "V2N" ]; then
-  SDK_FILE="RTK0EF0189F06000SJ.zip"
-elif [ "$PRODUCT" = "V2H" ]; then
-  SDK_FILE="RTK0EF0180F06000SJ.zip"
-fi
+# Set SDK file path
+# For RZ/V2L, RZ/V2H, or RZ/V2N: specify the downloaded ZIP file
+# For RZ/V2M or RZ/V2MA: specify the SDK installer script (.sh file)
+SDK_FILE="downloaded_sdk_file"
 
-# Extract toolchain script for all boards except RZ/V2M and RZ/V2MA
-if [ "$PRODUCT" != "V2M" ] && [ "$PRODUCT" != "V2MA" ]; then
+# Extract toolchain script for ZIP files
+if [[ "$SDK_FILE" == *.zip ]]; then
   # Extract toolchain script
   mkdir -p sdk_temp
   unzip -q ${SDK_FILE} -d sdk_temp
-  TOOLCHAIN_SCRIPT=$(find sdk_temp -type f -name "*toolchain*${PRODUCT,,}*.sh" -o -name "*${PRODUCT,,}*toolchain*.sh" | head -n 1)
+  TOOLCHAIN_SCRIPT=$(find sdk_temp -type f -name "*toolchain*.sh" | head -n 1)
 
   if [ -n "$TOOLCHAIN_SCRIPT" ]; then
       cp "$TOOLCHAIN_SCRIPT" ./
@@ -289,9 +273,9 @@ if [ "$PRODUCT" != "V2M" ] && [ "$PRODUCT" != "V2MA" ]; then
   # Clean up temporary directory
   rm -rf sdk_temp
 else
-  # For RZ/V2M or RZ/V2MA, use the SDK installer you generated
-  TOOLCHAIN_SCRIPT="./sdk-installer.sh"  # Replace with your actual SDK installer filename
-  echo "Using SDK installer for RZ/V2M or RZ/V2MA: ${TOOLCHAIN_SCRIPT}"
+  # For RZ/V2M or RZ/V2MA, SDK_FILE is already the toolchain script
+  TOOLCHAIN_SCRIPT="./${SDK_FILE}"
+  echo "Using SDK installer: ${TOOLCHAIN_SCRIPT}"
   chmod +x ${TOOLCHAIN_SCRIPT}
 fi
 ```

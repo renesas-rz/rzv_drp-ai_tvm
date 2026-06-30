@@ -42,7 +42,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : recognize_base.cpp
-* Version      : 1.1.1
+* Version      : 1.2.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 ***********************************************************************************************************************/
 
@@ -85,10 +85,12 @@ uint32_t get_drpai_start_addr()
     ret = ioctl(fd , DRPAI_GET_DRPAI_AREA, &drpai_data);
     if (-1 == ret)
     {
+        close(fd);
         LOG(FATAL) << "[ERROR] Failed to get DRP-AI Memory Area : errno=" << errno ;
         return (uint32_t)NULL;
     }
 
+    close(fd);
     return drpai_data.address;
 }
 
@@ -385,12 +387,12 @@ void* RecognizeBase::capture_thread(void* arg)
         if (me->capture_enabled.load())
         {
             Measuretime m("capture enable proc time");
-            me->capture_enabled.store(false);
             capture->sync_inference_buf_capture();
-            me->capture_address = capture_addr;
-            me->input_data = capture->get_img();
             /* sync with inference thread*/
             unique_lock<mutex> lock(me->mtx_);
+            me->capture_enabled.store(false);
+            me->capture_address = capture_addr;
+            me->input_data = capture->get_inference_img();
             me->wake_ = true;
             me->cv_.notify_all();
         }
@@ -998,7 +1000,7 @@ void RecognizeBase::send_result(void* arg, uint8_t model_id, recognizeData_t& da
 int32_t RecognizeBase::end_all_threads()
 {
     int32_t ret;
-    int32_t ret_main;
+    int32_t ret_main = 0;
     capture_enabled.store(true);
 
     _capture_running = false;

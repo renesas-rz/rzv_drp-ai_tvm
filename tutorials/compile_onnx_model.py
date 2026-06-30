@@ -44,6 +44,13 @@ if(PRODUCT == None):
     print("        e.g. $export PRODUCT=V2L")
     sys.exit(-1)
 
+if(PRODUCT != 'V2L' and PRODUCT != 'V2M' and PRODUCT != 'V2MA'):
+    print("[Error] Unsupported architecture")
+    print("        This script only supports V2L, V2M, and V2MA architectures.")
+    print("        For V2H/V2N, please use compile_onnx_model_quant.py instead.")
+    print("        See tutorials/tutorial_RZV2H.md for more details.")
+    sys.exit(-1)
+
 if __name__ == "__main__":
     """
     This is sample script of DRP-AI TVM[*1] compiler stack.
@@ -71,7 +78,7 @@ if __name__ == "__main__":
     # 3. Run DRP-AI TVM[*1] compiler 
     # 3.1 Run TVM Frontend
     print("-------------------------------------------------")
-    print("   Run TVM frotend compiler ")
+    print("   Run TVM frontend compiler ")
     #mod, params = relay.frontend.from_onnx(onnx_model, shape_dict)
     mod, params = mera2.from_onnx(model_file, \
                                   shape_dict, \

@@ -1,6 +1,4 @@
-/* 
-* (C) Copyright EdgeCortix, Inc. 2025 
-*/
+// Copyright 2023 EdgeCortix Inc.
 
 #ifndef MERA2_RUNTIME_PLAN_H
 #define MERA2_RUNTIME_PLAN_H
@@ -85,6 +83,7 @@ struct Plan {
       MERA_BLOCK,
       MERA_C99_SOURCE_CPU,
       MERA_C99_SOURCE_ETHOS_U55,
+      ETHOS_U55,
     };
     struct Unit {
       Backend backend;

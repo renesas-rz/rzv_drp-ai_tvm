@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : camera.cpp
-* Version      : 1.1.1
+* Version      : 1.2.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -28,8 +28,12 @@
 ******************************************/
 #include "camera.h"
 #include <errno.h>
-#include <cmath>
+#include <cstring>
 #include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/select.h>
 
 #include "../util/measure_time.h"
 
@@ -38,59 +42,17 @@ Camera::Camera()
     camera_width = 0;
     camera_height = 0;
     camera_color = 0;
+    m_fd = -1;
+    _using_inf = false;
+
+    for (int i = 0; i < CAP_BUF_NUM; i++)
+    {
+        dma_buf[i] = nullptr;
+    }
 }
 
 Camera::~Camera()
 {
-}
-
-/**
- * @brief ceil3
- * @details ceil num specifiy digit
- * @param num number
- * @param base ceil digit
- * @return int32_t result
- */
-static int32_t ceil3(int32_t num, int32_t base)
-{
-    double x = (double)(num) / (double)(base);
-    double y = ceil(x) * (double)(base);
-    return (int32_t)(y);
-}
-
-/**
- * @brief calc_udmabuf_addr
- * @details calclate u-dma-buf address
- * @return uint64_t u-dma-buf address
- */
-static uint64_t calc_udmabuf_addr()
-{
-    uint64_t ret_address = 0;
-
-    /* Obtain udmabuf memory area starting address */
-    int8_t fd = 0;
-    char addr[1024];
-    int32_t read_ret = 0;
-    errno = 0;
-    fd = open("/sys/class/u-dma-buf/udmabuf0/phys_addr", O_RDONLY);
-    if (0 > fd)
-    {
-        fprintf(stderr, "[ERROR] Failed to open udmabuf0/phys_addr : errno=%d\n", errno);
-        return -1;
-    }
-    read_ret = read(fd, addr, 1024);
-    if (0 > read_ret)
-    {
-        fprintf(stderr, "[ERROR] Failed to read udmabuf0/phys_addr : errno=%d\n", errno);
-        close(fd);
-        return -1;
-    }
-    sscanf(addr, "%lx", &ret_address);
-    close(fd);
-    /* Filter the bit higher than 32 bit */
-    ret_address &= 0xFFFFFFFF;
-
-    return ret_address;
 }
 
 /**
@@ -102,7 +64,6 @@ static uint64_t calc_udmabuf_addr()
 int8_t Camera::start_camera()
 {
     int8_t ret = 0;
-    int32_t i = 0;
     int32_t n = 0;
 
     printf("Camera width = %d\n", camera_width);
@@ -110,57 +71,57 @@ int8_t Camera::start_camera()
     printf("Camera channel = %d\n", camera_color);
 
     ret = open_camera_device();
-    if (0 != ret) return ret;
+    if (0 != ret)
+    {
+        printf("failed to open_camera_device\n");
+        return ret;
+    }
 
     ret = init_camera_fmt();
-    if (0 != ret) return ret;
+    if (0 != ret)
+    {
+        printf("failed to init_camera_fmt\n");
+        return ret;
+    }
 
     ret = init_buffer();
-    if (0 != ret) return ret;
-
-    udmabuf_address = calc_udmabuf_addr();
-
-    udmabuf_file = open("/dev/udmabuf0", O_RDWR);
-    if (0 > udmabuf_file)
+    if (0 != ret)
     {
-        printf("[ERROR] /dev/udmabuf0 open Failed...\n");
-        return -1;
+        printf("failed to init_buffer\n");
+        return ret;
     }
-    /* page size alignment.*/
-    int32_t offset = ceil3(imageLength, sysconf(_SC_PAGE_SIZE));
-    _offset = offset;
+
     for (n = 0; n < CAP_BUF_NUM; n++)
     {
-        /* fit to page size.*/
-        buffer[n] = (uint8_t*)mmap(NULL, imageLength, PROT_READ | PROT_WRITE, MAP_SHARED, udmabuf_file, n * offset);
-
-        if (MAP_FAILED == buffer[n])
+        dma_buf[n] = (camera_dma_buffer*)malloc(sizeof(camera_dma_buffer));
+        if (nullptr == dma_buf[n])
         {
-            printf("print error string by strerror: %s\n", strerror(errno));
+            fprintf(stderr, "[ERROR] Failed to allocate camera_dma_buffer struct\n");
             return -1;
         }
 
-        /* Write once to allocate physical memory to u-dma-buf virtual space.
-        * Note: Do not use memset() for this.
-        *       Because it does not work as expected. */
+        const uint32_t yuyv_buf_size =
+            static_cast<uint32_t>(camera_width) *
+            static_cast<uint32_t>(camera_height) * 2U;
+
+        ret = video_buffer_alloc_dmabuf(dma_buf[n], yuyv_buf_size);
+        if (-1 == ret)
         {
-            uint8_t* word_ptr = buffer[n];
-            for (i = 0; i < _offset; i++)
-            {
-                word_ptr[i] = 0;
-            }
+            fprintf(stderr, "[ERROR] Failed to Allocate DMA buffer for dma_buf[%d]\n", n);
+            return ret;
         }
 
         memset(&buf_capture, 0, sizeof(buf_capture));
         buf_capture.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf_capture.memory = V4L2_MEMORY_USERPTR;
+        buf_capture.memory = V4L2_MEMORY_DMABUF;
         buf_capture.index = n;
-        /* buffer[i] must be casted to unsigned long type in order to assign it to V4L2 buffer */
-        buf_capture.m.userptr = reinterpret_cast<unsigned long>(buffer[n]);
-        buf_capture.length = imageLength;
+        buf_capture.m.fd = (unsigned long)dma_buf[n]->dbuf_fd;
+        buf_capture.length = dma_buf[n]->size;
+
         ret = xioctl(m_fd, VIDIOC_QBUF, &buf_capture);
         if (-1 == ret)
         {
+            fprintf(stderr, "[ERROR] VIDIOC_QBUF failed at start_camera buffer[%d]: errno=%d (%s)\n", n, errno, strerror(errno));
             return -1;
         }
     }
@@ -188,10 +149,19 @@ int8_t Camera::close_camera()
 
     for (i = 0; i < CAP_BUF_NUM; i++)
     {
-        munmap(buffer[i], _offset);
+        if (nullptr != dma_buf[i])
+        {
+            video_buffer_free_dmabuf(dma_buf[i]);
+            free(dma_buf[i]);
+            dma_buf[i] = nullptr;
+        }
     }
-    close(udmabuf_file);
-    close(m_fd);
+
+    if (0 <= m_fd)
+    {
+        close(m_fd);
+        m_fd = -1;
+    }
     return 0;
 }
 
@@ -203,7 +173,7 @@ int8_t Camera::close_camera()
  * @param arg set value
  * @return int8_t output parameter
  */
-int8_t Camera::xioctl(int8_t fd, int32_t request, void* arg)
+int8_t Camera::xioctl(int fd, int32_t request, void* arg)
 {
     int8_t r;
     do r = ioctl(fd, request, arg);
@@ -228,6 +198,7 @@ int8_t Camera::start_capture()
     ret = xioctl(m_fd, VIDIOC_STREAMON, &buf.type);
     if (-1 == ret)
     {
+        fprintf(stderr, "[ERROR] VIDIOC_STREAMON failed: errno=%d (%s)\n", errno, strerror(errno));
         return -1;
     }
     return 0;
@@ -248,6 +219,7 @@ int8_t Camera::capture_qbuf()
     ret = xioctl(m_fd, VIDIOC_QBUF, &buf_capture);
     if (-1 == ret)
     {
+        fprintf(stderr, "[ERROR] capture_qbuf VIDIOC_QBUF failed: errno=%d (%s)\n", errno, strerror(errno));
         return -1;
     }
     return 0;
@@ -290,10 +262,18 @@ uint32_t Camera::capture_image()
     ret = xioctl(m_fd, VIDIOC_DQBUF, &buf_capture);
     if (-1 == ret)
     {
-        cout << "capture select error!" << endl;
+        fprintf(stderr, "[ERROR] VIDIOC_DQBUF failed: errno=%d (%s)\n", errno, strerror(errno));
         return 0;
     }
-    return udmabuf_address + buf_capture.index * _offset;
+
+    ret = video_buffer_flush_dmabuf(dma_buf[buf_capture.index]->idx, dma_buf[buf_capture.index]->size);
+    if (0 != ret)
+    {
+        fprintf(stderr, "[ERROR] mmngr_flush failed: ret=%d\n", ret);
+        return 0;
+    }
+
+    return dma_buf[buf_capture.index]->phy_addr;
 }
 
 /**
@@ -310,11 +290,12 @@ int8_t Camera::stop_capture()
     memset(&buf, 0, sizeof(buf));
 
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buf.memory = V4L2_MEMORY_USERPTR;
+    buf.memory = V4L2_MEMORY_DMABUF;
 
     ret = xioctl(m_fd, VIDIOC_STREAMOFF, &buf.type);
     if (-1 == ret)
     {
+        fprintf(stderr, "[ERROR] VIDIOC_STREAMOFF failed: errno=%d (%s)\n", errno, strerror(errno));
         return -1;
     }
     return 0;
@@ -347,7 +328,9 @@ int8_t Camera::open_camera_device()
         ret = xioctl(m_fd, VIDIOC_QUERYCAP, &fmt);
         if (-1 == ret)
         {
-            return -1;
+            close(m_fd);
+            m_fd = -1;
+            continue;
         }
 
         /* Search USB camera */
@@ -358,10 +341,12 @@ int8_t Camera::open_camera_device()
             break;
         }
         close(m_fd);
+        m_fd = -1;
     }
 
     if (i >= 15)
     {
+        fprintf(stderr, "[ERROR] No USB camera device found\n");
         return -1;
     }
     return 0;
@@ -384,25 +369,35 @@ int8_t Camera::init_camera_fmt()
     fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
     fmt.fmt.pix.field = V4L2_FIELD_NONE;
 
+    printf("[INFO] Requesting camera format: %dx%d YUYV\n", camera_width, camera_height);
 
     ret = xioctl(m_fd, VIDIOC_S_FMT, &fmt);
     if (-1 == ret)
     {
-        printf("[ERROR] VIDIOC_S_FMT Failed: %d\n", ret);
+        fprintf(stderr, "[ERROR] VIDIOC_S_FMT Failed: errno=%d (%s)\n", errno, strerror(errno));
         return -1;
     }
 
-    struct v4l2_streamparm* setfps;
-    setfps = (struct v4l2_streamparm*)calloc(1, sizeof(struct v4l2_streamparm));
-    memset(setfps, 0, sizeof(struct v4l2_streamparm));
-    setfps->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    setfps->parm.capture.timeperframe.numerator = 1;
-    setfps->parm.capture.timeperframe.denominator = 30;
-    if (ioctl(m_fd, VIDIOC_S_PARM, setfps) < 0)
+    printf("[INFO] Camera format set: %dx%d fourcc=0x%08x\n",
+           fmt.fmt.pix.width,
+           fmt.fmt.pix.height,
+           fmt.fmt.pix.pixelformat);
+
+    struct v4l2_streamparm setfps;
+    memset(&setfps, 0, sizeof(setfps));
+    setfps.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    setfps.parm.capture.timeperframe.numerator = 1;
+    setfps.parm.capture.timeperframe.denominator = 30;
+    if (ioctl(m_fd, VIDIOC_S_PARM, &setfps) < 0)
     {
         perror("VIDIOC_S_PARM");
     }
-
+    else
+    {
+        printf("[INFO] Camera FPS request set to %d/%d\n",
+               setfps.parm.capture.timeperframe.denominator,
+               setfps.parm.capture.timeperframe.numerator);
+    }
     return 0;
 }
 
@@ -415,39 +410,38 @@ int8_t Camera::init_camera_fmt()
 int8_t Camera::init_buffer()
 {
     int8_t ret = 0;
-    int32_t i = 0;
     struct v4l2_requestbuffers req;
     memset(&req, 0, sizeof(req));
     req.count = CAP_BUF_NUM;
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    req.memory = V4L2_MEMORY_USERPTR;
+    req.memory = V4L2_MEMORY_DMABUF;
 
-    /*Request a buffer that will be kept in the device*/
+    printf("[INFO] Requesting %d DMABUF buffers\n", CAP_BUF_NUM);
+
     ret = xioctl(m_fd, VIDIOC_REQBUFS, &req);
     if (-1 == ret)
     {
-        printf("[ERROR] VIDIOC_REQBUFS Failed: %d\n", ret);
+        fprintf(stderr, "[ERROR] VIDIOC_REQBUFS Failed: errno=%d (%s)\n", errno, strerror(errno));
         return -1;
     }
 
-    struct v4l2_buffer buf;
-    for (i = 0; i < CAP_BUF_NUM; i++)
+    printf("[INFO] VIDIOC_REQBUFS accepted count=%d\n", req.count);
+
+    for (int i = 0; i < CAP_BUF_NUM; i++)
     {
+        struct v4l2_buffer buf;
         memset(&buf, 0, sizeof(buf));
         buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf.memory = V4L2_MEMORY_USERPTR;
+        buf.memory = V4L2_MEMORY_DMABUF;
         buf.index = i;
 
-        /* Extract buffer information */
         ret = xioctl(m_fd, VIDIOC_QUERYBUF, &buf);
         if (-1 == ret)
         {
-            printf("[ERROR] VIDIOC_QUERYBUF Failed: %d\n", ret);
+            fprintf(stderr, "[ERROR] VIDIOC_QUERYBUF Failed at index %d: errno=%d (%s)\n", i, errno, strerror(errno));
             return -1;
         }
-
     }
-    imageLength = buf.length;
 
     return 0;
 }
@@ -468,8 +462,7 @@ int8_t Camera::save_bin(std::string filename)
         return -1;
     }
 
-    /* Get data from buffer and write to binary file */
-    ret = fwrite(buffer[buf_capture.index], sizeof(uint8_t), imageLength, fp);
+    ret = fwrite((uint8_t*)dma_buf[buf_capture.index]->mem, sizeof(uint8_t), dma_buf[buf_capture.index]->size, fp);
     if (!ret)
     {
         fclose(fp);
@@ -480,6 +473,94 @@ int8_t Camera::save_bin(std::string filename)
     return 0;
 }
 
+/**
+ * @brief video_buffer_alloc_dmabuf
+ * @details Allocate a DMA buffer for the camera
+ * @param buffer pointer to the camera_dma_buffer struct
+ * @param buf_size requested buffer size
+ * @return int8_t 0 if succeeded
+ *                 not 0 otherwise
+ */
+int8_t Camera::video_buffer_alloc_dmabuf(struct camera_dma_buffer* buffer, int buf_size)
+{
+    MMNGR_ID id;
+    /* The physical-address argument type of mmngr_alloc_in_user_ext() differs
+     * between environments. Select the type the local mmngr header expects:
+     *   - RZ/V2M (dunfell)  : unsigned long  (64-bit physical address)
+     *   - RZ/V2L (scarthgap): unsigned int   (32-bit physical address)
+     * MMNGR_PHYS_ADDR_64BIT is defined by CMake when PRODUCT=V2M. */
+#ifdef MMNGR_PHYS_ADDR_64BIT
+    unsigned long phard_addr = 0;
+#else
+    unsigned int  phard_addr = 0;
+#endif
+    void* puser_virt_addr;
+    int m_dma_fd;
+    int mm_ret = 0;
+
+    buffer->size = buf_size;
+    mm_ret = mmngr_alloc_in_user_ext(&id, buffer->size, &phard_addr, &puser_virt_addr, MMNGR_VA_SUPPORT_CACHED, NULL);
+    if (0 != mm_ret)
+    {
+        fprintf(stderr, "[ERROR] mmngr_alloc_in_user_ext failed: ret=%d\n", mm_ret);
+        return -1;
+    }
+
+    memset((void*)puser_virt_addr, 0, buffer->size);
+    buffer->idx = id;
+    buffer->mem = (void*)puser_virt_addr;
+    /* On RZ/V2M (dunfell) the mmngr reserved region is placed above 4GB, so
+     * mmngr_alloc_in_user_ext() may return a 33-bit physical address. DRP-AI
+     * accesses the buffer using the lower 32 bits of the physical address, so
+     * mask off the upper bits here. On RZ/V2L (scarthgap) the address is already
+     * within the 32-bit range and this mask is a no-op. */
+    buffer->phy_addr = static_cast<uint32_t>(phard_addr & 0xFFFFFFFFUL);
+    if (!buffer->mem)
+    {
+        fprintf(stderr, "[ERROR] mmngr_alloc_in_user_ext returned null virtual address\n");
+        return -1;
+    }
+
+    /* Pass the full (unmasked) physical address to the DMABUF export; only the
+     * value handed to DRP-AI (buffer->phy_addr) is masked to the lower 32 bits. */
+    mm_ret = mmngr_export_start_in_user_ext(&id, buffer->size, phard_addr, &m_dma_fd, NULL);
+    if (0 != mm_ret)
+    {
+        fprintf(stderr, "[ERROR] mmngr_export_start_in_user_ext failed: ret=%d\n", mm_ret);
+        mmngr_free_in_user_ext(buffer->idx);
+        return -1;
+    }
+
+    buffer->dbuf_fd = m_dma_fd;
+    return 0;
+}
+
+/**
+ * @brief video_buffer_free_dmabuf
+ * @details free a DMA buffer for the camera
+ * @param buffer pointer to the camera_dma_buffer struct
+ */
+void Camera::video_buffer_free_dmabuf(struct camera_dma_buffer* buffer)
+{
+    if (nullptr == buffer)
+    {
+        return;
+    }
+    mmngr_free_in_user_ext(buffer->idx);
+}
+
+/**
+ * @brief video_buffer_flush_dmabuf
+ * @details flush a DMA buffer for the camera
+ * @param idx mmngr buffer index
+ * @param size buffer size
+ * @return int 0 if succeeded
+ *             not 0 otherwise
+ */
+int Camera::video_buffer_flush_dmabuf(uint32_t idx, uint32_t size)
+{
+    return mmngr_flush(idx, 0, size);
+}
 
 /**
  * @brief get_buf_capture_index
@@ -528,6 +609,7 @@ int8_t Camera::inference_capture_qbuf()
     ret = xioctl(m_fd, VIDIOC_QBUF, &inference_buf_capture);
     if (-1 == ret)
     {
+        fprintf(stderr, "[ERROR] inference_capture_qbuf VIDIOC_QBUF failed: errno=%d (%s)\n", errno, strerror(errno));
         return -1;
     }
     _using_inf = false;
@@ -543,9 +625,18 @@ int8_t Camera::inference_capture_qbuf()
  */
 uint8_t* Camera::get_img()
 {
-    return buffer[buf_capture.index];
+    return (uint8_t*)dma_buf[buf_capture.index]->mem;
 }
 
+/**
+ * @brief get_inference_img
+ * @details Function to return the inference camera buffer
+ * @return uint8_t* inference camera buffer
+ */
+uint8_t* Camera::get_inference_img()
+{
+    return (uint8_t*)dma_buf[inference_buf_capture.index]->mem;
+}
 
 /**
  * @brief get_size
@@ -554,7 +645,7 @@ uint8_t* Camera::get_img()
  */
 int32_t Camera::get_size()
 {
-    return imageLength;
+    return dma_buf[buf_capture.index]->size;
 }
 
 

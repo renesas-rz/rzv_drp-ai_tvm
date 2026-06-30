@@ -105,6 +105,7 @@ tar xvfz sample_yolox.tar.gz
 cd sample_yolox_cam/
 su
 export LD_LIBRARY_PATH=.
+/root/gstreamer_cam_test_CAM0_CN7.sh 1920x1080 # Execute only when using MIPI camera
 ./app_yolox_cam
 exit # After terminating the application.
 ```

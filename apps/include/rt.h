@@ -1,6 +1,4 @@
-/* 
-* (C) Copyright EdgeCortix, Inc. 2025 
-*/
+// Copyright 2023 EdgeCortix Inc.
 
 #ifndef MERA_RT_H
 #define MERA_RT_H
@@ -20,7 +18,7 @@ public:
   virtual void SetInputMemoryPtr(const std::string& area_name, void* address) = 0;
   virtual void SetOutputMemoryPtr(const std::string& area_name, void* address) = 0;
   virtual void Run() = 0;
-  // for Renesas
+
   virtual void ProfileRun(const std::string& profile_table, const std::string& profile_csv, int freq_index) {};
   virtual void SetMemoryAreaIndex(const std::string& area_name, size_t index) {};
   virtual void* Allocate(size_t size) {return nullptr;};

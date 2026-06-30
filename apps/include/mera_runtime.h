@@ -1,6 +1,4 @@
-/* 
-* (C) Copyright EdgeCortix, Inc. 2025 
-*/
+// Copyright 2023 EdgeCortix Inc.
 
 #include <chrono>
 #include <cstddef>
@@ -20,6 +18,11 @@
 #ifdef MERA_DNA_RUNTIME
 #include <mera/mdna_interpreter.h>
 #endif /* MERA_DNA_RUNTIME */
+
+#ifdef MERA_DNAX_RUNTIME
+// FIXME !!!
+#include "../src/dnax_verilator/dnax_sim_plugin.h"
+#endif /* MERA_DNAX_RUNTIME */
 
 class Profile {
 public:
@@ -53,7 +56,7 @@ public:
   void SetDevices(const std::vector<int>& device_ids);
   void Init();
   void Run();
-  // for Renesas
+  
   void ProfileRun(const std::string& profile_table, const std::string& profile_csv, int freq_index);
   void* GetInputPtr(const std::string& name);
   void* GetOutputPtr(const std::string& name);
@@ -107,7 +110,7 @@ private:
   // Dynamic outputs
   bool needs_row_fetching{false};
   std::set<std::string> dynamic_output_list{};
-  // for Renesas
+  
   uint64_t start_address{0x00};
   int freq_index{1};
   int device_type{1 /* default kDLCPU */};
@@ -115,6 +118,15 @@ private:
   std::shared_ptr<spdlog::logger> logger;
   Profile profile;
   bool profile_mode_enabled {false};
+
+  // DNAX memory hub and dna sim object
+#ifdef MERA_DNAX_RUNTIME
+  // TVM graph executor requires external tensors to be aligned to kAllocAlignment (64 bytes)
+  static constexpr size_t kDnaxMemoryAlignment = 64;
+  uint8_t* dnax_sim_memory_{nullptr};
+  size_t dnax_sim_memory_size_{0};
+  std::unique_ptr<DnaXSimPlugin> dnax_sim_;
+#endif /* MERA_DNAX_RUNTIME */
 
   // Queues and threads: only initialized and used if we find
   // that the execution plan requires parallel executions

@@ -37,6 +37,7 @@
 #include <sys/statvfs.h>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 
 class LinuxSystemAnalyzer

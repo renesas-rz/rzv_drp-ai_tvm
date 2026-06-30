@@ -1,5 +1,5 @@
 /***********************************************************************************************************************
-* Copyright (C) 2023 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2026 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : main.cpp
@@ -28,6 +28,9 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include <opencv2/opencv.hpp>
 
+/*dmabuf for Pre-processing Runtime input data*/
+#include "dmabuf.h"
+
 using namespace std;
 /*****************************************
 * Global Variables
@@ -47,9 +50,11 @@ static atomic<uint8_t> img_obj_ready   (0);
 static atomic<uint8_t> hdmi_obj_ready   (0);
 
 /*Global Variables*/
-static float  drpai_output_buf[TVM_MODEL_IN_W * TVM_MODEL_IN_H*TVM_MODEL_OUT_NUM*(NUM_CLASS-1)];
+static float * drpai_output_buf;
+static dma_buffer *drpai_buf_post;
+static int postbuf_size = TVM_MODEL_IN_W * TVM_MODEL_IN_H*TVM_MODEL_OUT_NUM*(NUM_CLASS-1)*sizeof(uint16_t);
+
 static uint8_t postproc_data[TVM_MODEL_IN_W * TVM_MODEL_IN_H];
-static uint8_t postproc_data1[CAM_RESIZED_WIDTH * CAM_RESIZED_HEIGHT];
 static uint8_t output_mask[CAM_RESIZED_WIDTH * CAM_RESIZED_HEIGHT];
 static uint64_t capture_address;
 static uint8_t buf_id;
@@ -60,6 +65,7 @@ static Image img;
 MeraDrpRuntimeWrapper runtime;
 /* Pre-processing Runtime object */
 PreRuntime preruntime;
+PreRuntime postruntime;
 #ifdef DISP_AI_FRAME_RATE
 static double ai_fps = 0;
 static double cap_fps = 0;
@@ -148,25 +154,29 @@ int8_t get_result()
     {
         /*Output Data = std::get<1>(output_buffer)*/
         uint16_t* data_ptr = reinterpret_cast<uint16_t*>(std::get<1>(output_buffer));
-        for (int j = 0; j<output_size; j++)
-        {
-            /*FP16 to FP32 conversion*/
-            drpai_output_buf[j]=float16_to_float32(data_ptr[j]);
-        }
+        memcpy(drpai_output_buf, data_ptr, output_size * sizeof(uint16_t));
     }
     else if (InOutDataType::FLOAT32 == std::get<0>(output_buffer))
     {
-        /*Output Data = std::get<1>(output_buffer)*/
-        float* data_ptr = reinterpret_cast<float*>(std::get<1>(output_buffer));
-        for (int j = 0; j<output_size; j++)
-        {
-            drpai_output_buf[j]=data_ptr[j];
-        }
+        fprintf(stderr, "[ERROR] Output data type : not fp16.\n");
+        return -1;
     }
     else
     {
         fprintf(stderr, "[ERROR] Output data type : not floating point.\n");
-        ret = -1;
+        return -1;
+    }
+
+    if (drpai_buf_post->size <= (output_size * sizeof(uint16_t)))
+    {
+        std::cerr << "[ERROR] Output size exceeds the buffer size."<<std::endl;
+        return -1;
+    }
+    ret = buffer_flush_dmabuf(drpai_buf_post->idx, output_size * sizeof(uint16_t));
+    if (0 != ret )
+    {
+        std::cerr << "[ERROR] Failed to flush DMA buffer for drpai_buf_post."<<std::endl;
+        return ret;
     }
     return ret;
 }
@@ -186,11 +196,10 @@ int8_t sign(int32_t x)
 * Function Name : R_Post_Proc_DeepLabV3
 * Description   : CPU post-processing for DeepLabV3
 *
-* Arguments     : floatarr = drpai output address
+* Arguments     : drpai_out_arr = drpai output address
 * Return value  : -
 ******************************************/
-
-void R_Post_Proc_DeepLabV3(float* floatarr)
+void R_Post_Proc_DeepLabV3(uint8_t* drpai_out_arr)
 {
     mtx.lock();
     float score;
@@ -198,33 +207,17 @@ void R_Post_Proc_DeepLabV3(float* floatarr)
     int i=0;
     int iOut = 0;
     int iBitArray[NUM_CLASS];
-    /*Convert output probabilities to label indice array*/
-    for (int i = 0; i < TVM_MODEL_IN_W * TVM_MODEL_IN_H; i++)
-    {
-        /*Get maximum probability index*/
-        uint8_t tmp_max_idx = 0;
-        float tmp_max_value = -FLT_MAX;
 
-        for (int ci = 0; ci < NUM_CLASS-1; ci++) {
-            if (tmp_max_value < floatarr[ci * TVM_MODEL_IN_W * TVM_MODEL_IN_H + i]) {
-                tmp_max_value = floatarr[ci * TVM_MODEL_IN_W * TVM_MODEL_IN_H + i];
-                tmp_max_idx = ci;
-            }
-        }
-        
-        postproc_data[i] = tmp_max_idx;
-    }
     /*Resize postproc_data to 1920*1080*/
-    cv::Mat input = cv::Mat(TVM_MODEL_IN_W, TVM_MODEL_IN_H, CV_8UC1, postproc_data);
+    cv::Mat input = cv::Mat(TVM_MODEL_IN_W, TVM_MODEL_IN_H, CV_8UC1, (uint8_t*) drpai_out_arr);
     cv::Mat output;
     cv::resize(input, output, cv::Size(CAM_RESIZED_WIDTH, CAM_RESIZED_HEIGHT), 0, 0, cv::INTER_NEAREST);
-    memcpy(postproc_data1, output.reshape(1,1).data, CAM_RESIZED_WIDTH*CAM_RESIZED_HEIGHT);
+    memcpy(output_mask, output.reshape(1,1).data, CAM_RESIZED_WIDTH*CAM_RESIZED_HEIGHT * sizeof(uint8_t));
 
     for(i=0;i<NUM_CLASS;i++){
        iBitArray[i]=0;
     }
     
-    memcpy(output_mask, postproc_data1, CAM_RESIZED_WIDTH*CAM_RESIZED_HEIGHT * sizeof(uint8_t));
     make_hit=100;  // OK
 
    /* log out */
@@ -355,6 +348,9 @@ void *R_Inf_Thread(void *threadid)
     uint32_t out_size;
     /*Variable for Pre-processing parameter configuration*/
     s_preproc_param_t in_param;
+    /*Variable for Post-processing parameter configuration*/
+    s_preproc_param_t in_param_post;
+
     /*Variable for checking return value*/
     int8_t ret = 0;
     /*Variable for Performance Measurement*/
@@ -370,6 +366,9 @@ void *R_Inf_Thread(void *threadid)
 
     in_param.pre_in_shape_w = CAM_IMAGE_WIDTH;
     in_param.pre_in_shape_h = CAM_IMAGE_HEIGHT;
+
+    in_param_post.pre_in_shape_w = TVM_MODEL_IN_W;
+    in_param_post.pre_in_shape_h = TVM_MODEL_IN_H;
 
     printf("Inference Loop Starting\n");
     /*Inference Loop Start*/
@@ -465,8 +464,19 @@ void *R_Inf_Thread(void *threadid)
             goto err;
         }
         /*Preparation for Post-Processing*/
+        in_param_post.pre_in_addr    = (uint64_t) drpai_buf_post->phy_addr;
+        in_param_post.input_copy_enabled = false;
+
+        /*DRP-AI Post-Processing For Deeplabv3*/
+        ret = postruntime.Pre(&in_param_post, &output_ptr, &out_size);
+        if (0 < ret)
+        {
+            fprintf(stderr, "[ERROR] Failed to run Pre-processing Runtime Pre() for post-processing\n");
+            goto err;
+        }
+
         /*CPU Post-Processing For Deeplabv3*/
-        R_Post_Proc_DeepLabV3(drpai_output_buf);
+        R_Post_Proc_DeepLabV3((uint8_t*) output_ptr);
 
         /* R_Post_Proc time end*/
         ret = timespec_get(&post_end_time, TIME_UTC);
@@ -1189,6 +1199,24 @@ int32_t main(int32_t argc, char * argv[])
         goto end_close_drpai;
     }
 
+    /*Load post_dir object to DRP-AI */
+    ret = postruntime.Load(post_dir, drpaimem_addr_start+POSTPROC_ADDR_OFFSET, MODE_POST);
+    if (0 < ret)
+    {
+        fprintf(stderr, "[ERROR] Failed to run Pre-processing Runtime Load() for post-processing.\n");
+        goto end_close_drpai;
+    }
+
+    drpai_buf_post = (dma_buffer*)malloc(sizeof(dma_buffer));
+    ret = buffer_alloc_dmabuf(drpai_buf_post, postbuf_size);
+    if (-1 == ret)
+    {
+        std::cerr << "[ERROR] Failed to Allocate DMA buffer for the drpai_buf_post." << std::endl;
+        goto end_free_dmabuf;
+    }
+
+    drpai_output_buf =(float*) drpai_buf_post->mem;
+
     /*Get input data */
     input_data_type = runtime.GetInputDataType(0);
     if (InOutDataType::FLOAT32 == input_data_type)
@@ -1199,12 +1227,12 @@ int32_t main(int32_t argc, char * argv[])
     {
         fprintf(stderr, "[ERROR] Input data type : FP16.\n");
         /*If your model input data type is FP16, use std::vector<uint16_t> for reading input data. */
-        goto end_close_drpai;
+        goto end_free_dmabuf;
     }
     else
     {
         fprintf(stderr, "[ERROR] Input data type : neither FP32 nor FP16.\n");
-        goto end_close_drpai;
+        goto end_free_dmabuf;
     }
 
     /* Create Camera Instance */
@@ -1217,7 +1245,7 @@ int32_t main(int32_t argc, char * argv[])
         fprintf(stderr, "[ERROR] Failed to initialize Camera.\n");
         delete capture;
         ret_main = ret;
-        goto end_main;
+        goto end_free_dmabuf;
     }
 
     /*Initialize Image object.*/
@@ -1363,10 +1391,14 @@ end_close_camera:
         ret_main = -1;
     }
     delete capture;
+    goto end_free_dmabuf;
+    
+end_free_dmabuf:
+    buffer_free_dmabuf(drpai_buf_post);
+    free(drpai_buf_post);
     goto end_close_drpai;
-
+    
 end_close_drpai:
-
     /*Close DRP-AI Driver.*/
     if (0 < drpai_fd)
     {

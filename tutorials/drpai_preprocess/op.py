@@ -522,7 +522,7 @@ class Normalize(Op):
     def get_api(self):
         return [
             cast_any_to_fp16(DIN_FORMAT=self.din_format),
-            normalize(cof_add = self.cof_add, cof_mul = self.cof_mul, DOUT_RGB_ORDER=self.dout_rgb_order)
+            normalize(cof_add = self.cof_add, cof_mul = self.cof_mul, DIN_FORMAT=self.din_format, DOUT_RGB_ORDER=self.dout_rgb_order)
         ]
 
     def check_cof(self, cof, label):

@@ -45,6 +45,7 @@ add_definitions(-DMERA_DRP_RUNTIME)
 set(EXE_NAME ${PROJECT_NAME}) 
 
 file(GLOB SRC * ${TVM_ROOT}/how-to/sample_app_v2h/common_files/* ${TVM_ROOT}/apps/MeraDrpRuntimeWrapper.* ${TVM_ROOT}/apps/PreRuntime.h ${TVM_ROOT}/apps/PreRuntimeV2H.cpp)
+
 if("${APP_NAME}" STREQUAL "app_yolov2_cam")
     list(APPEND SRC
         "${CMAKE_CURRENT_LIST_DIR}/../../app_yolox_cam/src/image_yolox.cpp"

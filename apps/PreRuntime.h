@@ -219,6 +219,8 @@ static const std::unordered_map<uint16_t, std::string> format_string_table =
 #define INVALID_ARGMM_MODE  (0xFF)
 #define ARGMAX              (0)
 #define ARGMIN              (1)
+#define COF_MAX             (3)
+#define WEIGHT_ALIGN_V2H    (64)
 
 #define MIN_INPUT_W_BOUND   (0)
 #define MIN_INPUT_H_BOUND   (0)
@@ -294,8 +296,8 @@ typedef struct
     uint8_t resize_alg      = INVALID_RESIZE_ALG;
     uint16_t resize_w       = INVALID_SHAPE;
     uint16_t resize_h       = INVALID_SHAPE;
-    float cof_add[3]        = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
-    float cof_mul[3]        = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+    float cof_add[COF_MAX]        = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+    float cof_mul[COF_MAX]        = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
     uint16_t crop_tl_x      = INVALID_SHAPE;
     uint16_t crop_tl_y      = INVALID_SHAPE;
     uint16_t crop_w         = INVALID_SHAPE;

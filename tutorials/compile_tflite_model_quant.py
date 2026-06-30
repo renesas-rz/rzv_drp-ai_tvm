@@ -127,7 +127,7 @@ if __name__ == "__main__":
     # 3. Run DRP-AI TVM[*1] compiler 
     
     print("-------------------------------------------------")
-    print("   Run TVM frotend compiler ")
+    print("   Run TVM frontend compiler ")
     try:
         # 3.1 Run TVM Frontend
         mod, params = mera2.from_tflite(model_file, \
@@ -223,6 +223,7 @@ if __name__ == "__main__":
                                             disable_concat=False, \
                                             cpu_data_type=opts["cpu_data_type"], \
                                             )
+    lib = runtime.load_module(lib_path)
     ctx = runtime.cpu()
     rt_mod = graph_executor.create(json, lib, ctx)
     rt_mod.set_input(**params)
@@ -249,7 +250,6 @@ if __name__ == "__main__":
         else:
             assert False, "Unsupport this data type" + byoc_output.dtype
 
-    # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")
     print("   Run TVM backend compiler with DRP-AI Translator")

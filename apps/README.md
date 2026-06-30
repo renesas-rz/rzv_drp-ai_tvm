@@ -5,7 +5,7 @@ If you would like to build an application for **RZ/V2H and RZ/V2N** [see here](.
 
 > **Note (Model Dependency)**<br>
 > This application contains **pre-processing and post-processing specifically designed for ResNet models**.  
-> If you want to validate inference results using a **different model**, you must **modify the pre/post-processing** according to that model’s input/output specifications.  
+> If you want to validate inference results using a **different model**, you must **modify the pre/post-processing** according to that model's input/output specifications.  
 > Simply replacing the model directory will **not** produce correct results.
 
 
@@ -81,11 +81,11 @@ Copy the following files to the rootfs of Boot Environment.
 
 | Name | Path | Details |  
 |:---|:---|:---|  
-|Runtime Libraries | `drp-ai_tvm/obj/build_runtime/v2m/lib/*.so`|Required libraries: `libdrp_tvm_rt.so`, `libdrpai_rt.so`, `libmera2_plan_io.so`, `libmera2_runtime.so`<br>Use the libraries in the `v2m` directory regardless of your target product (V2L, V2M, or V2MA). |  
+|Runtime Libraries | `drp-ai_tvm/obj/build_runtime/v2m/lib/*.so`|Required libraries: `libdrp_tvm_rt.so`, `libmera2_plan_io.so`, `libmera2_runtime.so`<br>Use the libraries in the `v2m` directory regardless of your target product (V2L, V2M, or V2MA). |  
 |Model Data | `drp-ai_tvm/tutorials/resnet18_onnx`|Model compiled in the [Compile AI models](../tutorials). DRP-AI Preprocessing Runtime Object files, (`preprocess` directory) are also included.|  
 |Input Data |`drp-ai_tvm/apps/exe/sample.bmp`| Windows Bitmap file, which is input data for image classification. |  
 |Label List |`drp-ai_tvm/apps/exe/synset_words_imagenet.txt`<br>`drp-ai_tvm/apps/exe/ImageNetLabels.txt`| `synset_words_imagenet.txt`: Label list for ResNet18 post-processing.<br>`ImageNetLabels.txt`: Label list for ResNet50 post-processing when compiling TensorFlow Hub model. |  
-|Application |`drp-ai_tvm/apps/build/tutorial_app` | Compiled in this [page](../tutorials/README.md#how-to-compile-the-application) . |  
+|Application |`drp-ai_tvm/apps/build/tutorial_app_v2ml` | Compiled in this [page](../tutorials/README.md#how-to-compile-the-application) . |  
 
 The rootfs should have the following directory structure for all target boards (RZ/V2L, RZ/V2M, and RZ/V2MA):
 
@@ -98,7 +98,7 @@ The rootfs should have the following directory structure for all target boards (
             │   ├── libdrp_tvm_rt.so
             │   ├── libmera2_plan_io.so
             │   └── libmera2_runtime.so
-            ├── resnet18_onnx
+            ├── resnet18_onnx          # This can be a real directory or a symbolic link to another model directory
             │   ├── deploy.json
             │   ├── deploy.params
             │   ├── deploy.so
@@ -106,11 +106,10 @@ The rootfs should have the following directory structure for all target boards (
             │       ├── aimac_desc.bin
             │       ...
             │       └── pp_weight.dat
-            ├── ImageNetLabels.txt
+            ├── ImageNetLabels.txt     # Used for TensorFlow models
             ├── sample.bmp
-            ├── synset_words_imagenet.txt
+            ├── synset_words_imagenet.txt  # Used for ONNX and PyTorch models
             └── tutorial_app_v2ml
-
 ```
 
 Here's an example of commands to prepare the deployment files:
@@ -125,6 +124,9 @@ cp $TVM_ROOT/apps/exe/ImageNetLabels.txt tvm/
 cp $TVM_ROOT/apps/exe/synset_words_imagenet.txt tvm/
 cp $TVM_ROOT/apps/build/tutorial_app* tvm/
 cp -r $TVM_ROOT/tutorials/resnet18_onnx tvm/
+cp -r $TVM_ROOT/tutorials/resnet18_torch tvm/
+cp -r $TVM_ROOT/tutorials/resnet50_tflite tvm/
+cp -r $TVM_ROOT/tutorials/resnet18_onnx_cpu tvm/
 tar cvfz tvm.tar.gz tvm/
 ```
 
@@ -143,7 +145,7 @@ The application runs the ResNet inference on [sample.bmp](exe/sample.bmp).
 Following is the expected output for ResNet18 ONNX model compiled for DRP-AI on RZ/V2MA Evaluation Board Kit.  
 
 ```sh
-root@rzv2ma:~# ./tutorial_app
+root@rzv2ma:~# ./tutorial_app_v2ml
 [16:54:37] /drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:66: Loading json data...
 [16:54:37] /drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:72: Loading runtime module...
 [16:54:39] /drp-ai_tvm/apps/MeraDrpRuntimeWrapper.cpp:77: Loading parameters...
@@ -184,38 +186,79 @@ The application is configured to work with the default ONNX ResNet18 model in a 
 
 ### Using Different Model Directories
 
-The application expects the model to be in a directory named `resnet18_onnx`. If your model is in a different directory, create a symbolic link:
+The application expects the model to be in a directory named `resnet18_onnx`. Here are examples of how to use different model types:
+
+#### 1. PyTorch Model Example
 
 ```sh
-# For PyTorch model
+# If resnet18_onnx is a symbolic link, remove it
+if [ -L "resnet18_onnx" ]; then
+  rm resnet18_onnx
+# If resnet18_onnx is a real directory, back it up
+elif [ -d "resnet18_onnx" ]; then
+  mv resnet18_onnx resnet18_onnx_original
+fi
+
+# Create symbolic link to PyTorch model
 ln -sf resnet18_torch resnet18_onnx
 
-# For CPU-only ONNX model
-ln -sf resnet18_onnx_cpu resnet18_onnx
-
-# For TensorFlow model
-ln -sf resnet50_tflite resnet18_onnx
+# Run the application
+./tutorial_app_v2ml
 ```
 
-### TensorFlow Models Label File
-
-When using TensorFlow models (such as ResNet50 from TensorFlow Hub), you also need to replace the label file:
+#### 2. CPU-only ONNX Model Example
 
 ```sh
-# Backup the original label file
-cp synset_words_imagenet.txt synset_words_imagenet.txt.bak
+# Remove resnet18_onnx (symbolic link or directory)
+rm -rf resnet18_onnx
 
-# Use the TensorFlow-compatible label file
+# Create symbolic link to CPU-only model
+ln -sf resnet18_onnx_cpu resnet18_onnx
+
+# Run the application
+./tutorial_app_v2ml
+```
+
+#### 3. TensorFlow Model Example
+
+```sh
+# Remove resnet18_onnx (symbolic link or directory)
+rm -rf resnet18_onnx
+
+# Create symbolic link to TensorFlow model
+ln -sf resnet50_tflite resnet18_onnx
+
+# TensorFlow models require a different label file
+cp synset_words_imagenet.txt synset_words_imagenet.txt.bak
 cp ImageNetLabels.txt synset_words_imagenet.txt
 
 # Run the application
 ./tutorial_app_v2ml
 
-# Restore the original label file when done
-cp synset_words_imagenet.txt.bak synset_words_imagenet.txt
+# Restore the original label file
+mv synset_words_imagenet.txt.bak synset_words_imagenet.txt
 ```
 
-This is necessary because TensorFlow models use a different label format than the default one provided for ONNX and PyTorch models. The application expects the label file to be named `synset_words_imagenet.txt`, so we temporarily replace it with the TensorFlow-compatible version.
+#### Restoring Original Directory (if needed)
+
+```sh
+# Remove symbolic link
+rm -f resnet18_onnx
+
+# Restore original directory if it was backed up
+if [ -d "resnet18_onnx_original" ]; then
+  mv resnet18_onnx_original resnet18_onnx
+fi
+```
+
+
+### Using Non-Classification Models
+
+This application runs ONNX ResNet18 model with pre/post-processing, but it can only be applied to image classification.  
+If you would like to run AI inference without pre/post-processing for validation purposes, please use following application.
+
+- [Validation Application](../how-to/validation) : C++ program to run AI inference only.  
+
 
 ## Model Compilation
 
@@ -241,7 +284,7 @@ The application uses DRP-AI Pre-processing Runtime as pre-processing.
 For more details on DRP-AI Pre-processing Runtime, please refer to [DRP-AI Pre-processing Runtime Documentation](../docs/PreRuntime.md).  
 
 Processing details are originally defined in the compile script provided in [Compile AI models](../tutorials).  
-In this example, `tutorial_app.cpp` changes its parameter to run following preprocessing.  
+In this example, `tutorial_app_v2ml.cpp` changes its parameter to run following preprocessing.  
 (**Bold** is changed parameter.)
 
 - Input data  

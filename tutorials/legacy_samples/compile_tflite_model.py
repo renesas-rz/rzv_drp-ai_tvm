@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # 3. Run DRP-AI TVM[*1] compiler 
     # 3.1 Run TVM Frontend
     print("-------------------------------------------------")
-    print("   Run TVM frotend compiler ")
+    print("   Run TVM frontend compiler ")
     mod, params = relay.frontend.from_tflite(tflite_model)
 
     # 3.2 Run TVM backend with DRP-AI translator
