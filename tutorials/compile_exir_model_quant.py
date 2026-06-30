@@ -215,7 +215,6 @@ if __name__ == "__main__":
         else:
             assert False, "Unsupport this data type" + byoc_output.dtype
 
-    # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")
     print("   Run TVM backend compiler with DRP-AI Translator")

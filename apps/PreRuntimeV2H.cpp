@@ -730,34 +730,34 @@ uint8_t PreRuntime::LoadParamInfo()
     int index, mod;
     uint8_t float_cvt[2];
     float a;
-    uint8_t float_num = sizeof(weight_data)/sizeof(float)+1;
+    uint8_t float_num = (uint8_t) COF_MAX;
     uint8_t cood_num = 2;
-    uint8_t cof_num = (uint8_t)(weight_data.size() - cood_num)/sizeof(float);
-    /*Minimum size of coefficient data. cof_add(2 or 6bytes)+padding(2bytes)+cof_mul(2 or 6bytes)*/
-    uint8_t cof_size = 2*cof_num*cood_num + cood_num;
+    uint8_t cof_num = (uint8_t) float_num * cood_num;
+
+    uint8_t cof_size = (uint8_t) WEIGHT_ALIGN_V2H;
+
     for (i = 0; i<weight_data.size(); i++)
     {
-        index = (int) i/cood_num;
         mod = i%cood_num;
-        if ( cof_num != index && index <= float_num )
+        index = (int) (i % cof_size)/cood_num;
+
+        if ( index < float_num )
         {
             float_cvt[mod] = weight_data[i];
             if (1 == mod)
             {
                 /*Convert to FP32*/
                 a = (float)float16_to_float32(float_cvt[1]*16*16+float_cvt[0]);
-                if (cof_num > index )
+                if (cof_size > i )
                 {
                     internal_param_val.cof_add[index] = a;
                 }
                 else
                 {
-                    internal_param_val.cof_mul[index-(cof_num + 1)] = a;
+                    internal_param_val.cof_mul[index] = a;
                 }
             }
         }
-        /*If weight.dat contains other information other than cof_add/mul, break the loop*/
-        if (cof_size <= i) break;
     }
 
     /*pre_out_shape_w, pre_out_shape_h, argmm_mode*/
@@ -792,6 +792,7 @@ uint8_t PreRuntime::LoadParamInfo()
             break;
         }
     }
+    
     /*pre_in_type_size, pre_out_type_size*/
     data_in_size = drpai_obj_info.data_inout.data_in_size;
     data_out_size = drpai_obj_info.data_inout.data_out_size;
@@ -1735,8 +1736,10 @@ void PreRuntime::UpdateArgmmMode(const uint8_t val)
 uint8_t PreRuntime::UpdateCoefficient(const float* new_cof_add, const float* new_cof_mul)
 {
     uint8_t cood_num = 2;
-    uint8_t cof_num = (uint8_t)(weight_data.size() - cood_num)/sizeof(float);
+    uint8_t cof_num = (uint8_t) COF_MAX;
     uint8_t cof_size = cood_num*cof_num;
+    uint8_t weight_align = (uint8_t) WEIGHT_ALIGN_V2H;
+
     uint16_t fp16_data_add, fp16_data_mul;
     uint8_t new_cof_add_char[cof_size];
     uint8_t new_cof_mul_char[cof_size];
@@ -1785,20 +1788,23 @@ uint8_t PreRuntime::UpdateCoefficient(const float* new_cof_add, const float* new
         new_cof_mul_char[cood_num*i+1] = (uint8_t) (fp16_data_mul >> 8)    & 0xFF;
     }
 
-    for (i = weight_offset;i< weight_size + weight_offset;i++)
+    for (i = weight_offset;i< (weight_size + weight_offset);i++)
     {
-        uint8_t id = i - weight_offset;
-        if (i < cof_size)
+        uint8_t id = i %  weight_align;
+        if (id < cof_size)
         {
-            weight_data[i] = new_cof_add_char[id];
+            if (i < weight_align)
+            {
+                weight_data[i] = new_cof_add_char[id];
+            }
+            else
+            {
+                weight_data[i] = new_cof_mul_char[id];
+            }
         }
-        else if (i == cof_size || i == cof_size + 1)
+        else 
         {
             weight_data[i] = 0x00;
-        }
-        else
-        {
-            weight_data[i] = new_cof_mul_char[id - (cof_size + empty_size)];
         }
     }
     /*Update the current parameters in internal_param_val*/
@@ -1820,7 +1826,8 @@ bool PreRuntime::IsDifferentFmInternal(const float* new_cof_add, const float* ne
 {
     uint8_t i = 0;
     uint8_t cood_num = 0;
-    uint8_t size = (uint8_t)(weight_data.size() - cood_num)/sizeof(float);
+    uint8_t size = (uint8_t) COF_MAX;
+    
     for (i = 0; i<size ; i++)
     {
         if (new_cof_add[i] != internal_param_val.cof_add[i] || new_cof_mul[i] != internal_param_val.cof_mul[i])
@@ -2260,7 +2267,7 @@ int8_t PreRuntime::UpdateWeightData(const s_preproc_param_t param)
 {
     int8_t num_updated = 0;
     uint8_t cood_num = 2;
-    uint8_t size = (uint8_t)(weight_data.size() - cood_num)/sizeof(float);
+    uint8_t size = (uint8_t) COF_MAX;
     if (!normalize_included)
     {
         /* Normalize is not used in loaded Pre-runtime Object files.*/
@@ -2460,6 +2467,7 @@ uint8_t PreRuntime::SetInputAddress(uint64_t in_addr)
             return PRE_ERROR;
         }
     }
+
     return PRE_SUCCESS;
 }
 /*****************************************

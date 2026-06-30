@@ -62,6 +62,8 @@ def get_args():
     parser.add_option("--mera1", action="store_true", dest="mera1", default=False, help="Specify mera1 to build", metavar="OPTION")
     parser.add_option("--mera2", action="store_true", dest="mera2", default=False, help="Specify mera2 to build", metavar="OPTION")
     parser.add_option("-u", "--cpu_only_mode", action="store_true", dest="cpu_only_mode", default=False, help="Specify cpu mode only", metavar="OPTION")
+    
+    parser.add_option("-y", "--yolo_attention", action="store_true", default=False, dest="yolo_atten", help="Accelerate Yolo attention", metavar="")
 
     (options, args) = parser.parse_args()
     opts = vars(options)

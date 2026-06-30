@@ -75,7 +75,7 @@ std::tuple<InOutDataType, void*, int64_t> MeraDrpRuntimeWrapper::GetOutput(int i
 #include "MeraDrpRuntimeWrapper.h"
 
 bool MeraDrpRuntimeWrapper::LoadModel(const std::string& model_dir, 
-                                      uint32_t start_address);
+                                      uint64_t start_address);
 ```
 ### Note
 
@@ -109,6 +109,7 @@ void MeraDrpRuntimeWrapper::ProfileRun(const std::string& profile_table,
 
 - **ProfileRun()** method runs the runtime and saves the runtime profiling results as a file. The profile result is information summarizing the execution time for each subgraph generated when the AI model is automatically divided into CPU and DRP-AI. The subgraph assigned to DRP-AI uses the name "tvmgen_default_tvmgen_default_mera_drp_*".
   - In the case of RZ/V2H, you can specify the `freq_index` argument to lower the operating frequency of the DRP-AI hardware. For example, setting `freq_index` to **5** will operate the DRP-AI at 315MHz.
+  - **Important**: When switching from `Run()` to `ProfileRun()`, the additional profiling arguments (`profile_table`, `profile_csv`, and optionally `freq_index` for RZ/V2H) should be inserted at the beginning of the argument list, before any existing arguments from the original `Run()` function.
 
 ### Return
 

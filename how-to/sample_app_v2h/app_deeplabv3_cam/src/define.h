@@ -59,12 +59,16 @@
 
 /* DRP-AI memory offset for model object file*/
 #define DRPAI_MEM_OFFSET            (0X38E0000)
+#define POSTPROC_ADDR_OFFSET        (0x1C000000) /*Size of memory area first postprocess use*/
 
 /*Inference Related Parameters*/
 /* Model Binary */
 const static std::string model_dir = "deeplabv3_cam";
 /* Pre-processing Runtime Object */
 const static std::string pre_dir = model_dir + "/preprocess";
+/* Pre-processing Runtime Object for post-processing*/
+const static std::string post_dir = model_dir + "/postprocess";
+
 #define IMAGE_IO_SIZE_TYPE          (0)
 
 /*DeepLabV3 Post Processing & Drawing Related*/

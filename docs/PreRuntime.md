@@ -46,7 +46,7 @@ This page explains about the DRP-AI Pre-processing Runtime, which includes its s
 ## 1. Overview  
 ### 1.1 Function  
 DRP-AI Pre-processing Runtime enables high performance AI pre-processing and optionally post-processing using the hardware accelerator, DRP-AI.  
-It is provided in DRP-AI TVM[^1] as its one of features.  
+It is provided in RUHMI Framework[^1] as its one of features.  
 Users can use the DRP-AI Pre-processing Runtime by compiling the processing with **"DRP-AI Pre-processing Compile module"** (python APIs) and run it on the board by calling **"DRP-AI Pre-processing Run Module"** (C++ APIs).  
 
 <img src=./img/overview.png width=400>  
@@ -66,20 +66,20 @@ This is implemented in POST mode.
 <sup>*1</sup>: Only for RZ/V2H and RZ/V2N. 
 
 ### 1.3 Requirement  
-To use DRP-AI Pre-processing Runtime, please prepare the DRP-AI TVM[^1] environment explained in [Installation](../README.md#installation).  
+To use DRP-AI Pre-processing Runtime, please prepare the RUHMI[^1] environment explained in [Installation](../README.md#installation).  
 
 ### 1.4 About Memory Management
 DRP-AI computes the processing using data mapped to a physically contiguous memory area.  
 In RZ/V Linux Package, **"DRP-AI memory area"** is reserved for DRP-AI.  
 DRP-AI Pre-processing Runtime Object files must be deployed to the DRP-AI memory area before running the DRP-AI.  
 
-Since DRP-AI TVM[^1] also uses DRP-AI memory area, DRP-AI TVM[^1] and DRP-AI Pre-processing Runtime must use **mutually exclusive area**.  
-Overlapping the memory area used by DRP-AI TVM[^1] and DRP-AI Pre-processing Runtime will cause the DRP-AI error.  
+Since RUHMI Framework[^1] also uses DRP-AI memory area, RUHMI Framework[^1] and DRP-AI Pre-processing Runtime must use **mutually exclusive area**.  
+Overlapping the memory area used by RUHMI Framework[^1] and DRP-AI Pre-processing Runtime will cause the DRP-AI error.  
 
 <!--
-In DRP-AI TVM[^1], the memory address must be defined when compiling the model.  
-In [Compile Tutorial](../tutorials/README.md), `addr_map_start` is the memory address that DRP-AI TVM[^1] Model Object is deployed.  
-For example, following shows that DRP-AI TVM Model Object will be deployed to memory area after the address of `0x438E0000`. 
+In RUHMI[^1], the memory address must be defined when compiling the model.  
+In [Compile Tutorial](../tutorials/README.md), `addr_map_start` is the memory address that RUHMI[^1] Model Object is deployed.  
+For example, following shows that RUHMI Model Object will be deployed to memory area after the address of `0x438E0000`. 
 ```
 drp_config_runtime = {
     "interpreter": False,
@@ -90,17 +90,17 @@ drp_config_runtime = {
 ```
 -->
 
-By default, DRP-AI TVM[^1] and DRP-AI Pre-processing Runtime use the DRP-AI memory area as follows.  
+By default, RUHMI[^1] and DRP-AI Pre-processing Runtime use the DRP-AI memory area as follows.  
 - In `PreRuntime.cpp`  
     - Use [DRP-AI memory area start addres] + `0x0` for pre-processing runtime.
-    - Users are required to specify the start address of memory area used by DRP-AI TVM[^1].<br> ([`tutorial_app_v2ml.cpp`](../apps/tutorial_app_v2ml.cpp) uses  [DRP-AI memory area start addres] + `0x38E0000`).
+    - Users are required to specify the start address of memory area used by RUHMI[^1].<br> ([`tutorial_app_v2ml.cpp`](../apps/tutorial_app_v2ml.cpp) uses  [DRP-AI memory area start addres] + `0x38E0000`).
 - In `PreRuntimeV2H.cpp`:  
     - Use the end of DRP-AI memory area for pre-processing runtime.
-    - Use [DRP-AI memory area start addres] + `0x0` for DRP-AI TVM[^1].  
+    - Use [DRP-AI memory area start addres] + `0x0` for RUHMI[^1].  
 
 <img src=./img/defaultmemorymanagement.jpg width=600>  
 
-In DRP-AI TVM[^1], the start address of the memory area to be used can be specified when running the AI model on the target board.  
+In RUHMI[^1], the start address of the memory area to be used can be specified when running the AI model on the target board.  
 Please see `LoadModel()` in [tutorial_app*.cpp](../apps) for more details.
 
 In DRP-AI Pre-processing Runtime, the start address of memory area that Object files area deployed can be defined when running the pre-processing on the target board.  
@@ -128,7 +128,7 @@ Their address details and the size required are included in the address map txt 
 
 ## 2. Compile Module
 ### 2.1 Overview
-DRP-AI Pre-processing Runtime Compile module is a function of DRP-AI TVM[^1].  
+DRP-AI Pre-processing Runtime Compile module is a function of RUHMI Framework[^1].  
 It allows users to compile the specified processing into executable format (DRP-AI Pre-processing Runtime Object files) on DRP-AI.  
 
 ### 2.2 File Configuration
@@ -682,7 +682,7 @@ There are two methods to prepare input data buffer for `PreRuntimeV2H.cpp`.
 
     Here is a brief explanation to prepare physically contiguous data buffer.  
     If you would like to see the sample application, please refer to [R01_object_detection](https://github.com/renesas-rz/rzv_ai_sdk/blob/main/R01_object_detection).  
-    > Note: R01_object_detection may not use the latest version of DRP-AI TVM[^1] and Pre-processing Runtime.  
+    > Note: R01_object_detection may not use the latest version of RUHMI Framework[^1] and Pre-processing Runtime.  
 
     1. Copy [`dmabuf.cpp`](https://github.com/renesas-rz/rzv_ai_sdk/blob/main/R01_object_detection/src/dmabuf.cpp) and [`dmabuf.h`](https://github.com/renesas-rz/rzv_ai_sdk/blob/main/R01_object_detection/src/dmabuf.h) to your source code directory.  
 
@@ -779,7 +779,7 @@ When running multiple Pre-processing Runtime, please follow the notes below.
         (Necessary size of DRP-AI memory area) = ("drp_desc" address) + ("drp_desc" size) - ("data_in" address)
         ```
     
-    - For DRP-AI TVM[^1], the size can be checked in the compile log.  
+    - For RUHMI[^1], the size can be checked in the compile log.  
     Please see [How to read the Compile log](../how-to/tips/how-to-read-log.md#how-to-read-the-compile-log).  
 
 
@@ -788,45 +788,49 @@ When running multiple Pre-processing Runtime, please follow the notes below.
 Please refer to [Application Example](../apps).
 
 #### 3.8.2 Post-processing  
-Following code shows how to call the Object files compiled in [2.6.3 Sample code for Post-processing](#262-post-processing) on RZ/V2L.  
-Please refer to [Application Example](../apps) for `get_drpai_start_addr()`.
-```cpp
-#include "PreRuntime.cpp"
+- For `PreRuntime.cpp`:  
+    Following code shows how to call the Object files compiled in [2.6.3 Sample code for Post-processing](#262-post-processing) on RZ/V2L.  
+    Please refer to [Application Example](../apps) for `get_drpai_start_addr()`.
+    ```cpp
+    #include "PreRuntime.cpp"
 
-// omitted
+    // omitted
 
-uint32_t drpaimem_addr_start = get_drpai_start_addr();
-std::string post_dir = "post_argminmax";
+    uint32_t drpaimem_addr_start = get_drpai_start_addr();
+    std::string post_dir = "post_argminmax";
 
-/*IMPORTANT: Make sure to specify "MODE_POST" in Load() to run post-processing.*/
-uint8_t ret = preruntime.Load(post_dir, drpaimem_addr_start, MODE_POST);
-if (ret != 0)
-{
-    std::cerr << "[ERROR] Failed to run Pre-processing Runtime Load()." << std::endl;
-    return -1;
-}
+    /*IMPORTANT: Make sure to specify "MODE_POST" in Load() to run post-processing.*/
+    uint8_t ret = preruntime.Load(post_dir, drpaimem_addr_start, MODE_POST);
+    if (ret != 0)
+    {
+        std::cerr << "[ERROR] Failed to run Pre-processing Runtime Load()." << std::endl;
+        return -1;
+    }
 
-/*Note: Prepare input data on memory with address of "udmabuf_addr_start"*/
+    /*Note: Prepare input data on memory with address of "udmabuf_addr_start"*/
 
-/*Specify the input data stored address and change parameter.*/
-s_preproc_param_t in_param;
-in_param.pre_in_addr    = (uint64_t)udmabuf_addr_start;
-in_param.argmm_mode     = ARGMIN; //Change Argmm_mode from ARGMAX to ARGMIN.
+    /*Specify the input data stored address and change parameter.*/
+    s_preproc_param_t in_param;
+    in_param.pre_in_addr    = (uint64_t)udmabuf_addr_start;
+    in_param.argmm_mode     = ARGMIN; //Change Argmm_mode from ARGMAX to ARGMIN.
 
-/*Output variables for Pre-processing Runtime */
-void *output_ptr;
-uint32_t out_size = 0;
+    /*Output variables for Pre-processing Runtime */
+    void *output_ptr;
+    uint32_t out_size = 0;
 
-/*Run post-processing*/
-ret = preruntime.Pre(&in_param, &output_ptr, &out_size);
-if (ret != 0)
-{
-    std::cerr << "[ERROR] Failed to run Pre-processing Runtime Pre()." << std::endl;
-    return -1;
-}
+    /*Run post-processing*/
+    ret = preruntime.Pre(&in_param, &output_ptr, &out_size);
+    if (ret != 0)
+    {
+        std::cerr << "[ERROR] Failed to run Pre-processing Runtime Pre()." << std::endl;
+        return -1;
+    }
 
-/*Note: Read the data from "output_ptr"*/
+    /*Note: Read the data from "output_ptr"*/
 
-```
+    ```
 
-[^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.
+- For `PreRuntimeV2H.cpp`:  
+    Please refer to [DeepLabv3 Sample Application](../how-to/sample_app_v2h/app_deeplabv3_cam/), which uses Pre-processing Runtime for post-processing of semantic segmentation. 
+
+[^1]: RUHMI Framework is powered by EdgeCortix MERA™.

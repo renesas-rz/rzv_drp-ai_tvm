@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
     # 3. Run DRP-AI TVM[*1] compiler 
     print("-------------------------------------------------")
-    print("   Run TVM frotend compiler ")
+    print("   Run TVM frontend compiler ")
     if opts["qat"]: # Quantize Aware Traning model 
         qat_type = mera2.QatType.from_str(opts["qat_type"])
         # 3.1 Run TVM Frontend
@@ -185,6 +185,7 @@ if __name__ == "__main__":
                                                 output_dir=record_dir, \
                                                 disable_concat=False, \
                                                 cpu_data_type=opts["cpu_data_type"], \
+                                                enable_transpose_reshape_softmax=opts["yolo_atten"],\
         )
     else: # Float onnx model
         try:
@@ -192,7 +193,9 @@ if __name__ == "__main__":
             mod, params = mera2.from_onnx(model_file, shape_dict, \
                                       is_quant=True, \
                                       cpu_data_type=opts["cpu_data_type"], \
-                                      use_mera2=not opts["mera1_mode"])
+                                      use_mera2=not opts["mera1_mode"], \
+                                      enable_transpose_reshape_softmax=opts["yolo_atten"], \
+                                      )
             # 3.2 Create calibration data(using random values.)
             drp_config = {
                 "target": "Fp32DataRecorder",
@@ -205,6 +208,7 @@ if __name__ == "__main__":
                                                     output_dir=record_dir, \
                                                     disable_concat=False, \
                                                     cpu_data_type=opts["cpu_data_type"], \
+                                                    enable_transpose_reshape_softmax=opts["yolo_atten"],
             )
         except:
             print("[INFO] Switch to mera1 mode")
@@ -212,7 +216,8 @@ if __name__ == "__main__":
             mod, params = mera2.from_onnx(model_file, shape_dict, \
                                       is_quant=True, \
                                       cpu_data_type=opts["cpu_data_type"], \
-                                      use_mera2=not opts["mera1_mode"])
+                                      use_mera2=not opts["mera1_mode"],
+                                      enable_transpose_reshape_softmax=opts["yolo_atten"])
             # 3.2.1 Create calibration data(using random values.)
             drp_config = {
                 "target": "Fp32DataRecorder",
@@ -225,6 +230,7 @@ if __name__ == "__main__":
                                                     output_dir=record_dir, \
                                                     disable_concat=False, \
                                                     cpu_data_type=opts["cpu_data_type"], \
+                                                    enable_transpose_reshape_softmax=opts["yolo_atten"], \
             )
 
     lib = runtime.load_module(lib_path)
@@ -277,6 +283,7 @@ if __name__ == "__main__":
                                              output_dir=output_dir, \
                                             disable_concat=False, \
                                             cpu_data_type=opts["cpu_data_type"], \
+                                            enable_transpose_reshape_softmax=opts["yolo_atten"], \
                                             )
     lib = runtime.load_module(lib_path)
     rt_mod = graph_executor.create(json, lib, ctx)
@@ -308,7 +315,6 @@ if __name__ == "__main__":
         else:
             assert False, "Unsupport this data type" + byoc_output.dtype
 
-    # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")
     print("   Run TVM backend compiler with DRP-AI Translator")
@@ -328,6 +334,7 @@ if __name__ == "__main__":
                                              drp_config_runtime, output_dir, \
                                              disable_concat=False, \
                                              cpu_data_type=opts["cpu_data_type"], \
+                                             enable_transpose_reshape_softmax=opts["yolo_atten"], \
                                              )
 
     print("[TVM compile finished]")

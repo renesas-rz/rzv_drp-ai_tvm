@@ -49,7 +49,7 @@ python3 compile_pytorch_model.py \
     -s 1,3,224,224
 ```
 
-**Note**: Only TorchScripted model is supported. See [here for reference](https://tvm.apache.org/docs/how_to/compile_models/from_pytorch.html).
+**Note**: Only TorchScript models are supported. See [here for reference](https://tvm.apache.org/docs/how_to/tutorials/import_model.html).
 
 **Post-compilation Note**: The compiled model will be in the `resnet18_torch` directory.
 
@@ -70,7 +70,8 @@ python3 sample_save_tflite_model.py
 # Run DRP-AI TVM[*1] Compiler script
 python3 compile_tflite_model.py \
     ./resnet50-v1.tflite \
-    -o resnet50_tflite -s 1,224,224,3
+    -o resnet50_tflite \
+    -s 1,224,224,3
 ```
 
 **Post-compilation Note**: The compiled model will be in the `resnet50_tflite` directory. When running the application with this model, you'll need to replace the label file with the TensorFlow-compatible version. See the [Application README](../apps/README.md#important-notes-for-using-different-model-types) for details.
@@ -134,8 +135,8 @@ In this tutorial, downloaded ONNX model is used to show sample compilation flow.
 onnx_model = onnx.load_model("./resnet18-v1-7.onnx")
 ```
 
-If you want to know other sample case, please reference below tutorials.   
-[Compile Deep Learning Models](https://tvm.apache.org/docs/how_to/compile_models/index.html)
+If you want to know other sample cases, please refer to the tutorial below.  
+[Importing Models from ML Frameworks](https://tvm.apache.org/docs/how_to/tutorials/import_model.html)
 
 ### Compile model with relay
 
@@ -152,7 +153,7 @@ Before run build function, set DRP configuration for runtime.
 
 ```py
 drp_config_runtime = {
-    "interpreter": False,
+    "target": "DrpAi",
     "addr_map_start": 0x0,
     "toolchain_dir": <TRANSLATOR PATH>,
     "sdk_root": <SDK PATH>

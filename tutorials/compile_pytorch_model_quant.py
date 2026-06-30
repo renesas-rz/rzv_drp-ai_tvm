@@ -144,7 +144,7 @@ if __name__ == "__main__":
     # 3. Run DRP-AI TVM[*1] compiler 
     # 3.1 Run TVM Frontend
     print("-------------------------------------------------")
-    print("   Run TVM frotend compiler ")
+    print("   Run TVM frontend compiler ")
     mod, params = mera2.from_pytorch(model, shape_list)
     # 3.2 Create calibration data(using random values.)
     drp_config = {
@@ -242,7 +242,6 @@ if __name__ == "__main__":
         else:
             assert False, "Unsupport this data type" + byoc_output.dtype
 
-    # DrpAi translates onnx quantizer
     # 3.4 Run TVM backend with DRP-AI translator
     print("-------------------------------------------------")
     print("   Run TVM backend compiler with DRP-AI Translator")

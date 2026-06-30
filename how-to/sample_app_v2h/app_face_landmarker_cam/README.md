@@ -55,8 +55,8 @@ sed -i -e 's/1080, 1080, 2/480, 480, 2/g' compile_onnx_model_quant.py
 wget https://github.com/renesas-rz/rzv_drp-ai_tvm/releases/download/Release-2025-12-26/face_landmark_192.onnx
 
 # download calibration data
-wget https://url_to_calibration_data/calibration_data_for_face_landmarker.zip 
-unzip calibration_data_for_face_landmarker.zip 
+wget https://github.com/renesas-rz/rzv_drp-ai_tvm/releases/download/Release-2025-12-26/face_caribration_data_samples.zip 
+unzip face_caribration_data_samples.zip
 
 python3 compile_onnx_model_quant.py \
 face_landmark_192.onnx \
@@ -65,7 +65,7 @@ face_landmark_192.onnx \
 -d $TRANSLATOR \
 -c $QUANTIZER \
 -s 1,3,192,192 \
---images calibration_data_for_face_landmarker/
+--images face_caribration_data_samples/
 ```
 
 ## Setup the Execution Environment
@@ -113,6 +113,7 @@ For example, as follows.
   cd sample_face_landmarker_cam/
   su
   export LD_LIBRARY_PATH=.
+  /root/gstreamer_cam_test_CAM0_CN7.sh 1920x1080 # Execute only when using MIPI camera
   ./app_face_landmarker_cam
   exit  # After terminating the application.
   ```

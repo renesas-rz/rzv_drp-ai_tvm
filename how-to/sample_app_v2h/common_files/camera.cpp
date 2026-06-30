@@ -54,44 +54,15 @@ int8_t Camera::start_camera()
     
 #if INPUT_CAM_TYPE == 1
     int32_t i = 0;
+    int cmd_count = 2;
 
-#ifdef V2N
-    std::string sw_cmd1 = format("media-ctl -d /dev/media0 -V \"'csi-16000400.csi20':1 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
-    std::string sw_cmd2 = format("media-ctl -d /dev/media0 -V \"'imx462 0-001f':0 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
-    std::string sw_cmd3 = format("media-ctl -d /dev/media0 -V \"'cru-ip-16000000.cru0':0 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
-    std::string sw_cmd4 = format("media-ctl -d /dev/media0 -V \"'cru-ip-16000000.cru0':1 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
-    const char* commands[9] =
+    // V4L2 setup (framerate and while balance)
+    const char* commands[2] =
     {
         "v4l2-ctl -d 0 -c framerate=30",
         "v4l2-ctl -d 0 -c white_balance_auto_preset=0",
-        "media-ctl -d /dev/media0 -r",
-        "media-ctl -d /dev/media0 -l \"'csi-16000400.csi20':1 -> 'cru-ip-16000000.cru0':0 [1]\"",
-        "media-ctl -d /dev/media0 -l \"'cru-ip-16000000.cru0':1 -> 'CRU output':0 [1]\"",
-        sw_cmd1.c_str(),
-        sw_cmd2.c_str(),
-        sw_cmd3.c_str(),
-        sw_cmd4.c_str(),
     };
-#else // Not V2N
-    std::string sw_cmd1 = format("media-ctl -d /dev/media0 -V \"'csi-16000400.csi20':1 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
-    std::string sw_cmd2 = format("media-ctl -d /dev/media0 -V \"'imx462 0-001f':0 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
-    std::string sw_cmd3 = format("media-ctl -d /dev/media0 -V \"'cru-ip-16000000.video0':0 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
-    std::string sw_cmd4 = format("media-ctl -d /dev/media0 -V \"'cru-ip-16000000.video0':1 [fmt:UYVY8_2X8/%s field:none]\"", MIPI_CAM_RES);
-    const char* commands[9] =
-    {
-        "v4l2-ctl -d 0 -c framerate=30",
-        "v4l2-ctl -d 0 -c white_balance_auto_preset=0",
-        "media-ctl -d /dev/media0 -r",
-        "media-ctl -d /dev/media0 -l \"'csi-16000400.csi20':1 -> 'cru-ip-16000000.video0':0 [1]\"",
-        "media-ctl -d /dev/media0 -l \"'cru-ip-16000000.video0':1 -> 'CRU output':0 [1]\"",
-        sw_cmd1.c_str(),
-        sw_cmd2.c_str(),
-        sw_cmd3.c_str(),
-        sw_cmd4.c_str(),
-    };
-#endif
-    int cmd_count = 9;
-
+    
     // Execute commands
     for (i = 0; i < cmd_count; i++)
     {

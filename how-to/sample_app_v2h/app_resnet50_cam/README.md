@@ -109,6 +109,7 @@ tar xvfz sample_resnet50.tar.gz
 cd sample_resnet50_cam/
 su
 export LD_LIBRARY_PATH=.
+/root/gstreamer_cam_test_CAM0_CN7.sh 1920x1080 # Execute only when using MIPI camera
 ./app_resnet50_cam
 exit # After terminating the application.
 ```

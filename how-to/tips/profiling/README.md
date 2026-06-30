@@ -9,9 +9,11 @@ This page explains about profiling function of DRP-AI TVM[^1].
 ## Run Profiler
 ### Get Profiling Data
 DRP-AI TVM[^1] has profiling funcion, which shows the processing time for each subgraph assigned to CPU/DRP-AI.
-It can be run in the application that runs on the target board, i.e., [Application Example](../../../apps).
+It can be run in the application that runs on the target board, i.e., [Validation Application](../../validation).
 
 To use the profiling function, call `ProfileRun()` function in the application source code instead of `Run()` function, which is normal inference function.  
+Please refer to [Runtime Wrapper Documentation](../../../docs/Runtime_Wrap.md#profilerun) for details of the `ProfileRun()` function.
+
 Folllowing is example code.  
 ```cpp
 ...
@@ -19,9 +21,12 @@ Folllowing is example code.
 runtime.SetInput(i, input.data());
 
 /*Run inference and generate profiling result*/
-runtime.ProfileRun("profile_table.txt", "profile.csv");
+runtime.ProfileRun("profile_table.txt", "profile.csv", [other arguments of Run() function if any]);
 
 ```
+
+**Note**: When switching from `Run()` to `ProfileRun()`, the profiling arguments (`profile_table.txt`, `profile.csv`) should be inserted at the beginning of the argument list, before any existing arguments from the original `Run()` function.
+
 This function will generate following two files.  Filename can be any string with file extension.
 1. `profile_table.txt` : Text file contains processing time for each subgraph assigned to CPU/DRP-AI.  
 2. `profile.csv`       : Same contents as above in CSV format.  
@@ -75,37 +80,48 @@ This subgraph information can be obtained when compiling the AI model.
 As default, it will be printed on console.
 To save the subgraph information into a file, please modify the compiling script, i.e., [`compile_onnx_model.py`](../../../tutorials) as below.  
 
-#### Before : compile_onnx_model.py L78~L85
+#### Current Version
 ```py
-...
-# 3.2.2 Run backend compiler
-drp.build(mod, \
-               params, \
-               "arm", \
-               drp_config_runtime, \
-               output_dir=output_dir, \
-               disable_concat = opts["disable_concat"]
-               )
-
+    # 3.2.2 Run backend compiler
+    json, params, lib_path = mera2.drp.build(mod, \
+                                             params, \
+                                             "arm", \
+                                             drp_config_runtime, \
+                                             output_dir=output_dir, \
+                                             disable_concat = opts["disable_concat"], \
+                                             cpu_data_type=opts["cpu_data_type"]
+                                             )
 ```
 
-#### After
+#### Modified Version (with profiling)
 ```py
-...
-import io
-with io.StringIO() as iostr:
-    sys.stdout = iostr
-    drp.build(mod, \
-               params, \
-               "arm", \
-               drp_config_runtime, \
-               output_dir=output_dir, \
-               disable_concat = opts["disable_concat"]
-               )
-    build_log = iostr.getvalue()
-    sys.stdout = sys.__stdout__
-with open(output_dir+"/relay_log.txt","w") as f:
-    f.writelines(build_log)
+    import io
+    with io.StringIO() as iostr:
+        sys.stdout = iostr
+        json, params, lib_path = mera2.drp.build(mod, \
+                                                 params, \
+                                                 "arm", \
+                                                 drp_config_runtime, \
+                                                 output_dir=output_dir, \
+                                                 disable_concat = opts["disable_concat"], \
+                                                 cpu_data_type=opts["cpu_data_type"]
+                                                 )
+        build_log = iostr.getvalue()
+        sys.stdout = sys.__stdout__
+    with open(output_dir+"/relay_log.txt","w") as f:
+        f.writelines(build_log)
+```
+
+### Additional Note: sed Commands for Easy Modification
+
+You can use the following sed commands to easily modify the `compile_onnx_model.py` file. These commands work with both current and previous versions of the file:
+
+```sh
+# 1. Add import io and StringIO wrapper around the build function
+sed -i '/Run backend compiler/,/build(/s/\([ ]*\)\(.*\)build(/\1import io\n\1with io.StringIO() as iostr:\n\1    sys.stdout = iostr\n\1    \2build(/' $TVM_ROOT/tutorials/compile_onnx_model.py
+
+# 2. Add code to save the output after the last parameter of the build function
+sed -i '/disable_concat = opts\["disable_concat"\]/,/)/s/)\([ ]*\)$/)\n        build_log = iostr.getvalue()\n        sys.stdout = sys.__stdout__\n    with open(output_dir+"\/relay_log.txt","w") as f:\n        f.writelines(build_log)\1/' $TVM_ROOT/tutorials/compile_onnx_model.py
 ```
 
 The modified script will generate `<PREFIX>/relay_log.txt`.  

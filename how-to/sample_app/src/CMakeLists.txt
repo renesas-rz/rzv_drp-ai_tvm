@@ -20,6 +20,18 @@ if(NOT DEFINED ENV{PRODUCT})
   message(SEND_ERROR "Need to specify product name with option PRODUCT")
 endif()
 
+# mmngr_alloc_in_user_ext() phard_addr argument type differs per environment:
+#   - RZ/V2M (dunfell)  : 64-bit physical address  -> unsigned long*
+#   - RZ/V2L (scarthgap): 32-bit physical address  -> unsigned int*
+# Define MMNGR_PHYS_ADDR_64BIT for V2M so camera.cpp selects the matching type.
+string(TOUPPER "$ENV{PRODUCT}" PRODUCT_UPPER)
+if(PRODUCT_UPPER MATCHES "V2M")
+  add_definitions(-DMMNGR_PHYS_ADDR_64BIT)
+  message(STATUS "mmngr phys addr type: 64-bit (unsigned long) for PRODUCT=$ENV{PRODUCT}")
+else()
+  message(STATUS "mmngr phys addr type: 32-bit (unsigned int) for PRODUCT=$ENV{PRODUCT}")
+endif()
+
 # Directories based on TVM_ROOT
 set(TVM_ROOT "$ENV{TVM_ROOT}")
 include_directories(${TVM_ROOT}/tvm/include)
@@ -57,10 +69,19 @@ target_compile_features(${EXE_NAME} PUBLIC  cxx_std_17)
 # Local include and 3rdparty
 target_include_directories(${EXE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(${EXE_NAME} PUBLIC ${TVM_ROOT}/3rdparty/asio/asio/include)
-include_directories(SYSTEM $ENV{OECORE_NATIVE_SYSROOT} $ENV{SDK}/sysroots/aarch64-poky-linux/usr/include)
+
+# SDK / sysroot includes
+include_directories(SYSTEM
+  $ENV{OECORE_NATIVE_SYSROOT}
+  $ENV{SDK}/sysroots/aarch64-poky-linux/usr/include
+  $ENV{SDK}/sysroots/aarch64-poky-linux/usr/include/mmngr
+)
 
 # Link directories and libraries
-target_link_directories(${EXE_NAME} PRIVATE ${LIBMERA_RT_PATH})
+target_link_directories(${EXE_NAME} PRIVATE
+  ${LIBMERA_RT_PATH}
+  $ENV{SDK}/sysroots/aarch64-poky-linux/usr/lib
+)
 
 target_link_libraries(${EXE_NAME} PRIVATE
   mera2_runtime
@@ -69,6 +90,8 @@ target_link_libraries(${EXE_NAME} PRIVATE
   pthread
   turbojpeg
   jpeg
+  mmngr
+  mmngrbuf
 )
 
 # Use spdlog if present

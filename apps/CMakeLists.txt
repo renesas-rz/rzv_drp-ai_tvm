@@ -30,24 +30,41 @@ include_directories(${TVM_ROOT}/tvm/3rdparty/compiler-rt)
 if(V2H OR V2N)
   set (LIBMERA_RT_PATH ${TVM_ROOT}/obj/build_runtime/v2h/lib)
   add_definitions(-DMERA_DRP_RUNTIME)
-  if(BENCH)
-    set(SRC benchmark.cpp MeraDrpRuntimeWrapper.cpp PreRuntimeV2H.cpp)
-    set(EXE_NAME benchmark)
-  elseif(INFERENCE)
-    set(SRC run_inference_v2h.cpp MeraDrpRuntimeWrapper.cpp PreRuntimeV2H.cpp)
-    set(EXE_NAME run_inference)
-  else()
     set(SRC tutorial_app.cpp MeraDrpRuntimeWrapper.cpp PreRuntimeV2H.cpp)
     set(EXE_NAME tutorial_app)
-  endif()
 else()
   set (LIBMERA_RT_PATH ${TVM_ROOT}/obj/build_runtime/v2m/lib)
   add_definitions(-DMERA_DRP_RUNTIME)
-  if(BENCH)
-    message(FATAL_ERROR "For now, benchmark program supports only V2H or V2N.")
-  endif()
+  
+  # Base source files for V2M/V2MA/V2L
   set(SRC tutorial_app_v2ml.cpp MeraDrpRuntimeWrapper.cpp PreRuntime.cpp)
   set(EXE_NAME tutorial_app_v2ml)
+  
+  # tutorial_app_v2ml.cpp directly uses mmngr APIs.
+  find_library(MMNGR_LIB mmngr PATHS /usr/lib /usr/lib64 /usr/lib/aarch64-linux-gnu)
+  find_library(MMNGRBUF_LIB mmngrbuf PATHS /usr/lib /usr/lib64 /usr/lib/aarch64-linux-gnu)
+  
+  if(MMNGR_LIB AND MMNGRBUF_LIB)
+    message(STATUS "mmngr found: ${MMNGR_LIB}")
+    message(STATUS "mmngrbuf found: ${MMNGRBUF_LIB}")
+    message(STATUS "Enabling mmngr support")
+    
+    # mmngr_alloc_in_user_ext() phard_addr argument type differs per environment:
+    #   - RZ/V2M (dunfell)  : 64-bit physical address -> unsigned long*
+    #   - RZ/V2L (scarthgap): 32-bit physical address -> unsigned int*
+    # Define MMNGR_PHYS_ADDR_64BIT for V2M/V2MA so tutorial_app_v2ml.cpp selects the matching type.
+    string(TOUPPER "$ENV{PRODUCT}" PRODUCT_UPPER)
+    if(PRODUCT_UPPER MATCHES "V2M")
+      add_definitions(-DMMNGR_PHYS_ADDR_64BIT)
+      message(STATUS "mmngr phys addr type: 64-bit (unsigned long) for PRODUCT=$ENV{PRODUCT}")
+    else()
+      message(STATUS "mmngr phys addr type: 32-bit (unsigned int) for PRODUCT=$ENV{PRODUCT}")
+    endif()
+
+    include_directories(/usr/include)
+  else()
+    message(FATAL_ERROR "mmngr libraries are required for tutorial_app_v2ml.cpp")
+  endif()
 endif()
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${LIBMERA_RT_PATH} -Wl,-rpath-link,${LIBMERA_RT_PATH}")
@@ -64,6 +81,13 @@ target_link_libraries(${EXE_NAME} PRIVATE
   drp_tvm_rt
   pthread
 )
+
+# Link mmngr libraries if available (V2M/V2MA/V2L only)
+if(MMNGR_LIB AND MMNGRBUF_LIB AND NOT (V2H OR V2N))
+  target_link_libraries(${EXE_NAME} PRIVATE ${MMNGR_LIB} ${MMNGRBUF_LIB})
+  message(STATUS "Linking mmngr libraries")
+endif()
+
 if (V2H OR V2N)
     target_compile_definitions(${EXE_NAME} PUBLIC KDLDRPAI)
 else()

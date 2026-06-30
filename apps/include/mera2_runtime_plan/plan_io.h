@@ -1,6 +1,4 @@
-/* 
-* (C) Copyright EdgeCortix, Inc. 2025 
-*/
+// Copyright 2023 EdgeCortix Inc.
 
 #ifndef MERA2_RUNTIME_PLAN_IO_H
 #define MERA2_RUNTIME_PLAN_IO_H

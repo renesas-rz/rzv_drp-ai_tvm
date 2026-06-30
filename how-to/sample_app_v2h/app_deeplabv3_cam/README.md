@@ -38,6 +38,19 @@ sed -i -e 's/_fp16//g' compile_onnx_model_quant.py
 sed -i -e 's/_int64//g' compile_onnx_model_quant.py
 sed -i -e 's/FORMAT.BGR/FORMAT.YUYV_422/g' compile_onnx_model_quant.py
 sed -i -e 's/480, 640, 3/1080, 1920, 2/g' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ # 5. Compile post-processing using DRP-AI Pre-processing Runtime' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config = preruntime.Config()' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config.shape_in     = [1, 21, 513, 513]' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config.order_in     = drpai_param.ORDER.CHW' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config.type_in      = drpai_param.TYPE.FP16' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config.shape_out    = [1, 513, 513, 1]' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config.order_out    = drpai_param.ORDER.HWC' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config.type_out     = drpai_param.TYPE.UINT8' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config.mode         = drpai_param.MODE.POST' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ config.ops = \[' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ \ \ \ \ op.Argminmax(0, 0) # Argmax for Channel axis' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ \]' compile_onnx_model_quant.py
+sed -i '$a\ \ \ \ preruntime.PreRuntime(config, opts\[\"output_dir\"\]+\"/postprocess\", PRODUCT)' compile_onnx_model_quant.py
 ```
 
 ### Additional edit for USB Camera
@@ -110,6 +123,7 @@ tar xvfz sample_deeplabv3.tar.gz
 cd sample_deeplabv3_cam/
 su
 export LD_LIBRARY_PATH=.
+/root/gstreamer_cam_test_CAM0_CN7.sh 1920x1080 # Execute only when using MIPI camera
 ./app_deeplabv3_cam
 exit # After terminating the application.
 ```

@@ -27,8 +27,8 @@ python3 compile_onnx_model_quant.py \
     -t $SDK \
     -d $TRANSLATOR \
     -c $QUANTIZER \
-    --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ 
-
+    --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
+    -s 1,3,224,224
 ```
 
 <!--
@@ -59,7 +59,7 @@ python3 compile_pytorch_model_quant.py ./resnet18.pt -o resnet18_torch -t $SDK \
         -s 1,3,224,224
 ```
 
-**Note**: Only TorchScripted model is supported. See [here for reference](https://tvm.apache.org/docs/how_to/compile_models/from_pytorch.html).
+**Note**: Only TorchScript models are supported. See [here for reference](https://tvm.apache.org/docs/how_to/tutorials/import_model.html).
 
 ## 3. Compile tensorflow models
 
@@ -79,7 +79,7 @@ python3 sample_save_tflite_model.py
 python3 compile_tflite_model_quant.py ./resnet50-v1.tflite -o resnet50_tflite \
         -t $SDK -d $TRANSLATOR -c $QUANTIZER \
         --images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
-        -s1,224,224,3
+        -s 1,224,224,3
 
 ```
 
@@ -97,7 +97,8 @@ python3 compile_exir_model_quant.py \
 -o resnet50_pte_v2h \
 -s 1,3,224,224 \
 -t $SDK -d $TRANSLATOR -c $QUANTIZER \
---images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/ \
+--images $TRANSLATOR/../GettingStarted/tutorials/calibrate_sample/
+
 ```
 
 ## 5. Compile using CPU-only deploy mode
@@ -204,7 +205,7 @@ For example, if your model was trained with different mean and standard deviatio
 
 ### Notes Regarding Quantization Advanced options `--opts` Flag
 
-The DRP‑AI Quantizer has advanced options via the `--opts` flag.  
+The DRP‑AI Quantizer has advanced options via the `--opts` flag.  
 
 Example of Correct Usage: <span style="color:green;">✅ OK</span>  
 ```bash
@@ -286,8 +287,8 @@ $ tree ./resnet50_v1_onnx/
 ├── deploy.so
 ├── input_0.bin
 ├── interpreter_out
-│   ├── input_0.bin
-│   └── ref_result_0_fp16.bin
+│   ├── input_0.bin
+│   └── ref_result_0_fp16.bin
 └── preprocess
     ├── addr_map.txt
 

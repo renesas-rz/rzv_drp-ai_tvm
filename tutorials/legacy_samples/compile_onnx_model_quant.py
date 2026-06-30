@@ -160,7 +160,7 @@ if __name__ == "__main__":
     # 3. Run DRP-AI TVM[*1] compiler 
     # 3.1 Run TVM Frontend
     print("-------------------------------------------------")
-    print("   Run TVM frotend compiler ")
+    print("   Run TVM frontend compiler ")
     if opts["qat"]:
         from tvm.relay.mera.drp.from_onnx_qat import QatType
         qat_type = QatType.from_str(opts["qat_type"])

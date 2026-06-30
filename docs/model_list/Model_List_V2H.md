@@ -1,273 +1,239 @@
 # Model list for RZ/V2H
 
-Below is a list of AI models that Renesas has verified for conversion with the DRP-AI TVM[^1] and actual operation on an evaluation board.
+---
 
-| Item                       | RZ/V2H                                    |
-| -------------------------- | ----------------------------------------- |
-| DRP-AI TVM[^1]             | v2.4.0 / v2.5.0 [^2] /v2.7.0 [^3]         |
-| Evaluation Board           | RZ/V2H EVK                                |
-| DRP-AI Translator          | i8 v1.03 / i8 v1.0.4 [^2] / i8 v1.11 [^3] |
-| Linux Package[^4]          | AI SDK v5.00                              |
-| DRP-AI Support Package[^5] | AI SDK v5.00                              |   
+Below is a list of AI models that Renesas has verified for conversion with the RUHMI[^1] and actual operation on an evaluation board.
 
-**[NOTE]** This benchmark show the results when only AI inference is running. When system operations such as camera input and display output are performed simultaneously, they may affect the inference time.   
+| Item                       | RZ/V2H        |
+| -------------------------- | ------------- |
+| RUHMI[^1] AI compiler      | R2026-06      |
+| Evaluation Board           | RZ/V2H EVK    |
+| DRP-AI Translator i8       | v1.12         |
+| RZ/V2H AI SDK              | v6.00         |
 
-| AI model                                                                                                                               | Input Shape | Task                         | Format               | Inference time<br>(CPU only) | Inference time<br>(CPU+DRP-AI) |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|-------------------------------|----------------------|------------------------------|--------------------------------|
-| [ResNet18-v1](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet18-v1-7.onnx)                                           |(224,224)     | Classification                | ONNX                 | 4450ms|2ms|
-| [ResNet18-v2](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet18-v2-7.onnx)                                           |(224,224)     | Classification                | ONNX                 | 4448ms|5ms|
-| [ResNet34-v1](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet34-v1-7.onnx)                                           |(224,224)     | Classification                | ONNX                 | 10041ms|4ms|
-| [ResNet34-v2](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet34-v2-7.onnx)                                           |(224,224)     | Classification                | ONNX                 | 10048ms|8ms|
-| [ResNet50-v1](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet50-v1-7.onnx)                                           |(224,224)     | Classification                | ONNX                 | 8936ms|4ms|
-| [ResNet50-v2](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet50-v2-7.onnx)                                           |(224,224)     | Classification                | ONNX                 | 9547ms|15ms|
-| [ResNet101-v1](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet101-v1-7.onnx)                                         |(224,224)     | Classification                | ONNX                 | 19318ms|7ms|
-| [ResNet101-v2](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet101-v2-7.onnx)                                         |(224,224)     | Classification                | ONNX                 | 19822ms|26ms|
-| [MobileNetV2](https://github.com/onnx/models/blob/main/validated/vision/classification/mobilenet/model/mobilenetv2-7.onnx)                                        |(224,224)     | Classification                | ONNX                 | 517ms|1ms|
-| [SqueezeNet1.1-7](https://github.com/onnx/models/blob/main/validated/vision/classification/squeezenet/model/squeezenet1.1-7.onnx)                                 |(224,224)     | Classification                | ONNX                 | 698ms|3ms|
-| [DenseNet9](https://github.com/onnx/models/blob/main/validated/vision/classification/densenet-121/model/densenet-9.onnx)                                          |(224,224)     | Classification                | ONNX                 | 5186ms|26ms|
-| [YOLOv2](https://github.com/onnx/models/blob/main/validated/vision/object_detection_segmentation/yolov2-coco/model/yolov2-coco-9.onnx)                            |(416,416)     | Object Detection              | ONNX                 | 1520ms|14ms|
-| [YOLOv3](./how_to_convert/How_to_convert_yolov3_onnx_model_V2H.md)                                                                                                |(416,416)     | Object Detection              | ONNX                 | 4208ms|27ms|
-| [YOLOv5s](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 1454ms|19ms|
-| [YOLOv5m](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 4062ms|33ms|
-| [YOLOv5l](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2] [^5]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 7420ms|45ms|
-| [YOLOv5x](./how_to_convert/How_to_convert_yolov5_onnx_models_V2H.md)[^2] [^5]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 13545ms|81ms|
-| [YOLOv6n](./how_to_convert/How_to_convert_yolov6_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 674ms|10ms|
-| [YOLOv6s](./how_to_convert/How_to_convert_yolov6_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 2404ms|16ms|
-| [YOLOv6m](./how_to_convert/How_to_convert_yolov6_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 4967ms|38ms|
-| [YOLOv6l](./how_to_convert/How_to_convert_yolov6_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 9109ms|49ms|
-| [YOLOv7](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                           |(640,640)     | Object Detection              | ONNX                 | 7182ms|49ms|
-| [YOLOv7x](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 12301ms|71ms|
-| [YOLOv7-w6](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 5794ms|43ms|
-| [YOLOv7-e6](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 8649ms|65ms|
-| [YOLOv7-d6](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 11775ms|78ms|
-| [YOLOv7-e6e](./how_to_convert/How_to_convert_yolov7_onnx_models_V2H.md)[^2]                                                                                       |(640,640)     | Object Detection              | ONNX                 | 13933ms|96ms|
-| [YOLOv8n](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 |  643ms|16ms|
-| [YOLOv8s](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 1820ms|22ms|
-| [YOLOv8m](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 5519ms|41ms|
-| [YOLOv8l](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 8587ms|54ms|
-| [YOLOv8x](./how_to_convert/How_to_convert_yolov8_onnx_models_V2H.md)[^3]                                                                                          |(640,640)     | Object Detection              | ONNX                 | 15018ms|86ms|
-| [YOLOv9-t](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^3]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 699ms|20ms|
-| [YOLOv9-s](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^3]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 1905ms|24ms|
-| [YOLOv9-m](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^3]                                                                                         |(640,640)     | Object Detection              | ONNX                 | 5972ms|47ms|
-| [YOLOv9-c](./how_to_convert/How_to_convert_yolov9_onnx_models_V2H.md)[^2] [^5]                                                                                    |(640,640)     | Object Detection              | ONNX                 | 6540ms|74ms|
-| [YOLOv10n](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 813ms|51ms|
-| [YOLOv10s](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 2043ms|82ms|
-| [YOLOv10m](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 5100ms|106ms|
-| [YOLOv10b](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 6433ms|117ms|
-| [YOLOv10l](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 8207ms|126ms|
-| [YOLOv10x](./how_to_convert/How_to_convert_yolov10_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 11947ms|172ms|
-| [YOLOv11n](./how_to_convert/How_to_convert_yolov11_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 796ms|52ms|
-| [YOLOv11s](./how_to_convert/How_to_convert_yolov11_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 2170ms|86ms|
-| [YOLOv11m](./how_to_convert/How_to_convert_yolov11_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 5373ms|120ms|
-| [YOLOv11l](./how_to_convert/How_to_convert_yolov11_onnx_models_V2H.md)[^2]                                                                                        |(640,640)     | Object Detection              | ONNX                 | 6961ms|170ms|
-| [YOLOX_s](./how_to_convert/How_to_convert_yolox_onnx_models_V2H.md)[^2]                                                                                           |(640,640)     | Object Detection              | ONNX                 | 2004ms|16ms|
-| [YOLOX_m](./how_to_convert/How_to_convert_yolox_onnx_models_V2H.md)[^2]                                                                                           |(640,640)     | Object Detection              | ONNX                 | 5760ms|33ms|
-| [YOLOX_l](./how_to_convert/How_to_convert_yolox_onnx_models_V2H.md)[^2]                                                                                           |(640,640)     | Object Detection              | ONNX                 | 9141ms|47ms|
-| [YOLOX_x](./how_to_convert/How_to_convert_yolox_onnx_models_V2H.md)[^2]                                                                                           |(640,640)     | Object Detection              | ONNX                 | 16446ms|87ms|
-| [EdgeYOLO_Tiny](./how_to_convert/How_to_convert_edgeyolo_models_onnx_V2H.md)[^2]                                                                                  |(640,640)     | Object Detection              | ONNX                 | 2761ms|55ms|
-| [EdgeYOLO_S](./how_to_convert/How_to_convert_edgeyolo_models_onnx_V2H.md)[^2]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 3672ms|55ms|
-| [EdgeYOLO_M](./how_to_convert/How_to_convert_edgeyolo_models_onnx_V2H.md)[^2]                                                                                     |(640,640)     | Object Detection              | ONNX                 | 5180ms|41ms|
-| [YOLOv8n-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 |  741ms|16ms|
-| [YOLOv8s-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 | 2028ms|22ms|
-| [YOLOv8m-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 |  577ms|42ms|
-| [YOLOv8l-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 | 8820ms|55ms|
-| [YOLOv8x-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models_V2H.md)[^3]                                                                                 |(640,640)     | Multi person pose estimation  | ONNX                 |15275ms|87ms|
-| [HRNet](./how_to_convert/How_to_convert_hrnet_onnx_model_V2H.md)                                                                                                  |(256,192)     | Body Keypiont 2D              | ONNX                 | 5386ms|9ms|   
-| [YoloX_S-Pose](./how_to_convert/Translator_models.md) [^2]                                                                                                        |(640,640)     | Multi person pose estimation  | ONNX                 | 2558ms|18ms|   
-| [Yolo11_n-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models_V2H.md) [^2]                                                                               |(640,640)     | Multi person pose estimation  | ONNX                 | 936ms|48ms|   
-| [Yolo11_S-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models_V2H.md)  [^2]                                                                              |(640,640)     | Multi person pose estimation  | ONNX                 | 2360ms|80ms|   
-| [Yolo11_M-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models_V2H.md)[^2]                                                                                |(640,640)     | Multi person pose estimation  | ONNX                 | 5712ms|110ms|   
-| [Yolo11_L-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models_V2H.md)    [^2]                                                                            |(640,640)     | Multi person pose estimation  | ONNX                 | 7199ms|160ms|   
-| [face_landmark](https://github.com/renesas-rz/rzv_drp-ai_tvm/releases/download/Release-2025-12-26/face_landmark_192.onnx)[^3]                                             |(192,192)     | Face landmark detection       | ONNX                 | 13ms|5ms|
-| [hand_landmark](https://github.com/renesas-rz/rzv_drp-ai_tvm/releases/download/Release-2025-12-26/hand_landmark_256.onnx)[^3]                                             |(256,256)     | Hand landmark detection       | ONNX                 | 164ms|3ms|
-| [UNET-mobilenetV2](./how_to_convert/How_to_convert_UNET_onnx_models_V2H.md)    [^2]                                                                               |(256,256)     | Segmentation                  | ONNX                 | 739ms|13ms|   
-| [ResNet18](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                             |(224,224)     | Classification                | PyTorch              | 4451ms|3ms|
-| [ResNet34](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                             |(224,224)     | Classification                | PyTorch              | 10019ms|4ms|
-| [ResNet50](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                             |(224,224)     | Classification                | PyTorch              | 9548ms|4ms|
-| [ResNet101](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                            |(224,224)     | Classification                | PyTorch              | 19857ms|7ms|
-| [ResNeXt-50-32x4d](./how_to_convert/How_to_convert_torchvision_model_V2H_exceptional_case.md)                                                                     |(224,224)     | Classification                | PyTorch              | 7625ms|176ms|
-| [MobileNetV2](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                          |(224,224)     | Classification                | PyTorch              | 447ms|1ms|
-| [SqueezeNet1_1](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                        |(224,224)     | Classification                | PyTorch              | 720ms|2ms|
-| [DenseNet-121](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                         |(224,224)     | Classification                | PyTorch              | 5411ms|27ms|
-| [DenseNet-161](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                         |(224,224)     | Classification                | PyTorch              | 11355ms|58ms|
-| [GoogleNet](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                            |(224,224)     | Classification                | PyTorch              | 2680ms|15ms|
-| [MnasNet0_5](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                           |(224,224)     | Classification                | PyTorch              | 167ms|2ms|
-| [DeepLabv3-resnet50](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                   |(224,224)     | Segmentation                  | PyTorch              | 63707ms|27ms|
-| [DeepLabv3-resnet101](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                  |(224,224)     | Segmentation                  | PyTorch              | 97060ms|32ms|
-| [FCN_resnet101](./how_to_convert/How_to_convert_torchvision_models_V2H.md)                                                                                        |(224,224)     | Segmentation                  | PyTorch              | 66557ms|29ms|
-| [DeepPose](./how_to_convert/How_to_convert_mmpose_models_V2H.md)                                                                                                  |(256,192)     | Body Keypoint 2D              | PyTorch              | 6118ms|4ms|
-| [HRNetV2](./how_to_convert/How_to_convert_mmpose_models_V2H.md)                                                                                                   |(256,192)     | Face Detection 2D             | PyTorch              | 2731ms|8ms|
-| [HRNetV2 DarkPose](./how_to_convert/How_to_convert_mmpose_models_V2H.md)                                                                                          |(256,192)     | Face Detection 2D             | PyTorch              | 2750ms|8ms|
-| [InceptionResnetV1_vggface2](./how_to_convert/How_to_convert_facenet_pytorch_onnx_models_V2H.md)[^3]                                                              |(160,160)     | Face recognition              | ONNX                 |  T.B.D|4ms|
-| [Monodepth2 mono_640x192 encoder](./how_to_convert/How_to_convert_monodepth2_model_V2H.md)                                                                        |(640,192)     | Depth                         | PyTorch              | 7920ms|18ms|
-| [SC-Depth resnet18_depth_256 dispnet](./how_to_convert/How_to_convert_sc_depth_resnet_models_V2H.md)                                                              |(832,256)     | Depth                         | PyTorch              | 17539ms|313ms|
-| [SC-Depth resnet50_depth_256 dispnet](./how_to_convert/How_to_convert_sc_depth_resnet_models_V2H.md)                                                              |(416,128)     | Depth                         | PyTorch              | 9477ms|110ms|
-| [ConvNeXt atto](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                               |(224,224)     | Classification                | pytorch-image-models | 898ms|139ms|
-| [ConvNeXt femto](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                              |(224,224)     | Classification                | pytorch-image-models | 1086ms|166ms|
-| [ConvNeXt femto ols](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                          |(224,224)     | Classification                | pytorch-image-models | 1129ms|163ms|
-| [CSP-Darknet](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(256,256)     | Classification                | pytorch-image-models | 5808ms|31ms|
-| [CSP-ResNet](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                 |(256,256)     | Classification                | pytorch-image-models | 4409ms|21ms|
-| [CSP-ResNeXt](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                |(224,224)     | Classification                | pytorch-image-models | 6660ms|167ms|
-| [Darknet-53](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                  |(228,228)     | Classification                | pytorch-image-models | 13468ms|8ms|
-| [Darknet-aa53](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                |(228,228)     | Classification                | pytorch-image-models | 16905ms|7ms|
-| [DenseNet121](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 5411ms|27ms|
-| [DenseNet161](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 11326ms|58ms|
-| [DenseNet169](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 6885ms|36ms|
-| [DenseNet201](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 9780ms|47ms|
-| [DenseNet Blur 121d](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                          |(224,224)     | Classification                | pytorch-image-models | 5532ms|32ms|
-| [DLA46x_c](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                   |(224,224)     | Classification                | pytorch-image-models | 538ms|47ms|
-| [DLA60x_c](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                   |(224,224)     | Classification                | pytorch-image-models | 686ms|56ms|
-| [DPN68](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                       |(224,224)     | Classification                | pytorch-image-models | 5058ms|276ms|
-| [DPN68b](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                      |(224,224)     | Classification                | pytorch-image-models | 5227ms|233ms|
-| [ECA-ResNet101d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                             |(224,224)     | Classification                | pytorch-image-models | 19984ms|151ms|
-| [ECA-ResNet26t](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(320,320)     | Classification                | pytorch-image-models | 9412ms|92ms|
-| [ECA-ResNet50d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 9620ms|93ms|
-| [ECA-ResNet50t](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(320,320)     | Classification                | pytorch-image-models | 17755ms|165ms|
-| [ECA-ResNetlight](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                            |(224,224)     | Classification                | pytorch-image-models | 10632ms|68ms|
-| [EfficientNet Edge Large](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                     |(300,300)     | Classification                | pytorch-image-models | 10898ms|7ms|
-| [pruned EfficientNet Edge Large](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                              |(240,240)     | Classification                | pytorch-image-models | 7784ms|4ms|
-| [EfficientNet Edge Medium](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                    |(300,300)     | Classification                | pytorch-image-models | 4801ms|5ms|
-| [EfficientNet Edge Small](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                     |(224,224)     | Classification                | pytorch-image-models | 3457ms|2ms|
-| [pruned EfficientNet Edge Small](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 3438ms|2ms|
-| [EfficientNet Lite0](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                          |(224,224)     | Classification                | pytorch-image-models | 468ms|2ms|
-| [ESE-VoVNet 19-dw](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                            |(224,224)     | Classification                | pytorch-image-models | 2508ms|16ms|
-| [ESE-VoVNet 39b](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                              |(224,224)     | Classification                | pytorch-image-models | 15937ms|22ms|
-| [FBNet-C](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                     |(224,224)     | Classification                | pytorch-image-models | 436ms|2ms|
-| [FBNetV3-B](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                  |(256,256)     | Classification                | pytorch-image-models | 786ms|59ms|
-| [FBNetV3-D](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                  |(256,256)     | Classification                | pytorch-image-models | 917ms|66ms|
-| [FBNetV3-G](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                  |(288,288)     | Classification                | pytorch-image-models | 3363ms|97ms|
-| [Global Context Resnet50t (gcresnet50t)](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                     |(256,256)     | Classification                | pytorch-image-models | 5137ms|121ms|
-| [GPU-Efficient ResNet Large (gernet_l)](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                       |(256,256)     | Classification                | pytorch-image-models | 5023ms|6ms|
-| [GPU-Efficient ResNet Middle (gernet_m)](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                      |(224,224)     | Classification                | pytorch-image-models | 4640ms|4ms|
-| [GPU-Efficient ResNet Small (gernet_s)](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                       |(224,224)     | Classification                | pytorch-image-models | 719ms|2ms|
-| [GhostNet-1.0x](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 199ms|59ms|
-| [(Gluon) ResNet101 v1b](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                       |(224,224)     | Classification                | pytorch-image-models | 19880ms|7ms|
-| [(Gluon) ResNet101 v1c](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                       |(224,224)     | Classification                | pytorch-image-models | 19926ms|7ms|
-| [(Gluon) ResNet101 v1d](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                       |(224,224)     | Classification                | pytorch-image-models | 19939ms|8ms|
-| [(Gluon) ResNet101 v1s](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                       |(224,224)     | Classification                | pytorch-image-models | 20562ms|8ms|
-| [(Gluon) ResNet152 v1b](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                       |(224,224)     | Classification                | pytorch-image-models | 29738ms|9ms|
-| [(Gluon) ResNet152 v1c](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                       |(224,224)     | Classification                | pytorch-image-models | 29829ms|9ms|
-| [(Gluon) ResNet152 v1d](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                       |(224,224)     | Classification                | pytorch-image-models | 29808ms|10ms|
-| [(Gluon) ResNet152 v1s](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                       |(224,224)     | Classification                | pytorch-image-models | 30428ms|10ms|
-| [(Gluon) ResNet18 v1b](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                        |(224,224)     | Classification                | pytorch-image-models | 4439ms|3ms|
-| [(Gluon) ResNet34 v1b](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                        |(224,224)     | Classification                | pytorch-image-models | 10042ms|4ms|
-| [(Gluon) ResNet50 v1b](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                        |(224,224)     | Classification                | pytorch-image-models | 9550ms|4ms|
-| [(Gluon) ResNet50 v1c](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                        |(224,224)     | Classification                | pytorch-image-models | 9609ms|5ms|
-| [(Gluon) ResNet50 v1d](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                        |(224,224)     | Classification                | pytorch-image-models | 9593ms|5ms|
-| [(Gluon) ResNet50 v1s](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                        |(224,224)     | Classification                | pytorch-image-models | 10228ms|6ms|
-| [(Gluon) ResNeXt101 32x4d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                   |(224,224)     | Classification                | pytorch-image-models | 14368ms|325ms|
-| [(Gluon) ResNeXt101 64x4d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                   |(224,224)     | Classification                | pytorch-image-models | 15130ms|567ms|
-| [(Gluon) SE-ResNeXt101 32-4d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                |(224,224)     | Classification                | pytorch-image-models | 14470ms|421ms|
-| [(Gluon) SE-ResNeXt101 64-4d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                |(224,224)     | Classification                | pytorch-image-models | 15359ms|659ms|
-| [(Gluon) SE-ResNeXt50 32-4d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                 |(224,224)     | Classification                | pytorch-image-models | 7701ms|229ms|
-| [(Gluon) Xception65](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(299,299)     | Classification                | pytorch-image-models | T.B.D|73ms|
-| [HardcoreNAS_A](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 238ms|22ms|
-| [HardcoreNAS_B](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 273ms|16ms|
-| [HardcoreNAS_C](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 288ms|19ms|
-| [HardcoreNAS_D](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 329ms|40ms|
-| [HardcoreNAS_E](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 363ms|40ms|
-| [HardcoreNAS_F](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 365ms|40ms|
-| [HRNet W18](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 8777ms|8ms|
-| [HRNet W18small](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                              |(224,224)     | Classification                | pytorch-image-models | 3324ms|4ms|
-| [HRNet W18small V2](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                           |(224,224)     | Classification                | pytorch-image-models | 5537ms|6ms|
-| [HRNet W30](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 7941ms|11ms|
-| [HRNet W32](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 15130ms|10ms|
-| [HRNet W40](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 11756ms|14ms|
-| [HRNet W44](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 9988ms|16ms|
-| [HRNet W48](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 24360ms|17ms|
-| [Instagram ResNeXt101 32x8 WSL](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                              |(224,224)     | Classification                | pytorch-image-models | 15741ms|927ms|
-| [Inception ResNet v2](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                        |(224,224)     | Classification                | pytorch-image-models | 10388ms|555ms|
-| [PP-LCNet-0.5x](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                               |(224,224)     | Classification                | pytorch-image-models | 119ms|9ms|
-| [PP-LCNet-0.75x](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                              |(224,224)     | Classification                | pytorch-image-models | 207ms|10ms|
-| [PP-LCNet-1x](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 408ms|11ms|
-| [(Legacy) SE-ResNet-152](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                     |(224,224)     | Classification                | pytorch-image-models | 29178ms|240ms|
-| [(Legacy) SE-ResNet-18](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                      |(224,224)     | Classification                | pytorch-image-models | 4451ms|23ms|
-| [(Legacy) SE-ResNet-34](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                      |(224,224)     | Classification                | pytorch-image-models | 10043ms|43ms|
-| [(Legacy) SE-ResNet-50](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                      |(224,224)     | Classification                | pytorch-image-models | 8936ms|95ms|
-| [(Legacy) SE-ResNeXt-26](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                     |(224,224)     | Classification                | pytorch-image-models | 4264ms|123ms|
-| [MnasNet-B1 depth multiplier 1.0](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                             |(224,224)     | Classification                | pytorch-image-models | 463ms|2ms|
-| [MnasNet-Small depth multiplier 1.0](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                         |(224,224)     | Classification                | pytorch-image-models | 151ms|17ms|
-| [MobileNet V2 with channel multiplier of 0.5](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                 |(224,224)     | Classification                | pytorch-image-models | 193ms|1ms|
-| [MobileNet V2 with channel multiplier of 1.0](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                 |(256,256)     | Classification                | pytorch-image-models | 446ms|1ms|
-| [MobileNet V2 with channel multiplier of 1.1](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                 |(224,224)     | Classification                | pytorch-image-models | 595ms|2ms|
-| [MobileNet V2 with channel multiplier of 1.2](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                 |(320,320)     | Classification                | pytorch-image-models | 776ms|2ms|
-| [MobileNet V2 with channel multiplier of 1.4](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                 |(416,416)     | Classification                | pytorch-image-models | 721ms|3ms|
-| [MobileNet V3 Large 1.0](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                     |(224,224)     | Classification                | pytorch-image-models | 227ms|21ms|
-| [MobileNet V3 Large 1.0,  21k pretraining](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                   |(224,224)     | Classification                | pytorch-image-models | 424ms|22ms|
-| [MobileNet V3 (RW variant)](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                  |(224,224)     | Classification                | pytorch-image-models | 230ms|22ms|
-| [MobileNet V3 Small 0.5](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                     |(224,224)     | Classification                | pytorch-image-models | 56ms|17ms|
-| [MobileNet V3 Small 0.75](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                    |(224,224)     | Classification                | pytorch-image-models | 78ms|17ms|
-| [MobileNet V3 Small 1.0](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                     |(224,224)     | Classification                | pytorch-image-models | 90ms|17ms|
-| [RegNetX 200MF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 193ms|36ms|
-| [RegNetX 400MF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 256ms|75ms|
-| [RegNetX 600MF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 769ms|104ms|
-| [RegNetX 800MF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 1247ms|102ms|
-| [RegNetX 1.6GF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 1286ms|219ms|
-| [RegNetX 3.2GF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 5536ms|570ms|
-| [RegNetX 4.0GF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 2819ms|524ms|
-| [RegNetX 6.4GF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 4075ms|877ms|
-| [RegNetY 200MF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 197ms|41ms|
-| [RegNetY 400MF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 529ms|66ms|
-| [RegNetY 600MF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 976ms|94ms|
-| [RegNetY 800MF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 761ms|108ms|
-| [RegNetY 1.6GF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 1252ms|255ms|
-| [RegNetY 4.0GF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 6269ms|780ms|
-| [RegNetY 8.0GF](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(224,224)     | Classification                | pytorch-image-models | 15149ms|982ms|
-| [RepVGG-A2](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 4803ms|22ms|
-| [RepVGG-B0](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 9784ms|22ms|
-| [RepVGG-B1](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 43972ms|32ms|
-| [RepVGG-B1g4](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 22580ms|732ms|
-| [RepVGG-B2](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 49365ms|40ms|
-| [RepVGG-B3](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 25982ms|47ms|
-| [Res2Net-101 26w×4s](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                        |(224,224)     | Classification                | pytorch-image-models | 6500ms|206ms|
-| [Res2Net-50 14w×8s](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(224,224)     | Classification                | pytorch-image-models | 5045ms|225ms|
-| [Res2Net-50 26w×4s](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(224,224)     | Classification                | pytorch-image-models | 4285ms|115ms|
-| [Res2Net-50 26w×6s](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(224,224)     | Classification                | pytorch-image-models | 5843ms|174ms|
-| [Res2Net-50 48w×2s](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(224,224)     | Classification                | pytorch-image-models | 5300ms|86ms|
-| [Res2Next-50](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                |(224,224)     | Classification                | pytorch-image-models | 7616ms|242ms|
-| [ResNeSt-14](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                 |(224,224)     | Classification                | pytorch-image-models | 3095ms|632ms|
-| [ResNeSt-26](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                                 |(224,224)     | Classification                | pytorch-image-models | 4225ms|833ms|
-| [ResNeSt-50 1s4×24d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                        |(224,224)     | Classification                | pytorch-image-models | 4359ms|494ms|
-| [ResNeSt-50 4s2×40d](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                        |(224,224)     | Classification                | pytorch-image-models | 4537ms|676ms|
-| [ResNet-101](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                  |(224,224)     | Classification                | pytorch-image-models | 19904ms|7ms|
-| [ResNet-101-D](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                |(320,320)     | Classification                | pytorch-image-models | 35090ms|14ms|
-| [ResNet-10-T](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 2078ms|2ms|
-| [ResNet-14-T](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 3184ms|3ms|
-| [ResNet-152](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                  |(224,224)     | Classification                | pytorch-image-models | 29760ms|9ms|
-| [ResNet-152-D](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                |(320,320)     | Classification                | pytorch-image-models | 53734ms|19ms|
-| [ResNet-18](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 4442ms|3ms|
-| [ResNet-18-D](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 4496ms|3ms|
-| [ResNet-200-D](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                |(320,320)     | Classification                | pytorch-image-models | 75269ms|27ms|
-| [ResNet-26](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 5181ms|3ms|
-| [ResNet-26-D](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 5224ms|4ms|
-| [ResNet-26-T](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(256,256)     | Classification                | pytorch-image-models | 3371ms|5ms|
-| [ResNet-34](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 10033ms|4ms|
-| [ResNet-34-D](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 10100ms|4ms|
-| [ResNet-50](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                   |(224,224)     | Classification                | pytorch-image-models | 9545ms|4ms|
-| [ResNet-50-D](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 9596ms|5ms|
-| [ResNet-50 avgpool anti-aliasing](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                             |(288,288)     | Classification                | pytorch-image-models | 12685ms|10ms|
-| [ResNet-50 blur anti-aliasing](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                               |(224,224)     | Classification                | pytorch-image-models | 13123ms|21ms|
-| [ResNet-RS-101](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(288,288)     | Classification                | pytorch-image-models | 12318ms|246ms|
-| [ResNet-RS-152](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                              |(320,320)     | Classification                | pytorch-image-models | 53977ms|241ms|
-| [ResNet-RS-50](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                               |(224,224)     | Classification                | pytorch-image-models | 9692ms|95ms|
-| [ResNet101-v2](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                |(224,224)     | Classification                | pytorch-image-models | 19813ms|26ms|
-| [ResNet50-v2](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                 |(224,224)     | Classification                | pytorch-image-models | 9521ms|15ms|
-| [ResNeXt-101(32x8d)](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(224,224)     | Classification                | pytorch-image-models | 15744ms|921ms|
-| [ResNeXt-101(64x4d)](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(288,288)     | Classification                | pytorch-image-models | 22288ms|850ms|
-| [ResNeXt-50(32x4d)](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                          |(224,224)     | Classification                | pytorch-image-models | 7630ms|175ms|
-| [ResNeXt-50d(32x4d)](./how_to_convert/How_to_convert_timm_models_V2H_exceptional_case.md)                                                                         |(224,224)     | Classification                | pytorch-image-models | 7665ms|175ms|
-| [SelecSLS42_B](./how_to_convert/How_to_convert_timm_models_V2H.md)                                                                                                |(224,224)     | Classification                | pytorch-image-models | 2812ms|6ms|
-| [Vision Transformer(base)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)[^3]                                                                            |(224,224)     | Classification                | ONNX                 | 67317ms|484ms|
-| [Vision Transformer(small)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)[^3]                                                                           |(224,224)     | Classification                | ONNX                 | 17236ms|249ms|
-| [Vision Transformer(tiny)](./how_to_convert/How_to_convert_VIT_onnx_models_V2H.md)[^3]                                                                            |(224,224)     | Classification                | ONNX                 |  4798ms|138ms|
-| [Swin Transformer(small)](./how_to_convert/How_to_convert_swin_onnx_model_V2H.md)                                                                                 |(224,224)     | Classification                | ONNX                 | 130646ms|1478ms|
-| [Swin Transformer(tiny)](./how_to_convert/How_to_convert_swin_onnx_model_V2H.md)                                                                                  |(224,224)     | Classification                | ONNX                 | 67137ms|1114ms|
-| [MiDaS v2.1 Small](https://github.com/isl-org/MiDaS/releases/download/v2_1/midas_v21_small_256.pt)                                                                |(256,256)     | Depth Estimation              | ONNX                 | 3900ms|55ms|
-| [FCN HRNet W18](https://bj.bcebos.com/paddleseg/dygraph/pascal_voc12/fcn_hrnetw18_voc12aug_512x512_40k/model.pdparams)                                            |(512,512)     | Semantic Segmentation         | ONNX                 | 24510ms|229ms|   
+**[NOTE]** This benchmark shows the results when only AI inference is running. When system operations such as camera input and display output are performed simultaneously, they may affect the inference time.   
+
+## **Representative models**
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Task | Params<br>(M) |
+|:--|--:|--:|--:|:--|--:|
+|[YOLOv5s](./how_to_convert/How_to_convert_yolov5_onnx_models.md)|640,640|51.8|19.3|Object Detection|7.3|
+|[YOLOv5m](./how_to_convert/How_to_convert_yolov5_onnx_models.md)|640,640|32.6|30.7|Object Detection|21.4|
+|[YOLOv8n](./how_to_convert/How_to_convert_yolov8_onnx_models.md)|640,640|69.2|14.4|Object Detection|3.1|
+|[YOLOv8s](./how_to_convert/How_to_convert_yolov8_onnx_models.md)|640,640|49.5|20.2|Object Detection|11.2|
+|[YOLOv8m](./how_to_convert/How_to_convert_yolov8_onnx_models.md)|640,640|26.5|37.8|Object Detection|25.9|
+|[YOLO11n](./how_to_convert/How_to_convert_yolov11_onnx_models.md)|640,640|63.7|15.7|Object Detection|2.6|
+|[YOLO11s](./how_to_convert/How_to_convert_yolov11_onnx_models.md)|640,640|44.0|22.7|Object Detection|9.4|
+|[YOLO11m](./how_to_convert/How_to_convert_yolov11_onnx_models.md)|640,640|23.7|42.3|Object Detection|20.1|
+|[YOLO26n](./how_to_convert/How_to_convert_yolo26_o2m_onnx_models.md)|640,640|56.3|17.8|Object Detection|2.4|
+|[YOLO26s](./how_to_convert/How_to_convert_yolo26_o2m_onnx_models.md)|640,640|35.8|27.9|Object Detection|9.5|
+|[YOLO26m](./how_to_convert/How_to_convert_yolo26_o2m_onnx_models.md)|640,640|18.6|53.7|Object Detection|20.4|
+|[YOLOX_s](./how_to_convert/How_to_convert_yolox_onnx_models.md)|640,640|60.2|16.6|Object Detection|9.0|
+|[YOLOX_m](./how_to_convert/How_to_convert_yolox_onnx_models.md)|640,640|31.3|31.9|Object Detection|25.3|
+|[MobileNetV2](./how_to_convert/How_to_download_ONNX_models.md)|224,224|800.0|1.2|Classification|3.5|
+|[ResNet50-v1](./how_to_convert/How_to_download_ONNX_models.md)|224,224|243.9|4.1|Classification|25.6|
+|[HRNet](./how_to_convert/How_to_convert_hrnet_onnx_model.md)|256,192|113.8|8.8|Pose Estimation|28.5|
+|[YOLOv8n-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models.md)|640,640|70.5|14.2|Multi Person Pose Estimation|3.3|
+|[YOLOv8s-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models.md)|640,640|49.3|20.3|Multi Person Pose Estimation|11.6|
+|[YOLOv8m-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models.md)|640,640|26.3|38.0|Multi Person Pose Estimation|26.4|
+|[YOLOv8n-seg](./how_to_convert/How_to_convert_yolov8-seg_onnx_models.md)|640,640|50.0|20.0|Instance Segmentation|3.4|
+|[YOLOv8s-seg](./how_to_convert/How_to_convert_yolov8-seg_onnx_models.md)|640,640|36.6|27.3|Instance Segmentation|11.8|
+|[YOLOv8m-seg](./how_to_convert/How_to_convert_yolov8-seg_onnx_models.md)|640,640|20.6|48.5|Instance Segmentation|27.3|
+|[Topformer tiny](./how_to_convert/How_to_download_ONNX_models.md)|512,512|13.8|72.5|Semantic Segmentation|1.4|
+|[face_landmark](./how_to_convert/How_to_download_ONNX_models.md)|192,192|613.5|1.6|Face Landmark Detection|0.6|
+|[hand_landmark](./how_to_convert/How_to_download_ONNX_models.md)|256,256|363.6|2.8|Hand Landmark Detection|2.0|
+|[MiDaS v2.1 Small](./how_to_convert/How_to_convert_MiDaS_onnx_models.md)|256,256|123.5|8.1|Depth Estimation|16.6|
+|[Paddle OCR V3 det](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|640,640|27.7|36.1|Text Detection|4.1|
+|[Paddle OCR V3 rec](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|48,480|43.3|23.1|Text Recognition|1.2|
+
+---
+## **List of models for each task**
+
+Please click on a task name to view its performance
+
+<details><summary><u>Object Detection</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |
+|:--|--:|--:|--:|--:|
+|[EdgeYOLO_Tiny](./how_to_convert/How_to_convert_edgeyolo_models_onnx.md)|640,640|41.8|23.9|5.5|
+|[EdgeYOLO_S](./how_to_convert/How_to_convert_edgeyolo_models_onnx.md)|640,640|33.9|29.5|9.3|
+|[EdgeYOLO_M](./how_to_convert/How_to_convert_edgeyolo_models_onnx.md)|640,640|27.5|36.4|17.8|
+|[YOLOv2](./how_to_convert/How_to_download_ONNX_models.md)|416,416|71.8|13.9|51.0|
+|[YOLOv3](./how_to_convert/How_to_convert_yolov3_onnx_model.md)|416,416|37.1|26.9|61.9|
+|[YOLOv5s](./how_to_convert/How_to_convert_yolov5_onnx_models.md)|640,640|51.8|19.3|7.3|
+|[YOLOv5m](./how_to_convert/How_to_convert_yolov5_onnx_models.md)|640,640|32.6|30.7|21.4|
+|[YOLOv5l](./how_to_convert/How_to_convert_yolov5_onnx_models.md)|640,640|23.5|42.6|47.0|
+|[YOLOv5x](./how_to_convert/How_to_convert_yolov5_onnx_models.md)|640,640|13.6|73.7|87.7|
+|[YOLOv6n](./how_to_convert/How_to_convert_yolov6_onnx_models.md)|640,640|99.5|10.1|4.7|
+|[YOLOv6s](./how_to_convert/How_to_convert_yolov6_onnx_models.md)|640,640|62.5|16.0|18.5|
+|[YOLOv6m](./how_to_convert/How_to_convert_yolov6_onnx_models.md)|640,640|27.6|36.2|34.9|
+|[YOLOv6l](./how_to_convert/How_to_convert_yolov6_onnx_models.md)|640,640|20.4|49.0|59.6|
+|[YOLOv7](./how_to_convert/How_to_convert_yolov7_onnx_models.md)|640,640|20.5|48.7|36.9|
+|[YOLOv7-w6](./how_to_convert/How_to_convert_yolov7_onnx_models.md)|640,640|23.2|43.1|70.4|
+|[YOLOv7x](./how_to_convert/How_to_convert_yolov7_onnx_models.md)|640,640|14.0|71.3|71.3|
+|[YOLOv7-e6](./how_to_convert/How_to_convert_yolov7_onnx_models.md)|640,640|15.8|63.1|97.2|
+|[YOLOv7-d6](./how_to_convert/How_to_convert_yolov7_onnx_models.md)|640,640|13.0|77.0|133.8|
+|[YOLOv7-e6e](./how_to_convert/How_to_convert_yolov7_onnx_models.md)|640,640|10.6|94.4|151.7|
+|[YOLOv8n](./how_to_convert/How_to_convert_yolov8_onnx_models.md)|640,640|69.2|14.4|3.1|
+|[YOLOv8s](./how_to_convert/How_to_convert_yolov8_onnx_models.md)|640,640|49.5|20.2|11.2|
+|[YOLOv8m](./how_to_convert/How_to_convert_yolov8_onnx_models.md)|640,640|26.5|37.8|25.9|
+|[YOLOv8l](./how_to_convert/How_to_convert_yolov8_onnx_models.md)|640,640|18.4|54.4|43.7|
+|[YOLOv8x](./how_to_convert/How_to_convert_yolov8_onnx_models.md)|640,640|12.3|81.5|68.2|
+|[YOLOv9-t](./how_to_convert/How_to_convert_yolov9_onnx_models.md)|640,640|61.5|16.3|2.0|
+|[YOLOv9-s](./how_to_convert/How_to_convert_yolov9_onnx_models.md)|640,640|45.0|22.2|7.1|
+|[YOLOv9-m](./how_to_convert/How_to_convert_yolov9_onnx_models.md)|640,640|23.3|42.9|20.0|
+|[YOLOv10n](./how_to_convert/How_to_convert_yolov10_onnx_models.md)|640,640|21.2|47.1|2.3|
+|[YOLOv10s](./how_to_convert/How_to_convert_yolov10_onnx_models.md)|640,640|12.8|78.0|7.2|
+|[YOLOv10m](./how_to_convert/How_to_convert_yolov10_onnx_models.md)|640,640|10.2|97.9|15.4|
+|[YOLOv10b](./how_to_convert/How_to_convert_yolov10_onnx_models.md)|640,640|9.3|107.9|19.1|
+|[YOLOv10l](./how_to_convert/How_to_convert_yolov10_onnx_models.md)|640,640|8.6|116.0|24.4|
+|[YOLOv10x](./how_to_convert/How_to_convert_yolov10_onnx_models.md)|640,640|6.4|156.9|29.5|
+|[YOLO11n](./how_to_convert/How_to_convert_yolov11_onnx_models.md)|640,640|63.7|15.7|2.6|
+|[YOLO11s](./how_to_convert/How_to_convert_yolov11_onnx_models.md)|640,640|44.0|22.7|9.4|
+|[YOLO11m](./how_to_convert/How_to_convert_yolov11_onnx_models.md)|640,640|23.7|42.3|20.1|
+|[YOLO11l](./how_to_convert/How_to_convert_yolov11_onnx_models.md)|640,640|19.2|52.1|25.3|
+|[YOLO26n](./how_to_convert/How_to_convert_yolo26_o2m_onnx_models.md)|640,640|56.3|17.8|2.4|
+|[YOLO26s](./how_to_convert/How_to_convert_yolo26_o2m_onnx_models.md)|640,640|35.8|27.9|9.5|
+|[YOLO26m](./how_to_convert/How_to_convert_yolo26_o2m_onnx_models.md)|640,640|18.6|53.7|20.4|
+|[YOLO26l](./how_to_convert/How_to_convert_yolo26_o2m_onnx_models.md)|640,640|15.2|65.7|24.8|
+|[YOLOX_s](./how_to_convert/How_to_convert_yolox_onnx_models.md)|640,640|60.2|16.6|9.0|
+|[YOLOX_m](./how_to_convert/How_to_convert_yolox_onnx_models.md)|640,640|31.3|31.9|25.3|
+|[YOLOX_l](./how_to_convert/How_to_convert_yolox_onnx_models.md)|640,640|19.7|50.8|54.2|
+|[YOLOX_x](./how_to_convert/How_to_convert_yolox_onnx_models.md)|640,640|11.7|85.1|99.0|
+
+</details>
+
+<details><summary><u>Classification</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |
+|:--|--:|--:|--:|--:|
+|[DenseNet9](./how_to_convert/How_to_download_ONNX_models.md)|224,224|157.7|6.3|8.2|
+|[MobileNetV2](./how_to_convert/How_to_download_ONNX_models.md)|224,224|800.0|1.2|3.5|
+|[ResNet18-v1](./how_to_convert/How_to_download_ONNX_models.md)|224,224|448.4|2.2|11.7|
+|[ResNet34-v1](./how_to_convert/How_to_download_ONNX_models.md)|224,224|278.6|3.6|21.8|
+|[ResNet50-v1](./how_to_convert/How_to_download_ONNX_models.md)|224,224|243.9|4.1|25.6|
+|[ResNet101-v1](./how_to_convert/How_to_download_ONNX_models.md)|224,224|154.8|6.5|44.7|
+|[ResNet18-v2](./how_to_convert/How_to_download_ONNX_models.md)|224,224|411.5|2.4|11.7|
+|[ResNet34-v2](./how_to_convert/How_to_download_ONNX_models.md)|224,224|263.9|3.8|21.8|
+|[ResNet50-v2](./how_to_convert/How_to_download_ONNX_models.md)|224,224|157.5|6.3|25.6|
+|[ResNet101-v2](./how_to_convert/How_to_download_ONNX_models.md)|224,224|98.1|10.2|44.6|
+|[SqueezeNet1.1-7](./how_to_convert/How_to_download_ONNX_models.md)|224,224|704.2|1.4|1.2|
+|[DenseNet-121](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|181.5|5.5|8.0|
+|[DenseNet-161](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|47.1|21.2|28.7|
+|[GoogleNet](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|203.7|4.9|6.6|
+|[MnasNet0_5](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|653.6|1.5|2.2|
+|[ResNeXt-50-32x4d](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|83.5|12.0|25.0|
+|[SqueezeNet1_1](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|704.2|1.4|1.2|
+|[Swin Transformer(tiny)](./how_to_convert/How_to_convert_swin_onnx_model.md)|224,224|2.2|458.6|28.8|
+|[Vision Transformer(tiny)](./how_to_convert/How_to_convert_VIT_onnx_models.md)|224,224|6.8|147.9|5.7|
+|[Vision Transformer(small)](./how_to_convert/How_to_convert_VIT_onnx_models.md)|224,224|3.7|270.4|22.1|
+
+</details>
+
+<details><summary><u>Pose Estimation</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |
+|:--|--:|--:|--:|--:|
+|[HRNet](./how_to_convert/How_to_convert_hrnet_onnx_model.md)|256,192|113.8|8.8|28.5|
+|[DeepPose](./how_to_convert/How_to_convert_mmpose_models.md)|256,192|253.8|3.9|23.6|
+|[HRNetV2](./how_to_convert/How_to_convert_mmpose_models.md)|256,192|193.1|5.2|9.7|
+|[HRNetV2 DarkPose](./how_to_convert/How_to_convert_mmpose_models.md)|256,192|136.6|7.3|9.7|
+
+</details>
+
+<details><summary><u>Multi Person Pose Estimation</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |
+|:--|--:|--:|--:|--:|
+|[YOLOv8n-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models.md)|640,640|70.5|14.2|3.3|
+|[YOLOv8s-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models.md)|640,640|49.3|20.3|11.6|
+|[YOLOv8m-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models.md)|640,640|26.3|38.0|26.4|
+|[YOLOv8l-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models.md)|640,640|22.1|45.2|33.3|
+|[YOLOv8x-pose](./how_to_convert/How_to_convert_yolov8pose_onnx_models.md)|640,640|14.5|68.9|52.0|
+|[Yolo11n-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models.md)|640,640|64.4|15.5|2.9|
+|[Yolo11s-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models.md)|640,640|43.8|22.9|9.9|
+|[Yolo11m-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models.md)|640,640|23.4|42.7|20.9|
+|[Yolo11l-Pose](./how_to_convert/How_to_convert_yolo11pose_onnx_models.md)|640,640|19.0|52.6|26.1|
+|[YoloX_s-Pose](./how_to_convert/Translator_models.md)|640,640|55.8|17.9|10.8|
+
+</details>
+
+<details><summary><u>Instance Segmentation</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |
+|:--|--:|--:|--:|--:|
+|[YOLOv8n-seg](./how_to_convert/How_to_convert_yolov8-seg_onnx_models.md)|640,640|50.0|20.0|3.4|
+|[YOLOv8s-seg](./how_to_convert/How_to_convert_yolov8-seg_onnx_models.md)|640,640|36.6|27.3|11.8|
+|[YOLOv8m-seg](./how_to_convert/How_to_convert_yolov8-seg_onnx_models.md)|640,640|20.6|48.5|27.3|
+|[YOLOv8l-seg](./how_to_convert/How_to_convert_yolov8-seg_onnx_models.md)|640,640|14.8|67.5|46.0|
+|[YOLOv8x-seg](./how_to_convert/How_to_convert_yolov8-seg_onnx_models.md)|640,640|10.1|99.3|71.8|
 
 
-[^1]: DRP-AI TVM is powered by EdgeCortix MERA™ Compiler Framework.  
-[^2]: Linux Package Version AISDK v5.20,  DRP-AI Support Package Version AISDK v5.20,DRP-AI TVM Version v2.5.0, DRP-AI Translator Version i8 v1.04
-[^3]: Linux Package Version AISDK v5.20,  DRP-AI Support Package Version AISDK v5.20,DRP-AI TVM Version v2.7.0, DRP-AI Translator Version i8 v1.11
-[^4]: Linux Package Version AISDK v5.00,  DRP-AI Support Package Version AISDK v5.00  
-[^5]: [Expand DRP-AI memory area 512MB to 2GB](./how_to_expand_drpai_memory.md)
+</details>
+
+<details><summary><u>Semantic Segmentation</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
+|:--|--:|--:|--:|--:|
+|[UNET-mobilenetV2](./how_to_convert/How_to_convert_UNET_onnx_models.md)|256,256|87.1|11.5|6.6|
+|[DeepLabv3-resnet50](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|38.9|25.7|42.0|
+|[DeepLabv3-resnet101](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|33.3|30.1|61.0|
+|[FCN_resnet101](./how_to_convert/How_to_convert_torchvision_models.md)|224,224|36.4|27.5|54.3|
+|[Topformer tiny](./how_to_convert/How_to_download_ONNX_models.md)|512,512|13.8|72.5|1.4|
+
+</details>
+
+<details><summary><u>Face Landmark Detection</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
+|:--|--:|--:|--:|--:|
+|[face_landmark](./how_to_convert/How_to_download_ONNX_models.md)|192,192|613.5|1.6|0.6|
+
+</details>
+
+<details><summary><u>Face Recognition</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
+|:--|--:|--:|--:|--:|
+|[InceptionResnetV1_vggface2](./how_to_convert/How_to_convert_facenet_pytorch_onnx_models.md)|160,160|232.6|4.3|23.5|
+
+</details>
+
+<details><summary><u>Hand Landmark Detection</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
+|:--|--:|--:|--:|--:|
+|[hand_landmark](./how_to_convert/How_to_download_ONNX_models.md)|256,256|363.6|2.8|2.0|
+
+</details>
+
+<details><summary><u>Depth Estimation</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
+|:--|--:|--:|--:|--:|
+|[MiDaS v2.1 Small](./how_to_convert/How_to_convert_MiDaS_onnx_models.md)|256,256|123.5|8.1|16.6|
+
+</details>
+
+<details><summary><u>Text Detection</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
+|:--|--:|--:|--:|--:|
+|[Paddle OCR V3 det](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|640,640|27.7|36.1|4.1|
+
+</details>
+
+<details><summary><u>Text Recognition</u></summary>
+
+| AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
+|:--|--:|--:|--:|--:|
+|[Paddle OCR V3 rec](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|48,480|43.3|23.1|1.2|
+
+</details>
+
+:information_source:　The evaluation of this model list was performed by extending the DRP-AI memory area.
+Please refer to the [guide](https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/docs/model_list/how_to_expand_drpai_memory.md) for instructions on how to extend the DRP-AI memory area.
+
+----   
+
+[^1]: RUHMI Framework is powered by EdgeCortix MERA&trade;.

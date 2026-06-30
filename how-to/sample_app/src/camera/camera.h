@@ -18,7 +18,7 @@
 ***********************************************************************************************************************/
 /***********************************************************************************************************************
 * File Name    : camera.h
-* Version      : 1.1.1
+* Version      : 1.2.0
 * Description  : RZ/V2MA DRP-AI TVM[*1] Sample Application for USB Camera HTTP version
 *                *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
 ***********************************************************************************************************************/
@@ -29,11 +29,29 @@
 #include <linux/videodev2.h>
 #include "define.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "mmngr_user_public.h"
+#include "mmngr_buf_user_public.h"
+#ifdef __cplusplus
+}
+#endif
+
 class Camera
 {
     public:
         Camera();
         ~Camera();
+
+        struct camera_dma_buffer
+        {
+            uint32_t idx;
+            uint32_t dbuf_fd;
+            uint32_t size;
+            uint32_t phy_addr;
+            void* mem;
+        };
 
         int8_t start_camera();
         int8_t capture_qbuf();
@@ -46,7 +64,8 @@ class Camera
         void sync_inference_buf_capture();
         int8_t inference_capture_qbuf();
 
-        uint8_t * get_img();
+        uint8_t* get_img();
+        uint8_t* get_inference_img();
         int32_t get_size();
         int32_t get_w();
         void set_w(int32_t w);
@@ -61,21 +80,21 @@ class Camera
         int32_t camera_width;
         int32_t camera_height;
         int32_t camera_color;
-        int8_t m_fd;
-        int32_t imageLength;
-        uint8_t *buffer[CAP_BUF_NUM];
-        int8_t udmabuf_file;
-        int32_t _offset;
-        uint64_t udmabuf_address;
+        int m_fd;
+
         struct v4l2_buffer buf_capture;
         struct v4l2_buffer inference_buf_capture;
+        struct camera_dma_buffer* dma_buf[CAP_BUF_NUM];
 
-        int8_t xioctl(int8_t fd, int32_t request, void *arg);
+        int8_t xioctl(int fd, int32_t request, void* arg);
         int8_t start_capture();
         int8_t stop_capture();
         int8_t open_camera_device();
         int8_t init_camera_fmt();
         int8_t init_buffer();
+        int8_t video_buffer_alloc_dmabuf(struct camera_dma_buffer* buffer, int buf_size);
+        void video_buffer_free_dmabuf(struct camera_dma_buffer* buffer);
+        int video_buffer_flush_dmabuf(uint32_t idx, uint32_t size);
 };
 
 #endif
