@@ -40,7 +40,7 @@ RUN pip3 install tensorflow==2.18.1 tensorflow-hub tflite tqdm
 
 # Clone repository
 ENV TVM_ROOT="/drp-ai_tvm"
-RUN git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git  ${TVM_ROOT}
+RUN git clone --recursive -b v2.6.1 https://github.com/renesas-rz/rzv_drp-ai_tvm.git  ${TVM_ROOT}
 
 # Set environment variables
 ENV TVM_HOME="${TVM_ROOT}/tvm"

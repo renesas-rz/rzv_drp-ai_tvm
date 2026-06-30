@@ -89,7 +89,7 @@ To use the *DRP-AI Support Package*, *Linux Package* is required.
 ```sh
 apt update
 apt install -y git
-git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git drp-ai_tvm
+git clone --recursive -b v2.6.1 https://github.com/renesas-rz/rzv_drp-ai_tvm.git drp-ai_tvm
 ```
 
 ### 3. Set environment variables
@@ -162,7 +162,7 @@ Before installing DRP-AI TVM[^1] with Docker, please prepare the following files
 ### 2. Download Dockerfile
 
 ```sh
-wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/Dockerfile
+wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/v2.6.1_Release/Dockerfile
 ```
 
 ### 3. Build docker image

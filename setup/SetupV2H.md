@@ -90,7 +90,7 @@ mv /tmp/onnxruntime-linux-x64-1.18.1/ /opt/
 ```sh
 cd ~/YOURWORKDIR
 
-git clone --recursive https://github.com/renesas-rz/rzv_drp-ai_tvm.git drp-ai_tvm
+git clone --recursive -b v2.6.1 https://github.com/renesas-rz/rzv_drp-ai_tvm.git drp-ai_tvm
 
 cd drp-ai_tvm
 ```
@@ -127,7 +127,7 @@ Before installing DRP-AI TVM[^1] with Docker, please prepare the following files
 ### 2. Download Dockerfile
 
 ```sh
-wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/main/DockerfileV2H -O DockerfileV2H
+wget https://raw.githubusercontent.com/renesas-rz/rzv_drp-ai_tvm/v2.6.1_Release/DockerfileV2H -O DockerfileV2H
 ```
 
 ### 3. Build docker image
