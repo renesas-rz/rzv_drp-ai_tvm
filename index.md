@@ -5,7 +5,7 @@ layout: default
 <div class="container">
     <div class="row">
         <div id="page-top" class="top col-12">
-            DRP-AI TVM on RZ/V series
+            RUHMI AI compiler for RZ/V (DRP-AI TVM)
         </div>
     </div>
 </div>
@@ -16,7 +16,7 @@ layout: default
             <p>
                 <h5>
                     <i>
-                        DRP-AI TVM is Machine Learning Compiler plugin for Apache TVM with AI accelerator DRP-AI provided by Renesas Electronics Corporation.
+                        Renesas RUHMI is the name of the AI framework provided by Renesas. RUHMI aims to provide a common AI tool environment across MCU and MPU devices.
                     </i>
                 </h5>
             </p>
@@ -28,29 +28,30 @@ layout: default
 </div>
 <p><br /><br /><br /></p>
 
-
-
 <h3 id="new">What's new</h3>
 <div class="container">
     <div class="row">
         <div class="col-12">
-            <h6 align="right">2025.3.11</h6>
+            <h6 align="right">2026.06.30</h6>
             <ul>
 				<li>
-					<b>DRP-AI TVM v2.5.0 </b> is now available.
+					<b>RUHMI AI compiler R2026-06 (DRP-AI TVM v2.8.0)</b> is now available.
 					<ul>
-						<li>Newly support RZ/V2N device</li>
+						<li>Added support for scarthgap on RZ/V2L</li>
+						<li>Revised the structure of confirmed AI model list</li>
+						<li>Added confirmed AI models for RZ/V2H: Paddle OCR, YOLOv8-Seg, and YOLO26</li>
+						<li>Added sample applications: FaceLandmarker, YOLOv8-Pose, and YOLOv8-Seg</li>
+						<li>Added Python 3.12 support to the runtime Python API</li>
+						<li>Added a new compilation option (--yolo_attention) to improve the performance of specific models (YOLO11, YOLO26)</li>
 					</ul>
 				</li>
 				<br />
-				For more details, see Release Note of <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm">DRP-AI TVM GitHub</a>.
+				For more details, see Release Note of <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm">RUHMI AI compiler GitHub</a>.
             </ul>
         </div>
     </div>
 </div>
 <p><br /><br /><br /></p>
-
-
 
 <h3 id="Getting Started">Getting Started</h3>
 <p>DRP-AI TVM is provided as a tool for deploying AI models to RZ/V MPUs. In addition, an optional tool for pruning AI models (DRP-AI Extension Pack) is provided. Please refer to the following documents for how to use these tools.</p>
@@ -63,8 +64,8 @@ layout: default
             <b style="font-size:large; ">AI model compiler (DRP-AI TVM)</b><br />
             <ul style="margin-top: 2%;">
 				<li>Tool to convert wide-range AI models for RZ/V.</li>
-				<li><a href="{{ site.baseurl }}/compile_sample_model.html">How to Compile Sample Model</a> : Tutorial with sample AI model (See here first).</li>
-				<li><a href="{{ site.baseurl }}/compile_your_own_model.html">How to Compile Your Own Model</a>: Tutorial with your own AI model.</li>
+				<li><a href="./compile_sample_model.html">How to Compile Sample Model</a> : Tutorial with sample AI model (See here first).</li>
+				<li><a href="./compile_your_own_model.html">How to Compile Your Own Model</a>: Tutorial with your own AI model.</li>
             </ul>
         </div>
     </div>
@@ -77,14 +78,12 @@ layout: default
             <b style="font-size:large; ">AI model pruning support tool (DRP-AI Extension Pack) for RZ/V2H, RZ/V2N</b><br />
             <ul style="margin-top: 2%;">
 				<li>Tool to provide a pruning function optimized for RZ/V2H, RZ/V2N.</li>
-				<li><a href="{{ site.baseurl }}/pruning.html">How to Prune Your Own Model</a>: Tutorial for Pruning with your own AI model.</li>
+				<li><a href="./pruning.html">How to Prune Your Own Model</a>: Tutorial for Pruning with your own AI model.</li>
             </ul>
         </div>
     </div>
 </div>
 <p><br /><br /><br /></p>
-
-
 
 <h3 id="Features">Features of DRP-AI development environments</h3>
 <div class="container">
@@ -97,7 +96,7 @@ layout: default
 			<ul style="margen-top: 2%;">
 				<li>
 					For engineers with experience in AI development, "DRP-AI TVM", an end-to-end tool is provided, which allow users deploy users' own AI models on the RZ/V.<br />
-					For details, see <a style="font" href="{{ site.baseurl }}/compile_your_own_model.html">BYOM tutorial</a>.<br />
+					For details, see <a style="font" href="./compile_your_own_model.html">BYOM tutorial</a>.<br />
 				</li>
 				<li>
 					For engineers with no experience in AI development, "Renesas AI applications" are provided, which allow users to use pre-trained models and apps as is.<br />
@@ -180,10 +179,9 @@ layout: default
 </div>
 <p><br /><br /><br /></p>
 
-
-
 <h3 id="Reference">Reference sample applications</h3>
 <p>To support the development of applications using DRP-AI TVM, source code for sample applications of representative AI tasks is provided. Please use them as a reference for how to implement the API of DRP-AI TVM, how to input images from a camera connected to an evaluation board, and how to output inference results to an HDMI display, etc.</p>
+<!--
 <div class="container">
     <div class="row size">
         <div class="col-lg-4 col-xxl-3">
@@ -220,13 +218,84 @@ layout: default
         </div>
 	</div>
 </div>
+--!>
+<table>
+  <thead>
+    <tr>
+      <th>AI Task</th>
+      <th>AI Model</th>
+      <th>Source Code</th>
+      <th>Video</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Classification</td>
+      <td>ResNet50v1</td>
+      <td><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_resnet50_cam">Link</a></td>
+      <td><a href="https://players.brightcove.net/5260471205001/default_default/index.html?videoId=6361754527112">Link</a></td>
+      <td><img src="img/ResNet50v1.gif" alt=" get_started" width="300" /></td>
+    </tr>
+    <tr>
+      <td>Object Detection</td>
+      <td>YOLOX-s</td>
+      <td><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_yolox_cam">Link</a></td>
+      <td><a href="https://players.brightcove.net/5260471205001/default_default/index.html?videoId=6361754914112">Link</a></td>
+      <td><img src="img/YOLOX-s.gif" alt=" get_started" width="300" /></td>
+    </tr>
+    <tr>
+      <td>Semantic Segmentation</td>
+      <td>DeepLabV3</td>
+      <td><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_deeplabv3_cam">Link</a></td>
+      <td><a href="https://players.brightcove.net/5260471205001/default_default/index.html?videoId=6361756400112">Link</a></td>
+      <td><img src="img/DeepLabV3.gif" alt=" get_started" width="300" /></td>
+    </tr>
+    <tr>
+      <td>Semantic Segmentation</td>
+      <td>TopFormer</td>
+      <td><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_topformer_cam">Link</a></td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>Pose Estimation</td>
+      <td>YOLOX-s Pose</td>
+      <td><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_yolox_pose_cam">Link</a></td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>Pose Estimation</td>
+      <td>YOLOX-s+HRNet</td>
+      <td><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_yolox_hrnet_cam">Link</a></td>
+      <td><a href="https://players.brightcove.net/5260471205001/default_default/index.html?videoId=6361753453112">Link</a></td>
+      <td><img src="img/HRNet.gif" alt=" get_started" width="300" /></td>
+    </tr>
+    <tr>
+      <td>Depth Estimation</td>
+      <td>MiDaS</td>
+      <td><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/sample_app_v2h/app_midas_cam">Link</a></td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>Object Detection</td>
+      <td>YOLOv5,v6,v7,v8,v9,v11</td>
+      <td><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to#ai-sample-application-for-rzv2h-and-rzv2n-under-gpl">Link</a></td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+  </tbody>
+</table>
+
 <p><br /><br /><br /></p>
-
-
 
 <h3 id="Demo">Demo</h3>
 <p>With the demo binary, users can try the Reference sample applications using GUI application.<br />
 Download the Demo Binary and refer to How to Use Guide for more details.</p>
+
+<h4 id="AI Performance Demo">AI Performance Demo</h4>
 
 <table>
   <thead>
@@ -260,9 +329,36 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
   </tbody>
 </table>
 
+<h4 id="YOLOv8-X Sparse Demo">YOLOv8-X Sparse Demo</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>RZ/V2H</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://www.renesas.com/document/sws/rzv2h-ai-performance-demo-usb-camera-sd-image-yolov8-x-sparse-demo">Demo Binary (USB)</a></td>
+      <td>SD card image file (USB camera version)</td>
+    </tr>
+    <tr>
+      <td><a href="https://www.renesas.com/document/sws/rzv2h-ai-performance-demo-mipi-camera-sd-image-yolov8-x-sparse-demo">Demo Binary (MIPI)</a></td>
+      <td>SD card image file (MIPI camera version)</td>
+    </tr>
+    <tr>
+      <td><a href="https://www.renesas.com/document/oth/description-license-rzv2h-ai-performance-demo-software-yolov8-x-sparse-demo">Licence</a></td>
+      <td>OSS license list for software included in the SD card image file.</td>
+    </tr>
+    <tr>
+      <td><a href="./gui_demo_v2h_yolov8.html">How to Use Guide</a></td>
+      <td>A quick guide to using SD card image.</td>
+    </tr>
+  </tbody>
+</table>
+
 <p><br /><br /><br /></p>
-
-
 
 <h3 id="Video">Video</h3>
 <p>Following videos show the overview of DRP-AI TVM. Refer to them first to understand the overview.</p>
@@ -275,7 +371,7 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
             <a href="https://players.brightcove.net/5260471205001/default_default/index.html?videoId=6361751962112">DRP-AI TVM overview</a>
         </div>
         <div class="col-lg-4 col-xxl-3">
-            <a href="https://www.youtube.com/watch?v=IqeZnVBEUxY"><img src="img/how_to_run_onnx.png" alt="How to run ONNX model"></a> 
+            <a href="https://www.youtube.com/watch?v=IqeZnVBEUxY"><img src="img/how_to_run_onnx.png" alt="How to run ONNX model" /></a> 
         </div>
         <div class="col-lg-2 col-xxl-3">
             <a href="https://www.youtube.com/watch?v=IqeZnVBEUxY">How to run ONNX model (YouTube)</a> 
@@ -283,8 +379,6 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
 	</div>
 </div>
 <p><br /><br /><br /></p>
-
-
 
 <h3 id="hardware">Target hardware</h3>
 <div class="container">
@@ -301,20 +395,20 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
         </div>
 	</div>
 </div>
-<br />
+<p><br /></p>
 
 <table class="gstable ms-4 mb-1 Target">
     <tr>
-        <th style="text-align: center;" width=160></th>
-        <th style="text-align: center;" width=160>RZ/V2L</th>
-        <th style="text-align: center;" width=160>RZ/V2MA</th>
-        <th style="text-align: center;" width=160>RZ/V2M</th>
-        <th style="text-align: center;" width=160>RZ/V2H</th>
-        <th style="text-align: center;" width=160>RZ/V2N</th>
+        <th style="text-align: center;" width="160"></th>
+        <th style="text-align: center;" width="160">RZ/V2L</th>
+        <th style="text-align: center;" width="160">RZ/V2MA</th>
+        <th style="text-align: center;" width="160">RZ/V2M</th>
+        <th style="text-align: center;" width="160">RZ/V2H</th>
+        <th style="text-align: center;" width="160">RZ/V2N</th>
     </tr>
     <tr>
         <td></td>
-        <td><img src="img/RZ V2L.jpg" alt="Get Started"/></td>
+        <td><img src="img/RZ V2L.jpg" alt="Get Started" /></td>
         <td><img src="img/RZ V2MA.jpg" alt="Get Started" /></td>
         <td><img src="img/RZ V2M.jpg" alt="Get Started" /></td>
         <td><img src="img/RZ-V2H.jpg" alt="Get Started" /></td>
@@ -363,7 +457,16 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
 </table>
 <p><br /><br /><br /></p>
 
-
+<h3 id="Tips">Tips</h3>
+<h4 id="FAQ"><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/issues?q=is%3Aissue%20state%3Aclosed%20label%3AFAQ">FAQ</a></h4>
+<p>You can find a collection of frequently asked questions about this tool <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/issues?q=is%3Aissue%20state%3Aclosed%20label%3AFAQ">here</a>. Please consult it as appropriate.</p>
+<h4 id="Post-Processing Optimization Guide"><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/tips/post_processing_optimization_method">Post-Processing Optimization Guide</a></h4>
+<p>You can find a post-processing optimization guide <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/tips/post_processing_optimization_method">here</a>. This document provides comprehensive guidance on post-processing techniques.</p>
+<h4 id="How to obtain profiling data"><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/tips/profiling">How to obtain profiling data</a></h4>
+<p>You can find how to obtain profiling data <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/tree/main/how-to/tips/profiling">here</a>. This document explains about profiling function of DRP-AI TVM.</p>
+<h4 id="DRP-AI Pre-processing Runtime"><a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/docs/PreRuntime.md">DRP-AI Pre-processing Runtime</a></h4>
+<p>You can find how to use DRP-AI Pre-processing Runtime <a href="https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/docs/PreRuntime.md">here</a>. This document explains about DRP-AI Pre-processing Runtime, which includes its supported operations and APIs.</p>
+<p><br /><br /><br /></p>
 
 <!--
 <h3 id="examples">Performance examples</h3>
@@ -454,3 +557,4 @@ Download the Demo Binary and refer to How to Use Guide for more details.</p>
 	</div>
 </div>
 -->
+
