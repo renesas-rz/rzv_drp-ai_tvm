@@ -1,5 +1,5 @@
 /*
- * Original Code (C) Copyright Renesas Electronics Corporation 2023
+ * Original Code (C) Copyright Renesas Electronics Corporation 2026
  *
  *  *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
  *
@@ -24,7 +24,7 @@
 
 /***********************************************************************************************************************
 * File Name    : PreRuntime.h
-* Version      : 2.7.0
+* Version      : 2.8.0
 * Description  : PreRuntime Header file
 ***********************************************************************************************************************/
 #pragma once

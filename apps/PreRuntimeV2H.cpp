@@ -1,5 +1,5 @@
 /*
- * Original Code (C) Copyright Renesas Electronics Corporation 2023
+ * Original Code (C) Copyright Renesas Electronics Corporation 2026
  *
  *  *1 DRP-AI TVM is powered by EdgeCortix MERA(TM) Compiler Framework.
  *
@@ -24,7 +24,7 @@
 
 /***********************************************************************************************************************
 * File Name    : PreRuntime.cpp
-* Version      : 2.7.0
+* Version      : 2.8.0
 * Description  : PreRuntime Source file
 ***********************************************************************************************************************/
 
@@ -2443,6 +2443,24 @@ uint8_t PreRuntime::SetInputAddress(uint64_t in_addr)
     if (in_addr != internal_param_val.pre_in_addr && in_addr != INVALID_ADDR)
     {
         internal_param_val.pre_in_addr = in_addr;
+
+        /* Re-register address for object files. */
+        errno = 0;
+        drpai_adrconv.conv_address = drpai_obj_info.data_inout.start_address;
+        drpai_adrconv.org_address  = drpai_obj_info.drpai_address.data_in_addr;
+        drpai_adrconv.size         = this->Occupied_size;
+        drpai_adrconv.mode         = DRPAI_ADRCONV_MODE_REPLACE;
+#ifdef DEBUG_LOG
+        std::cout<<"[INFO] Object files Address Conversion"<<std::endl;
+        std::cout<<"       conv_address=0x"<<std::hex<<drpai_adrconv.conv_address<<std::endl;
+        std::cout<<"       org_address =0x"<<std::hex<<drpai_adrconv.org_address<<std::endl;
+        std::cout<<"       size        =0x"<<std::hex<<drpai_adrconv.size<<std::endl;
+#endif
+        if ( 0 != ioctl(drpai_obj_info.drpai_fd , DRPAI_SET_ADRCONV, &drpai_adrconv))
+        {
+            std::cerr << "[ERROR] Failed to run DRPAI_SET_ADRCONV for restoring DRP-AI Object files : errno=" <<  errno << std::endl;
+            return PRE_ERROR;
+        }
 
         /*Register input data address to DRP-AI Driver*/
         drpai_adrconv.conv_address = (uint64_t) in_addr;
