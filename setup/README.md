@@ -129,7 +129,7 @@ sudo ${TOOLCHAIN_SCRIPT}
 # Create symbolic link
 CORTEX_PATH=$(find /opt -name "cortexa55-poky-linux")
 if [ -n "$CORTEX_PATH" ]; then
-  sudo ln -s ${CORTEX_PATH} $(dirname ${CORTEX_PATH})/../aarch64-poky-linux
+  sudo ln -s ${CORTEX_PATH} ${CORTEX_PATH}/../aarch64-poky-linux
 fi
 ```
 

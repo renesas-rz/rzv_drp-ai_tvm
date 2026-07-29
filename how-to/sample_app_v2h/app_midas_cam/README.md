@@ -91,7 +91,7 @@ tar xvfz sample_midas.tar.gz
 cd sample_midas_cam/
 su
 export LD_LIBRARY_PATH=.
-/root/gstreamer_cam_test_CAM0_CN7.sh 1920x1080 # Execute only when using MIPI camera
+/root/gstreamer_cam_test_CAM0_CN7.sh 640x480 # Execute only when using MIPI camera
 ./app_midas_cam
 exit # After terminating the application.
 ```

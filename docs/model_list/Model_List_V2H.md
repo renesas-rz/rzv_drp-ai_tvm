@@ -43,8 +43,8 @@ Below is a list of AI models that Renesas has verified for conversion with the R
 |[face_landmark](./how_to_convert/How_to_download_ONNX_models.md)|192,192|613.5|1.6|Face Landmark Detection|0.6|
 |[hand_landmark](./how_to_convert/How_to_download_ONNX_models.md)|256,256|363.6|2.8|Hand Landmark Detection|2.0|
 |[MiDaS v2.1 Small](./how_to_convert/How_to_convert_MiDaS_onnx_models.md)|256,256|123.5|8.1|Depth Estimation|16.6|
-|[Paddle OCR V3 det](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|640,640|27.7|36.1|Text Detection|4.1|
-|[Paddle OCR V3 rec](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|48,480|43.3|23.1|Text Recognition|1.2|
+|[Paddle OCR V3 det](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|640,640|43.3|23.1|Text Detection　|1.2|
+|[Paddle OCR V3 rec](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|48,480|27.7|36.1|Text Recognition|4.1|
 
 ---
 ## **List of models for each task**
@@ -219,7 +219,7 @@ Please click on a task name to view its performance
 
 | AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
 |:--|--:|--:|--:|--:|
-|[Paddle OCR V3 det](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|640,640|27.7|36.1|4.1|
+|[Paddle OCR V3 det](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|640,640|43.3|23.1|1.2|
 
 </details>
 
@@ -227,7 +227,7 @@ Please click on a task name to view its performance
 
 | AI model | Input Shape | Inferences/s | Inference time<br>(ms) | Params<br>(M) |   
 |:--|--:|--:|--:|--:|
-|[Paddle OCR V3 rec](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|48,480|43.3|23.1|1.2|
+|[Paddle OCR V3 rec](./how_to_convert/How_to_convert_paddleOCR_V3_onnx_models.md)|48,480|27.7|36.1|4.1|
 
 </details>
 
