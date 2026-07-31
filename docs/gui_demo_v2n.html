@@ -30,10 +30,10 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="How to Use Guide" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","dateModified":"2026-01-13T16:11:47+09:00","description":"The best solution for starting your AI applications.","headline":"How to Use Guide","url":"https://rzv_drp-ai_tvm.github.io/rzv_drp-ai_tvm/gui_demo_v2n.html"}</script>
+{"@context":"https://schema.org","@type":"WebPage","dateModified":"2026-07-07T10:21:16+09:00","description":"The best solution for starting your AI applications.","headline":"How to Use Guide","url":"https://rzv_drp-ai_tvm.github.io/rzv_drp-ai_tvm/gui_demo_v2n.html"}</script>
 <!-- End Jekyll SEO tag -->
 
-    <link rel="stylesheet" href="assets/css/style.css?v=ffb63bd1152024625b2a2e2e54f27d6f8149b3e3">
+    <link rel="stylesheet" href="assets/css/style.css?v=381d9a3837248f29d1b915470dd76803da41857b">
     <script src="assets/js/drm-ai_tvm.js"></script>
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -82,20 +82,26 @@
 <ul>
   <li>Object Detection
     <ul>
+      <li>YOLO11-S, M, L (Dense model only)</li>
       <li>YOLOv8-S, M, L (Dense model only)</li>
-      <li>YOLOv5-S, M, L (Dense model only)</li>
       <li>YOLOX-S (Dense model and 70% sparse model)</li>
     </ul>
   </li>
   <li>Pose Estimation
     <ul>
+      <li>YOLOv8-N Pose (Dense model only)</li>
       <li>YOLOX-S Pose (Dense model only)</li>
       <li>YOLOX-S + HRNet (70% sparse model + 90% sparse model)</li>
     </ul>
   </li>
-  <li>Classification
+  <li>Facial Keypoint Detection
     <ul>
-      <li>ResNet50 (Dense model and 90% sparse model)</li>
+      <li>Face Landmarker (Dense model only)</li>
+    </ul>
+  </li>
+  <li>Instance Segmentation
+    <ul>
+      <li>YOLOv8-N Seg (Dense model only)</li>
     </ul>
   </li>
   <li>Depth Estimation
@@ -103,9 +109,9 @@
       <li>MiDaS (Dense model only)</li>
     </ul>
   </li>
-  <li>Semantic Segmentation
+  <li>Classification
     <ul>
-      <li>TopFormer-Tiny (Dense model only)</li>
+      <li>ResNet50 (Dense model and 90% sparse model)</li>
     </ul>
   </li>
 </ul>
@@ -155,7 +161,7 @@
       <td>Hereinafter referred to as the “RZ/V2N EVK”</td>
     </tr>
     <tr>
-      <td>USB PD (100W) + USB Type-C Cable</td>
+      <td>USB PD (60W) + USB Type-C Cable</td>
       <td> </td>
     </tr>
     <tr>
@@ -164,7 +170,7 @@
     </tr>
     <tr>
       <td>MIPI Camera*</td>
-      <td>e-con Systems e-CAM22_CURZH</td>
+      <td>e-con Systems e-CAM22_CURZH<br />Supported resolution: 1920x1080<br />* MiDaS application operates at 640x480 resolution.</td>
     </tr>
     <tr>
       <td>USB Camera*</td>
@@ -292,7 +298,7 @@ on RZ/V2N EVK.</li>
       </li>
     </ul>
   </li>
-  <li>Connect the USB PD 100W to the RZ/V2N EVK with USB Type-C cable.</li>
+  <li>Connect the USB PD 60W to the RZ/V2N EVK with USB Type-C cable.</li>
   <li>Turn the SW3 to ON.</li>
   <li>Turn the SW2 to ON to power on the RZ/V2N EVK.</li>
 </ol>
@@ -344,6 +350,11 @@ on RZ/V2N EVK.</li>
   <li>v1.10 issued on 13th January 2026
     <ul>
       <li>Update for RZ/V2N AI SDK v5.00 and DRP-AI TVM v2.6.0.</li>
+    </ul>
+  </li>
+  <li>v1.20 issued on 31st July 2026
+    <ul>
+      <li>Update for RZ/V2N AI SDK v6.30 and RUHMI for RZ/V R2026-06 (DRP-AI TVM v2.8.0).</li>
     </ul>
   </li>
 </ul>

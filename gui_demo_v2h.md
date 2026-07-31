@@ -12,18 +12,23 @@ Users can select the AI model applications on the GUI menu by using the USB mous
 This package supports the following AI models.
 
 * Object Detection
+  * YOLO11-S, M, L (Dense model only)
   * YOLOv8-S, M, L (Dense model only)
-  * YOLOv5-S, M, L (Dense model only)
   * YOLOX-S (Dense model and 70% sparse model)
 * Pose Estimation
+  * YOLOv8-N Pose (Dense model only)
   * YOLOX-S Pose (Dense model only)
   * YOLOX-S + HRNet (70% sparse model + 90% sparse model)
-* Classification
-  * ResNet50 (Dense model and 90% sparse model)
+* Facial Keypoint Detection
+  * Face Landmarker (Dense model only)
+* Instance Segmentation
+  * YOLOv8-N Seg (Dense model only)
+* Semantic Segmentation
+  * Deeplabv3 (Dense model and 90% sparse model)
 * Depth Estimation
   * MiDaS (Dense model only)
-* Semantic Segmentation
-  * TopFormer-Tiny (Dense model only)
+* Classification
+  * ResNet50 (Dense model and 90% sparse model)
 
 Sparse models are created by the pruning tool in DRP-AI extension package, and realize faster performance and lower foot print than Dense model.
 
@@ -60,7 +65,7 @@ Sparse models are created by the pruning tool in DRP-AI extension package, and r
 | RZ/V2H Evaluation Board Kit               | Hereinafter referred to as the "RZ/V2H EVK"                  |
 | USB PD (100W) + USB Type-C Cable          |                                                              |
 | micro SD Card                             | **Required 8GB or more of the capacity.**<br />This package is tested by using SDHC microSD 16GB. |
-| MIPI Camera*                              | e-con Systems e-CAM22_CURZH
+| MIPI Camera*                              | e-con Systems e-CAM22_CURZH<br />Supported resolution: 1920x1080<br />* MiDaS application operates at 640x480 resolution.
 | USB Camera*                               | Supported resolution: 640x480<br /> Supported format: 'YUYV' (YUYV 4:2:2) |
 | USB Hub                                   | Only when using a USB camera.                                |
 | HDMI Monitor + HDMI Cable                 |                                                              |
@@ -172,3 +177,5 @@ Users can select and start the AI model applications on the GUI menu by using th
   * Update for RZ/V2H AI SDK v5.20 and DRP-AI TVM v2.5.0.
 * v1.40 issued on 13th January 2026
   * Update for RZ/V2H AI SDK v5.20 and DRP-AI TVM v2.6.0.
+* v1.50 issued on 31st July 2026
+  * Update for RZ/V2H AI SDK v6.00 and RUHMI for RZ/V R2026-06 (DRP-AI TVM v2.8.0).

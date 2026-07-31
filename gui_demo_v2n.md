@@ -12,18 +12,21 @@ Users can select the AI model applications on the GUI menu by using the USB mous
 This package supports the following AI models.
 
 * Object Detection
+  * YOLO11-S, M, L (Dense model only)
   * YOLOv8-S, M, L (Dense model only)
-  * YOLOv5-S, M, L (Dense model only)
   * YOLOX-S (Dense model and 70% sparse model)
 * Pose Estimation
+  * YOLOv8-N Pose (Dense model only)
   * YOLOX-S Pose (Dense model only)
   * YOLOX-S + HRNet (70% sparse model + 90% sparse model)
-* Classification
-  * ResNet50 (Dense model and 90% sparse model)
+* Facial Keypoint Detection
+  * Face Landmarker (Dense model only)
+* Instance Segmentation
+  * YOLOv8-N Seg (Dense model only)
 * Depth Estimation
   * MiDaS (Dense model only)
-* Semantic Segmentation
-  * TopFormer-Tiny (Dense model only)
+* Classification
+  * ResNet50 (Dense model and 90% sparse model)
 
 Sparse models are created by the pruning tool in DRP-AI extension package, and realize faster performance and lower foot print than Dense model.
 
@@ -58,9 +61,9 @@ Sparse models are created by the pruning tool in DRP-AI extension package, and r
 | Item                                      | Note                                                         |
 | ----------------------------------------- | ------------------------------------------------------------ |
 | RZ/V2N Evaluation Board Kit               | Hereinafter referred to as the "RZ/V2N EVK"                  |
-| USB PD (100W) + USB Type-C Cable          |                                                              |
+| USB PD (60W) + USB Type-C Cable          |                                                              |
 | micro SD Card                             | **Required 8GB or more of the capacity.**<br />This package is tested by using SDHC microSD 16GB. |
-| MIPI Camera*                              | e-con Systems e-CAM22_CURZH
+| MIPI Camera*                              | e-con Systems e-CAM22_CURZH<br />Supported resolution: 1920x1080<br />* MiDaS application operates at 640x480 resolution.
 | USB Camera*                               | Supported resolution: 640x480<br /> Supported format: 'YUYV' (YUYV 4:2:2) |
 |USB Hub                                    | Only when using a USB camera.                                |
 | HDMI Monitor + HDMI Cable                 |                                                              |
@@ -135,7 +138,7 @@ on RZ/V2N EVK.
     * Please connect to CN7 terminal.
     * Regarding how to connect the MIPI camera, please refer to the following link.
         * [connect_e-cam22_curzh_to_rzv2h_evk.png](https://github.com/renesas-rz/rzv_drp-ai_tvm/blob/main/how-to/img/connect_e-cam22_curzh_to_rzv2h_evk.png)
-6. Connect the USB PD 100W to the RZ/V2N EVK with USB Type-C cable.
+6. Connect the USB PD 60W to the RZ/V2N EVK with USB Type-C cable.
 7. Turn the SW3 to ON.
 8. Turn the SW2 to ON to power on the RZ/V2N EVK.
 
@@ -167,3 +170,5 @@ Users can select and start the AI model applications on the GUI menu by using th
   * First version based on RZ/V2N AI SDK v5.00 and DRP-AI TVM v2.5.0.
 * v1.10 issued on 13th January 2026
   * Update for RZ/V2N AI SDK v5.00 and DRP-AI TVM v2.6.0.
+* v1.20 issued on 31st July 2026
+  * Update for RZ/V2N AI SDK v6.30 and RUHMI for RZ/V R2026-06 (DRP-AI TVM v2.8.0).
